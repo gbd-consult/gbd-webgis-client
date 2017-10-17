@@ -1,0 +1,8 @@
+node_modules
+*.swp
+dist
+.awcache
+.idea
+*.iml
+.DS_Store
+.generated*
