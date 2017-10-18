@@ -21,7 +21,10 @@ let webpackConfig = {
     },
 
     resolve: {
-        extensions: ['.ts', '.tsx', '.js', '.jsx']
+        extensions: ['.ts', '.tsx', '.js', '.jsx'],
+        alias: {
+            openlayers: 'openlayers/dist/ol-debug.js'
+        }
     },
 
     module: {
