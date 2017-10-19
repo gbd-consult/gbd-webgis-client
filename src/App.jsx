@@ -13,7 +13,7 @@ export class App extends app.Component {
     async componentDidMount() {
         app.config.init(this.config());
 
-        let map = await app.map.init();
+        let map = await app.loadMap();
         map.setTarget('map-container');
     }
 

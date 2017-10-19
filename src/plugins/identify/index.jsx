@@ -3,7 +3,7 @@ import * as md from 'react-md';
 import axios from 'axios';
 
 import app from 'app';
-import ox from 'ox';
+import ol from 'ol-all';
 
 async function slow(n) {
     /*global Promise setTimeout*/
@@ -51,7 +51,7 @@ export class Plugin extends app.Component {
 
         this.emit('infopanel.update', this.formatInfo(info));
 
-        let geom = new ox.format.WKT().readGeometry(info.data.geometry);
+        let geom = new ol.format.WKT().readGeometry(info.data.geometry);
         geom.transform(
             app.config.str('map.proj.server'),
             app.config.str('map.proj.client')
@@ -65,14 +65,14 @@ export class Button extends app.Component {
 
 
     onButtonClick() {
-        this.pointer = new ox.interaction.Pointer({
+        this.pointer = new ol.interaction.Pointer({
             handleDownEvent: evt => this.onMapDown(evt)
         });
         app.map.get().addInteraction(this.pointer);
     }
 
     onMapDown(evt) {
-        let xy = ox.proj.transform(evt.coordinate,
+        let xy = ol.proj.transform(evt.coordinate,
             app.config.str('map.proj.client'),
             app.config.str('map.proj.server')
         );

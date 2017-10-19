@@ -1,6 +1,6 @@
 import React from 'react';
 import app from 'app';
-import ox from 'ox';
+import ol from 'ol-all';
 
 const LAYER_NAME = 'markerLayer';
 
@@ -19,13 +19,13 @@ export class Plugin extends app.Component {
 
     addlayer() {
         this.removeLayer();
-        let la = new ox.layer.Vector({
-            source: new ox.source.Vector(),
-            style: new ox.style.Style({
-                fill: new ox.style.Fill({
+        let la = new ol.layer.Vector({
+            source: new ol.source.Vector(),
+            style: new ol.style.Style({
+                fill: new ol.style.Fill({
                     color: 'rgba(255, 0, 0, 0.2)'
                 }),
-                stroke: new ox.style.Stroke({
+                stroke: new ol.style.Stroke({
                     color: '#ffcc33',
                     width: 2
                 }),
@@ -42,12 +42,12 @@ export class Plugin extends app.Component {
     }
 
     setPoint(xy) {
-        this.setGeometry(new ox.geom.Circle(xy, 50));
+        this.setGeometry(new ol.geom.Circle(xy, 50));
     }
 
     setGeometry(geom) {
         let la = this.addlayer();
-        la.getSource().addFeature(new ox.Feature(geom));
+        la.getSource().addFeature(new ol.Feature(geom));
 
 
     }

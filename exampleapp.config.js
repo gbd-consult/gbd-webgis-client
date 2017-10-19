@@ -8,15 +8,23 @@ let conf = {
 
     appConfig: {
 
+        qgis: {
+            server: 'http://qwc.gbd-consult.de/cgi-bin/qgis_mapserv.fcgi',
+            map: '/var/www/qwc1/projekte/alkishh.qgs'
+
+        },
+
         server: {
             url: 'http://qwc.gbd-consult.de/',
-            wms: {
-                url: 'http://qwc.gbd-consult.de/cgi-bin/qgis_mapserv.fcgi?map=/var/www/qwc1/projekte/alkishh.qgs',
-                layers: 'Flächen (Wohnbauflächen),Grenzen (Wohnbauflächen),Flächen (Sport und Freizeit),Grenzen (Sport und Freizeit),Punkte (Sport und Freizeit),Beschriftungen (Sport und Freizeit),Flächen (Industrie und Gewerbe),Grenzen (Industrie und Gewerbe),Linien (Industrie und Gewerbe),Punkte (Industrie und Gewerbe),Beschriftungen (Industrie und Gewerbe),Linien (Politische Grenzen),Flächen (Gewässer),Grenzen (Gewässer),Linien (Gewässer),Punkte (Gewässer),Beschriftungen (Gewässer),Flächen (Vegetation),Grenzen (Vegetation),Punkte (Vegetation),Beschriftungen (Vegetation),Linien (Topographie),Punkte (Topographie),Flächen (Friedhöfe),Grenzen (Friedhöfe),Flächen (Verkehr),Grenzen (Verkehr),Linien (Verkehr),Punkte (Verkehr),Beschriftungen (Verkehr),Grenzen (Rechtliche Festlegungen),Beschriftungen (Rechtliche Festlegungen),Beschriftungen (Lagebezeichnungen),Flächen (Gebäude),Grenzen (Gebäude),Linien (Gebäude),Punkte (Gebäude),Beschriftungen (Gebäude),Linien (Flurstücke),Beschriftungen (Flurstücke),Grenzen (Flurstücke),Flurstücke,Gewässerbauwerke',
-            }
         },
 
         map: {
+            background: 'osm',
+            zoom: 16,
+            center: {
+                lon: 10.001389,
+                lat: 53.565278
+            },
             proj: {
                 server: 'EPSG:32632',
                 client: 'EPSG:3857',

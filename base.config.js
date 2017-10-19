@@ -4,6 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const WebpackPreBuildPlugin = require('pre-build-webpack');
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 
 const SRC = 'src';
 const OUT = 'dist';
@@ -32,7 +33,7 @@ let webpackConfig = {
         extensions: ['.js', '.jsx'],
     },
 
-    devtool: 'cheap-eval-source-map',
+    //devtool: 'cheap-eval-source-map',
 
     module: {
 
@@ -99,7 +100,8 @@ let webpackConfig = {
         new ExtractTextPlugin({
             filename: 'index.css',
             allChunks: true,
-        })
+        }),
+        new UglifyJSPlugin()
     ],
 
 };
@@ -147,6 +149,13 @@ function preBuild(conf) {
 
     if (src !== dst)
         fs.writeFileSync(dstPath, src);
+
+    let olGenerate = require('./src/node_modules/ol-all/generate');
+    olGenerate(
+        __dirname,
+        path.resolve(__dirname, './src/node_modules/ol-all/index.js'),
+        true
+    );
 }
 
 let makeConfig = function (conf) {
