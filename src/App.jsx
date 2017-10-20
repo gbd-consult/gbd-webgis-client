@@ -1,7 +1,7 @@
 import React from 'react';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 
-import './lib.sass';
+import 'ol/ol.css';
 import './index.sass';
 import './index.html';
 

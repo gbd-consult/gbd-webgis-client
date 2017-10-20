@@ -2,67 +2,52 @@
 
 const path = require('path');
 const fs = require('fs');
+
+const webpack = require('webpack');
+const merge = require('webpack-merge');
+
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const WebpackPreBuildPlugin = require('pre-build-webpack');
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 
 const SRC = 'src';
 const OUT = 'dist';
 
-let here = p => path.resolve(__dirname, p);
+let here = (...paths) => path.resolve(__dirname, ...paths);
 
+let baseConfig = {
 
-let webpackConfig = {
     entry: [
         'babel-polyfill',
-        './' + SRC + '/.generated.index.jsx'
+        here(SRC, '.generated.index.jsx')
     ],
 
     output: {
-        publicPath: OUT,
+        publicPath: '',
         path: here(OUT),
         filename: 'index.js',
-    },
-
-    devServer: {
-        inline: true,
-        port: 8080
     },
 
     resolve: {
         extensions: ['.js', '.jsx'],
     },
 
-    //devtool: 'cheap-eval-source-map',
-
     module: {
 
         loaders: [
-            // {
-            //     test: /\.tsx?$/,
-            //     exclude: path.resolve(__dirname, 'node_modules'),
-            //     loader: 'awesome-typescript-loader',
-            //     options: {
-            //         useCache: true,
-            //
-            //
-            //     }
-            // },
             {
                 test: /\.jsx?$/,
                 enforce: 'pre',
-                exclude: here('node_modules'),
+                include: here(SRC),
                 loader: 'eslint-loader',
                 options: {
                     failOnError: true,
                     failOnWarning: false,
                     cacheDirectory: here('.cache'),
                 }
-
             },
             {
                 test: /\.jsx?$/,
-                exclude: here('node_modules'),
+                include: here(SRC),
                 loader: 'babel-loader',
                 options: {
                     presets: ['env', 'react'],
@@ -93,74 +78,59 @@ let webpackConfig = {
                     name: '[name].[ext]',
                 }
             }
-
         ]
     },
     plugins: [
         new ExtractTextPlugin({
             filename: 'index.css',
             allChunks: true,
-        }),
-        new UglifyJSPlugin()
+        })
     ],
 
 };
 
-let replacers = {
+let buildConfigs = {};
 
-    pluginImports(conf) {
-        return conf.plugins
-            .map(name => `import * as ${name} from './plugins/${name}';`)
-            .join('\n');
+buildConfigs.dev = merge(baseConfig, {
+    devServer: {
+        hot: true,
+        inline: true,
+        port: 8080
     },
+    devtool: 'cheap-eval-source-map',
+    plugins: [
+        new webpack.HotModuleReplacementPlugin()
+    ]
+});
 
-    toolbarItems(conf) {
-        return conf.toolbar
-            .map((tag, n) => `<${tag} key={${n}}/>`)
-            .join(',\n');
-    },
 
-    pluginComponents(conf) {
-        return conf.plugins
-            .map((name, n) => `<${name}.Plugin key={${n}} />`)
-            .join(',\n');
-    },
+buildConfigs.prod = merge(baseConfig, {
+    plugins: [
+        new webpack.optimize.UglifyJsPlugin({
+            parallel: true,
+        })
+    ]
+});
 
-    appConfig(conf) {
-        return JSON.stringify(conf.appConfig, null, 4);
-    }
-};
+const makeIndex = require('./tools/make-index');
+const makeOl = require('./tools/make-ol');
 
-function preBuild(conf) {
-    let dir = path.resolve(__dirname, SRC);
+function preBuild(appConfig, env) {
+    makeIndex(
+        here(SRC, 'index.template.jsx'),
+        here(SRC, '.generated.index.jsx'),
+        appConfig);
 
-    let srcPath = dir + '/index.template.jsx';
-    let dstPath = dir + '/.generated.index.jsx';
-
-    let src = fs.readFileSync(srcPath, 'utf8');
-    let dst = '';
-
-    try {
-        dst = fs.readFileSync(dstPath, 'utf8');
-    } catch (e) {
-    }
-
-    src = src.replace(/\/\/\s+@(\w+)/g, (_, w) => replacers[w](conf));
-
-    if (src !== dst)
-        fs.writeFileSync(dstPath, src);
-
-    let olGenerate = require('./src/node_modules/ol-all/generate');
-    olGenerate(
-        __dirname,
-        path.resolve(__dirname, './src/node_modules/ol-all/index.js'),
-        true
-    );
+    makeOl(
+        here('node_modules'),
+        here(SRC),
+        here(SRC, 'node_modules/ol-all/index.js'),
+        env.build === 'dev');
 }
 
-let makeConfig = function (conf) {
-    let c = Object.assign({}, webpackConfig);
-    let p = new WebpackPreBuildPlugin(() => preBuild(conf));
+let makeConfig = function (appConfig, env) {
+    let c = Object.assign({}, buildConfigs[env.build]);
+    let p = new WebpackPreBuildPlugin(() => preBuild(appConfig, env));
     c.plugins = [p].concat(c.plugins);
     return c;
 };

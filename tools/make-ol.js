@@ -1,7 +1,10 @@
-/* eslint-disable */
+/// create the ol-all stub
 
-let fs = require('fs');
-let path = require('path');
+const fs = require('fs');
+const path = require('path');
+
+const writeIfChanged = require('./write-if-changed');
+
 
 function allFiles(dir) {
     let files = [];
@@ -50,6 +53,8 @@ function enumUsages(root) {
     let ls = {};
 
     for (let file of allFiles(root)) {
+        if (file.includes('ol-all'))
+            continue;
         let text = fs.readFileSync(file, 'utf8'),
             m = text.match(/ol(\.\w+)+/g);
 
@@ -86,9 +91,7 @@ function genCode(imports) {
     lines.push('');
     lines.push('');
 
-
     for (let u of Object.keys(imports).sort()) {
-
         if (imports[u]) {
             let [id, pth] = imports[u];
             lines.push(`import ${id} from '${pth}';`);
@@ -103,23 +106,14 @@ function genCode(imports) {
     return lines.join('\n');
 }
 
-function main(rootDir, outPath, genAll) {
-    let mods = enumMods(path.resolve(rootDir, 'node_modules/ol'));
-    let usages = genAll ?
+function main(libDir, sourceDir, outPath, generateAll) {
+    let mods = enumMods(path.resolve(libDir, 'ol'));
+    let usages = generateAll ?
         Object.keys(mods) :
-        enumUsages(path.resolve(rootDir, 'src'));
-
-    let code = genCode(enumImports(mods, usages));
-    let old = '';
-
-    try {
-        old = fs.readFileSync(outPath, 'utf8');
-    } catch (e) {
-
-    }
-
-    if (code !== old)
-        fs.writeFileSync(outPath, code, 'utf8');
+        enumUsages(sourceDir);
+    let imports = enumImports(mods, usages);
+    let code = genCode(imports);
+    writeIfChanged(outPath, code);
 }
 
 module.exports = main;

@@ -2,11 +2,11 @@
 
 let base = require('./base.config');
 
-let conf = {
+let appConfig = {
     plugins: ['marker', 'identify', 'test'],
     toolbar: ['identify.Button', 'test.Button'],
 
-    appConfig: {
+    runtimeConfig: {
 
         qgis: {
             server: 'http://qwc.gbd-consult.de/cgi-bin/qgis_mapserv.fcgi',
@@ -36,4 +36,4 @@ let conf = {
     }
 };
 
-module.exports = base.makeConfig(conf);
+module.exports = env => base.makeConfig(appConfig, env);
