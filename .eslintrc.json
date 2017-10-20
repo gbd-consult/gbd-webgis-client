@@ -10,7 +10,8 @@
         "console": false,
         "setTimeout": false,
         "Promise": false,
-        "Node": false
+        "Node": false,
+        "window": false
     },
     "extends": "eslint:recommended",
     "rules": {

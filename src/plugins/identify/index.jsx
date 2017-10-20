@@ -1,12 +1,12 @@
 import React from 'react';
-import * as md from 'react-md';
+import IconButton from 'material-ui/IconButton';
+import FontIcon from 'material-ui/FontIcon';
 import axios from 'axios';
 
 import app from 'app';
 import ol from 'ol-all';
 
 async function slow(n) {
-    /*global Promise setTimeout*/
     return new Promise(res => setTimeout(res, n))
 }
 
@@ -68,7 +68,7 @@ export class Button extends app.Component {
         this.pointer = new ol.interaction.Pointer({
             handleDownEvent: evt => this.onMapDown(evt)
         });
-        app.map.get().addInteraction(this.pointer);
+        app.map().addInteraction(this.pointer);
     }
 
     onMapDown(evt) {
@@ -77,21 +77,18 @@ export class Button extends app.Component {
             app.config.str('map.proj.server')
         );
         this.emit('identify.coordinate', xy);
-        app.map.get().removeInteraction(this.pointer);
+        app.map().removeInteraction(this.pointer);
         return false;
     }
 
 
     render() {
         return (
-            <md.Button
-                primary
-                floating
+            <IconButton
                 onClick={() => this.onButtonClick()}
-                icon
-                className="map-control-btn"
-                children="info"
-            />
+            >
+                <FontIcon className="material-icons">info</FontIcon>
+            </IconButton>
         );
     }
 }

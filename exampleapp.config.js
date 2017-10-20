@@ -21,10 +21,10 @@ let conf = {
         map: {
             background: 'osm',
             zoom: 16,
-            center: {
-                lon: 10.001389,
-                lat: 53.565278
-            },
+            center: [
+                10.001389,
+                53.565278
+            ],
             proj: {
                 server: 'EPSG:32632',
                 client: 'EPSG:3857',

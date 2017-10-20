@@ -1,4 +1,5 @@
 import React from 'react';
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 
 import './lib.sass';
 import './index.sass';
@@ -23,23 +24,25 @@ export class App extends app.Component {
     }
 
     toolbar() {
-        return null
+        return null;
     }
 
     plugins() {
-        return null
+        return null;
     }
 
     render() {
         return (
-            <div id='app-wrap'>
-                <div id='map-container'/>
-                <InfoPanel/>
-                <Toolbar>
-                    {this.toolbar()}
-                </Toolbar>
-                {this.plugins()}
-            </div>
+            <MuiThemeProvider>
+                <div id='app-wrap'>
+                    <div id='map-container'/>
+                    <InfoPanel/>
+                    <Toolbar>
+                        {this.toolbar()}
+                    </Toolbar>
+                    {this.plugins()}
+                </div>
+            </MuiThemeProvider>
         );
     }
 }

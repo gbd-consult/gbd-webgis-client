@@ -1,5 +1,7 @@
 import React from 'react';
-import * as md from 'react-md';
+import Drawer from 'material-ui/Drawer';
+import CircularProgress from 'material-ui/CircularProgress';
+
 import app from 'app';
 
 
@@ -18,17 +20,17 @@ export class InfoPanel extends app.Component {
 
         this.on('infopanel.wait', () =>
             this.emit('infopanel.update',
-                <md.CircularProgress id='InfoPanelProgress'/>));
+                <CircularProgress />));
     }
 
     render() {
         return (
-            <md.Drawer
-                position='right'
-                visible={this.state.visible}
+            <Drawer
+                openSecondary
+                open={this.state.visible}
             >
                 {this.state.content}
-            </md.Drawer>
+            </Drawer>
         )
     }
 }
