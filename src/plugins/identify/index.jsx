@@ -53,8 +53,8 @@ export class Plugin extends app.Component {
 
         let geom = new ol.format.WKT().readGeometry(info.data.geometry);
         geom.transform(
-            app.config.str('map.proj.server'),
-            app.config.str('map.proj.client')
+            app.config.str('map.crs.server'),
+            app.config.str('map.crs.client')
         );
         this.emit('marker.show.geometry', geom);
     }
@@ -73,8 +73,8 @@ export class Button extends app.Component {
 
     onMapDown(evt) {
         let xy = ol.proj.transform(evt.coordinate,
-            app.config.str('map.proj.client'),
-            app.config.str('map.proj.server')
+            app.config.str('map.crs.client'),
+            app.config.str('map.crs.server')
         );
         this.emit('identify.coordinate', xy);
         app.map().removeInteraction(this.pointer);

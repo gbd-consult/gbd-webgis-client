@@ -20,7 +20,7 @@ export class Plugin extends app.Component {
         this.removeLayer();
         let la = new ol.layer.Vector({
             source: new ol.source.Vector({
-                projection: app.config.str('map.proj.client')
+                projection: app.config.str('map.crs.client')
             }),
             style: new ol.style.Style({
                 fill: new ol.style.Fill({

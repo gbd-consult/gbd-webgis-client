@@ -1,0 +1,1 @@
+A control to show and edit map coordinates.

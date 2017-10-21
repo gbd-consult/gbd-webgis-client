@@ -3,12 +3,12 @@
 let base = require('./base.config');
 
 let appConfig = {
-    plugins: ['marker', 'identify', 'test'],
-    toolbar: ['identify.Button', 'test.Button'],
+    plugins: ['marker', 'identify', 'test', 'position'],
+    toolbar: ['identify.Button', 'test.Button', 'position.Control'],
 
     runtimeConfig: {
 
-        qgis: {
+        qgis2: {
             server: 'http://qwc.gbd-consult.de/cgi-bin/qgis_mapserv.fcgi',
             map: '/var/www/qwc1/projekte/alkishh.qgs'
 
@@ -20,12 +20,16 @@ let appConfig = {
 
         map: {
             background: 'osm',
-            zoom: 16,
+            zoom: {
+                init: 14,
+                min: 10,
+                max: 28
+            },
             center: [
-                10.001389,
-                53.565278
+                1112420,
+                7085510
             ],
-            proj: {
+            crs: {
                 server: 'EPSG:32632',
                 client: 'EPSG:3857',
                 defs: {

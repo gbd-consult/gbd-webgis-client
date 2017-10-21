@@ -13,7 +13,7 @@ export class Button extends app.Component {
     click() {
         let coord = ol.proj.fromLonLat(
             app.config.object('map.center'),
-            app.config.str('map.proj.client'));
+            app.config.str('map.crs.client'));
 
         this.emit('marker.show.coordinate', coord);
         this.emit('infopanel.update', <div>hello</div>);
