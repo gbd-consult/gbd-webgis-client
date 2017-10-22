@@ -1,13 +1,19 @@
-/* eslint-disable */
+module.exports = {
 
-let base = require('./base.config');
+    build: {
+        title: 'Example App',
+        plugins: ['marker', 'identify', 'test', 'position'],
+        ui: `
+            <ui.Toolbar>
+                <identify.Button />
+                <test.Button />
+            </ui.Toolbar>
+            <position.Control />
+            <ui.InfoPanel />
+        `
+    },
 
-let appConfig = {
-    plugins: ['marker', 'identify', 'test', 'position'],
-    toolbar: ['identify.Button', 'test.Button', 'position.Control'],
-
-    runtimeConfig: {
-
+    runtime: {
         qgis2: {
             server: 'http://qwc.gbd-consult.de/cgi-bin/qgis_mapserv.fcgi',
             map: '/var/www/qwc1/projekte/alkishh.qgs'
@@ -39,5 +45,3 @@ let appConfig = {
         }
     }
 };
-
-module.exports = env => base.makeConfig(appConfig, env);

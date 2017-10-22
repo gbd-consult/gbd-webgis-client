@@ -5,7 +5,7 @@ import CircularProgress from 'material-ui/CircularProgress';
 import app from 'app';
 
 
-export class InfoPanel extends app.Component {
+export default class InfoPanel extends app.Component {
     constructor(props) {
         super(props);
         this.state = {

@@ -4,9 +4,9 @@
     "description": "",
     "main": "index.html",
     "scripts": {
-        "dev": "rimraf dist/* && webpack --progress --color --env.build='dev' --config $APP.config.js",
-        "devserv": "webpack-dev-server --progress --color --env.build='dev' --config $APP.config.js",
-        "prod": "rimraf dist/* && webpack --progress --json --env.build='prod' --config $APP.config.js | webpack-bundle-size-analyzer"
+        "dev": "webpack --progress --color --env.build=dev --env.appConfig=$APP.config.js",
+        "dev-server": "webpack-dev-server --progress --color --env.build='dev' --env.appConfig=$APP.config.js",
+        "prod": "webpack --progress --json --env.build='prod' --env.appConfig=$APP.config.js | webpack-bundle-size-analyzer"
     },
     "author": "",
     "license": "ISC",
@@ -26,7 +26,6 @@
         "material-ui": "^0.19.4",
         "node-sass": "^4.5.3",
         "ol": "^4.4.2",
-        "pre-build-webpack": "^0.1.0",
         "proj4": "^2.4.4",
         "query-string": "^5.0.0",
         "react": "^16.0.0",

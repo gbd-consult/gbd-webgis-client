@@ -2,7 +2,7 @@ import React from 'react';
 import app from 'app';
 
 
-export class Toolbar extends app.Component {
+export default class Toolbar extends app.Component {
     render() {
         return (
             <div>

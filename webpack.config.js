@@ -5,20 +5,20 @@ const fs = require('fs');
 
 const webpack = require('webpack');
 const merge = require('webpack-merge');
+const rimraf = require('rimraf');
 
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const WebpackPreBuildPlugin = require('pre-build-webpack');
 
 const SRC = 'src';
 const OUT = 'dist';
 
 let here = (...paths) => path.resolve(__dirname, ...paths);
 
-let baseConfig = {
+let defaults = {
 
     entry: [
         'babel-polyfill',
-        here(SRC, '.generated.index.jsx')
+        here(SRC, 'index.jsx')
     ],
 
     output: {
@@ -31,36 +31,47 @@ let baseConfig = {
         extensions: ['.js', '.jsx'],
     },
 
-    module: {
+    resolveLoader: {
+        alias: {
+            'template-loader': './tools/template-loader.js'
+        }
+    },
 
+    module: {
         loaders: [
             {
-                test: /\.jsx?$/,
+                test: here(SRC, 'index'),
                 enforce: 'pre',
-                include: here(SRC),
-                loader: 'eslint-loader',
-                options: {
-                    failOnError: true,
-                    failOnWarning: false,
-                    cacheDirectory: here('.cache'),
-                }
+                loader: 'template-loader'
             },
             {
                 test: /\.jsx?$/,
                 include: here(SRC),
-                loader: 'babel-loader',
-                options: {
-                    presets: ['env', 'react'],
-                    cacheDirectory: here('.cache'),
-                }
+                use: [
+                    {
+                        loader: 'babel-loader',
+                        options: {
+                            presets: ['env', 'react'],
+                            cacheDirectory: here('.cache'),
+                        }
+                    },
+                    {
+                        loader: 'eslint-loader',
+                        options: {
+                            failOnError: true,
+                            failOnWarning: false,
+                            cacheDirectory: here('.cache'),
+                        }
+                    }
+                ]
             },
             {
                 test: /\.css$/,
-                loader: ExtractTextPlugin.extract(['css-loader'])
+                loader: ['style-loader', 'css-loader']
             },
             {
                 test: /\.(sass|scss)$/,
-                loader: ExtractTextPlugin.extract(['css-loader', 'sass-loader'])
+                loader: ['style-loader', 'css-loader', 'sass-loader']
             },
             {
                 test: /\.html$/,
@@ -80,18 +91,12 @@ let baseConfig = {
             }
         ]
     },
-    plugins: [
-        new ExtractTextPlugin({
-            filename: 'index.css',
-            allChunks: true,
-        })
-    ],
-
+    plugins: []
 };
 
-let buildConfigs = {};
+let webpackConfigs = {};
 
-buildConfigs.dev = merge(baseConfig, {
+webpackConfigs.dev = merge(defaults, {
     devServer: {
         hot: true,
         inline: true,
@@ -104,7 +109,7 @@ buildConfigs.dev = merge(baseConfig, {
 });
 
 
-buildConfigs.prod = merge(baseConfig, {
+webpackConfigs.prod = merge(defaults, {
     plugins: [
         new webpack.optimize.UglifyJsPlugin({
             parallel: true,
@@ -112,27 +117,34 @@ buildConfigs.prod = merge(baseConfig, {
     ]
 });
 
-const makeIndex = require('./tools/make-index');
-const makeOl = require('./tools/make-ol');
+
+const buildOl = require('./tools/build-ol');
+const PrePostPlugin = require('./tools/pre-post-plugin');
 
 function preBuild(appConfig, env) {
-    makeIndex(
-        here(SRC, 'index.template.jsx'),
-        here(SRC, '.generated.index.jsx'),
-        appConfig);
-
-    makeOl(
+    rimraf.sync(here(OUT));
+    buildOl(
         here('node_modules'),
         here(SRC),
         here(SRC, 'node_modules/ol-all/index.js'),
         env.build === 'dev');
 }
 
-let makeConfig = function (appConfig, env) {
-    let c = Object.assign({}, buildConfigs[env.build]);
-    let p = new WebpackPreBuildPlugin(() => preBuild(appConfig, env));
+function postBuild(appConfig, env) {
+
+}
+
+
+let config = function (env) {
+    let appConfig = require(here(env.appConfig));
+    let c = Object.assign({}, webpackConfigs[env.build]);
+    let p = new PrePostPlugin(
+        () => preBuild(appConfig, env),
+        () => postBuild(appConfig, env)
+    );
     c.plugins = [p].concat(c.plugins);
+    c.module.loaders[0].options = {appConfig};
     return c;
 };
 
-module.exports = {makeConfig};
+module.exports = config;

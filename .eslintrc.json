@@ -12,6 +12,7 @@
         "Promise": false,
         "Node": false,
         "window": false,
+        "document": false,
         "URL": false
     },
     "extends": "eslint:recommended",
