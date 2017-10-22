@@ -1,0 +1,9 @@
+/node_modules
+src/node_modules/ol-all/index.js
+*.swp
+dist
+.cache
+.idea
+*.iml
+.DS_Store
+.temp*
