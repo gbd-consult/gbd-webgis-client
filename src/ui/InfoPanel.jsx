@@ -27,6 +27,7 @@ export default class InfoPanel extends app.Component {
         return (
             <Drawer
                 openSecondary
+                width="30%"
                 open={this.state.visible}
             >
                 {this.state.content}
