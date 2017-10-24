@@ -13,10 +13,10 @@ export class Plugin extends app.Component {}
 export class Button extends app.Component {
 
     onClick() {
-        let center = app.config.object('map.center');
-        this.emit('marker.show.coordinate', center);
+        let point = app.config.object('map.center');
+        this.emit('marker.set', {point});
         this.emit('infopanel.update', <div>Chewie we're home!</div>);
-        app.map().getView().setCenter(center);
+        app.map().getView().setCenter(point);
         app.map().getView().setZoom(18);
     }
 
