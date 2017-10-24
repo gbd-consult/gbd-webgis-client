@@ -13,13 +13,17 @@
         "Node": false,
         "window": false,
         "document": false,
-        "URL": false
+        "URL": false,
+        "module": false,
+        "require": false
     },
     "extends": "eslint:recommended",
     "rules": {
         "require-await": "off",
         "no-unused-vars": "off",
         "no-console": "off",
+        "no-extra-semi": "warn",
+        "no-unreachable": "warn",
         "no-undef": "error"
     }
 }
