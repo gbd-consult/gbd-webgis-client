@@ -8,12 +8,14 @@ module.exports = {
         title: 'Example App',
 
         // plugins to include
-        plugins: ['demo', 'marker', 'position'],
+        plugins: ['demo', 'marker', 'position', 'infopanel_toggle'],
 
         // application ui (must be valid JSX)
         ui: `
+            <ui.Searchbar/>
             <ui.Toolbar>
                 <demo.Button />
+                <infopanel_toggle.Button />
             </ui.Toolbar>
             <position.Control />
             <ui.InfoPanel />

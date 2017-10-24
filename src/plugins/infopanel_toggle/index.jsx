@@ -11,13 +11,21 @@ export class Plugin extends app.Component {}
 
 
 export class Button extends app.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            visible: false
+        }
+    }
 
     onClick() {
-        let center = app.config.object('map.center');
-        this.emit('marker.show.coordinate', center);
-        this.emit('infopanel.update', <div>Chewie we're home!</div>);
-        app.map().getView().setCenter(center);
-        app.map().getView().setZoom(18);
+        if (this.state.visible) {
+            this.setState({visible : false});
+            this.emit('infopanel.close');
+        } else {
+            this.setState({visible : true});
+            this.emit('infopanel.open');
+        }
     }
 
     render() {
@@ -27,7 +35,7 @@ export class Button extends app.Component {
                 secondary
             >
                 <FontIcon className='material-icons'>
-                    home
+                    cake
                 </FontIcon>
             </FloatingActionButton>
         );
