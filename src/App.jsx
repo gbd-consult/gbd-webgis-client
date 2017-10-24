@@ -8,6 +8,7 @@ export default class App extends app.Component {
         app.config.init(window.APP_CONFIG);
         let map = await app.loadMap();
         map.setTarget('map-container');
+        map.setMode('default');
     }
 
     ui() {
