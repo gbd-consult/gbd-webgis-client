@@ -1,10 +1,7 @@
-/// demo plugin
-
 import React from 'react';
-import FloatingActionButton from 'material-ui/FloatingActionButton';
+import IconButton from 'material-ui/IconButton';
 import FontIcon from 'material-ui/FontIcon';
 
-import ol from 'ol-all';
 import app from 'app';
 
 export class Plugin extends app.Component {}
@@ -18,26 +15,29 @@ export class Button extends app.Component {
         }
     }
 
+    componentDidMount() {
+        this.on('infopanel.close', () => this.setState({visible : false}));
+        this.on('infopanel.open', () => this.setState({visible : true}));
+        this.on('infopanel.update', () => this.setState({visible : true}));
+    }
+
     onClick() {
         if (this.state.visible) {
-            this.setState({visible : false});
             this.emit('infopanel.close');
         } else {
-            this.setState({visible : true});
             this.emit('infopanel.open');
         }
     }
 
     render() {
         return (
-            <FloatingActionButton
+            <IconButton
                 onClick={() => this.onClick()}
-                secondary
             >
                 <FontIcon className='material-icons'>
-                    cake
+                    {this.state.visible ? 'expand_less' : 'expand_more'}
                 </FontIcon>
-            </FloatingActionButton>
+            </IconButton>
         );
     }
 }

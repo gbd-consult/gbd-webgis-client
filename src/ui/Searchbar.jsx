@@ -15,8 +15,26 @@ class SearchToolbar extends React.Component {
             width: this.props.width == SMALL ? '100%' : '450px',
             zIndex: '1500',
         };
+        var children_grouped = [];
+        var children = React.Children.toArray(this.props.children);
+
+        for (var i = 0; i < children.length; i++) {
+            var firstChild = false;
+            var lastChild = false;
+            if (i == 0 && children.length > 1) {
+                firstChild = true;
+            } else if (i == children.length - 1) {
+                lastChild = true;
+            }
+            children_grouped.push(
+                <ToolbarGroup firstChild={firstChild} lastChild={lastChild}>
+                    {children[i]}
+                </ToolbarGroup>
+            );
+        }
         return (
             <Toolbar style={style}>
+                {children_grouped}
             </Toolbar>
         );
     }
