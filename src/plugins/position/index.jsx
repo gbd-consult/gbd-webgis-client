@@ -5,49 +5,29 @@ import TextField from 'material-ui/TextField';
 import app from 'app';
 import ol from 'ol-all';
 
-export class Plugin extends app.Component {
-
+class Plugin extends app.Plugin {
+    init() {
+        app.map().on('pointermove', (evt) => {
+            app.set({mapMouseXY: app.map().getCoordinateFromPixel(evt.pixel)})
+        });
+    }
 }
 
-export class Control extends app.Component {
-
-    constructor(props) {
-        super(props);
-        this.state = {
-            x: 0,
-            y: 0,
-            zoom: 0
-        }
-    }
-
-    componentDidMount() {
-        app.map().on('pointermove', (evt) => this.update(evt.pixel));
-    }
-
-    componentWillUnmount() {
-        super.componentWillUnmount();
-
-    }
-
-
-    update(pixel) {
-        let xy = app.map().getCoordinateFromPixel(pixel);
-        this.setState({
-            x: xy[0],
-            y: xy[1],
-            zoom: app.map().getView().getZoom()
-
-        })
-    }
+class Control extends React.Component {
 
     render() {
+        let xy = this.props.mapMouseXY || [0, 0];
         return (
             <Paper>
-                <TextField value={this.state.x.toFixed(2)}/>
-                <TextField value={this.state.y.toFixed(2)}/>
-                <TextField value={this.state.zoom}/>
+                <TextField value={xy[0].toFixed(0)}/>
+                <TextField value={xy[1].toFixed(0)}/>
             </Paper>
         );
     }
 }
 
+export default{
+    Plugin,
+    Control: app.connect(Control, ['mapMouseXY'])
+
+};

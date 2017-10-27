@@ -53,6 +53,7 @@ let defaults = {
                         options: {
                             presets: ['env', 'react'],
                             cacheDirectory: here('.cache'),
+                        plugins: ['transform-object-rest-spread']
                         }
                     },
                     {

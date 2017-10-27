@@ -8,27 +8,35 @@ module.exports = {
         title: 'Example App',
 
         // plugins to include
-        plugins: ['demo', 'marker', 'position', 'selection', 'wfs'],
+        plugins: [ 'demo', 'layers', 'marker', 'wfs', 'wms', 'selection', 'position'],
 
         // application ui (must be valid JSX)
         ui: `
+            <layers.Tree />
+            <ui.InfoPanel />
             <ui.Toolbar>
                 <demo.Button />
-                <selection.Button />
+                <demo.Informer />
                 <wfs.ListButton />
+                <wfs.IdentifyButton />
+                <selection.Button />
+                <position.Control />
             </ui.Toolbar>
-            <position.Control />
-            <ui.InfoPanel />
+
         `
     },
 
     // runtime configuration
     runtime: {
 
-        // qgis server (2 series)
-        qgis2: {
-            server: 'http://qwc.gbd-consult.de/cgi-bin/qgis_mapserv.fcgi',
-            map: '/var/www/qwc1/projekte/alkishh.qgs'
+        wfs: {
+            server: 'http://qwc.gbd-consult.de/cgi-bin/qgis_mapserv.fcgi?map=/var/www/qwc1/projekte/alkishh.qgs',
+            flavor: 'qgis'
+        },
+
+        wms: {
+            server: 'http://qwc.gbd-consult.de/cgi-bin/qgis_mapserv.fcgi?map=/var/www/qwc1/projekte/alkishh.qgs',
+            flavor: 'qgis'
         },
 
         // gbd server (2 series)

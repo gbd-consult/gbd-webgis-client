@@ -4,7 +4,7 @@ let replacers = {
 
     pluginImports(cnf) {
         return cnf.build.plugins
-            .map(name => `import * as ${name} from './plugins/${name}';`)
+            .map(name => `import ${name} from './plugins/${name}';`)
             .join('\n');
     },
 
@@ -12,9 +12,9 @@ let replacers = {
         return cnf.build.ui;
     },
 
-    pluginComponents(cnf) {
+    pluginList(cnf) {
         return cnf.build.plugins
-            .map((name, n) => `<${name}.Plugin key="${name}" />`)
+            .map(name => `new ${name}.Plugin`)
             .join(',\n');
     },
 

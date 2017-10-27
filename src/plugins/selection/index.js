@@ -16,9 +16,8 @@ import ol from 'ol-all';
 const LAYER_NAME = 'selectionLayer';
 const MODE_NAME = 'selectionMode';
 
-export class Plugin extends app.Component {
-    constructor(props) {
-        super(props);
+export class Plugin extends app.Plugin {
+    init() {
         this.source = null;
         this.style = new ol.style.Style({
             stroke: new ol.style.Stroke({
@@ -28,12 +27,20 @@ export class Plugin extends app.Component {
             })
         });
 
-    }
+        this.action('selectionStart', ({shape}) => this.start(shape));
+        this.action('selectionDrop', () => this.drop());
 
-    componentDidMount() {
-        this.on('selection.start', type => this.start(type));
-        this.on('selection.drop', () => this.drop());
-        this.on('selection.getGeometry', () => this.getGeometry());
+        this.action('mapMode', ({name, cursor, interactions}) => {
+            app.map().setMode(name, cursor, interactions)
+            app.set({mapMode: name})
+        });
+
+        this.action('mapDefaultMode', () => {
+            app.map().defaultMode();
+            app.set({mapMode: ''})
+        });
+
+
     }
 
     removeLayer() {
@@ -57,16 +64,15 @@ export class Plugin extends app.Component {
         return la;
     }
 
-    interactions(type) {
-        if (type === 'polygon' || type === 'circle') {
-            type = type[0].toUpperCase() + type.slice(1);
+    interactions(shape) {
+        if (shape === 'Polygon' || shape === 'Circle') {
 
             let draw = new ol.interaction.Draw({
-                type: type,
+                type: shape,
                 style: this.style,
                 source: this.source
             });
-            draw.on('drawend', () => this.end());
+            draw.on('drawend', (evt) => this.end(evt));
             return [
                 draw,
                 new ol.interaction.DragPan(),
@@ -75,21 +81,28 @@ export class Plugin extends app.Component {
         }
     }
 
-    start(type) {
+    start(shape) {
         this.source = new ol.source.Vector({
             projection: app.config.str('map.crs.client')
         });
         this.addLayer();
-        app.map().setMode(MODE_NAME, 'crosshair', this.interactions(type));
+        app.perform('mapMode', {
+            name: 'selection',
+            cursor: 'crosshair',
+            interactions: this.interactions(shape)
+        });
     }
 
-    end() {
-        app.map().defaultMode();
+    end(evt) {
+        app.perform('mapDefaultMode');
+        app.set({selectionGeometry: evt.feature ? evt.feature.getGeometry() : null})
     }
+
 
     drop() {
         this.removeLayer();
         this.source = null;
+        app.set({selectionGeometry: null});
     }
 
     getGeometry() {
@@ -97,13 +110,13 @@ export class Plugin extends app.Component {
             return null;
 
         let fs = this.source.getFeatures();
-        if(!fs.length)
+        if (!fs.length)
             return null;
         return fs[0].getGeometry();
     }
 }
 
-export class Button extends app.Component {
+class Button extends React.Component {
 
 
     constructor(props) {
@@ -111,23 +124,12 @@ export class Button extends app.Component {
 
         this.state = {
             open: false,
-            active: false
         };
-    }
-
-    componentDidMount() {
-        this.on('map.mode.start', mode => this.setActive(mode === MODE_NAME));
     }
 
     close() {
         this.setState({
             open: false,
-        });
-    }
-
-    setActive(on) {
-        this.setState({
-            active: on,
         });
     }
 
@@ -145,13 +147,14 @@ export class Button extends app.Component {
 
     onChange(evt, value) {
         if (value === 'deselect')
-            this.emit('selection.drop');
+            app.perform('selectionDrop');
         else
-            this.emit('selection.start', value);
+            app.perform('selectionStart', {shape: value});
         this.close();
     }
 
     render() {
+        let active = this.props.mapMode === 'selection';
         return (
             <div>
                 <IconButton
@@ -159,7 +162,7 @@ export class Button extends app.Component {
                 >
                     <FontIcon
                         className="material-icons"
-                        color={this.state.active ? red500 : blue500}
+                        color={active ? red500 : blue500}
                     >select_all</FontIcon>
                 </IconButton>
                 <Popover
@@ -170,8 +173,8 @@ export class Button extends app.Component {
                     onRequestClose={evt => this.onClose(evt)}
                 >
                     <Menu onChange={(evt, value) => this.onChange(evt, value)}>
-                        <MenuItem value="polygon" primaryText="Polygon"/>
-                        <MenuItem value="circle" primaryText="Circle"/>
+                        <MenuItem value="Polygon" primaryText="Polygon"/>
+                        <MenuItem value="Circle" primaryText="Circle"/>
                         <Divider/>
                         <MenuItem value="deselect" primaryText="Deselect"/>
                     </Menu>
@@ -182,3 +185,7 @@ export class Button extends app.Component {
 
 }
 
+export default {
+    Plugin,
+    Button: app.connect(Button, ['mapMode'])
+};

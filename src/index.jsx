@@ -10,18 +10,12 @@ import './index.html';
 
 import App from './App';
 
-class ConfiguredApp extends App {
 
-    ui() {
-        return <div>"@ui"</div>;
-    }
+ReactDOM.render(<App
 
-    plugins() {
-        return [ "@pluginComponents" ];
-    }
-}
+    plugins={[ "@pluginList" ]}
+    ui={<div>"@ui"</div>}
 
-
-ReactDOM.render(<ConfiguredApp/>, document.getElementById('app-container'));
+/>, document.getElementById('app-container'));
 
 
