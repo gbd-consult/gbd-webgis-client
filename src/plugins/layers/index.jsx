@@ -1,8 +1,8 @@
 import React from 'react';
-import Drawer from 'material-ui/Drawer';
+
+import Paper from 'material-ui/Paper';
 import {List, ListItem} from 'material-ui/List';
 import Checkbox from 'material-ui/Checkbox';
-import FlatButton from 'material-ui/FlatButton';
 
 import app from 'app';
 import ol from 'ol-all';
@@ -80,14 +80,27 @@ class Tree extends React.Component {
         if (!this.props.layerRoot)
             return null;
         return (
-            <Drawer style={{width: '300px'}}>
-                <List>{this.drawLayer(this.props.layerRoot)}</List>
-            </Drawer>
+            <List>
+                {this.drawLayer(this.props.layerRoot)}
+            </List>
+        );
+    }
+}
+
+let ConnectedTree = app.connect(Tree, ['layerRoot', 'layerActiveUid']);
+
+class Panel extends React.Component {
+    render() {
+        return (
+            <Paper>
+                <ConnectedTree />
+            </Paper>
         );
     }
 }
 
 export default {
     Plugin,
-    Tree: app.connect(Tree, ['layerRoot', 'layerActiveUid'])
+    Tree: ConnectedTree,
+    Panel: app.connect(Panel)
 };

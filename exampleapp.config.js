@@ -8,20 +8,45 @@ module.exports = {
         title: 'Example App',
 
         // plugins to include
-        plugins: [ 'demo', 'layers', 'marker', 'wfs', 'wms', 'selection', 'position'],
+        plugins: ['ui', 'demo', 'details', 'layers', 'marker', 'wfs', 'wms',
+            'selection', 'position',
+            'search_alkis',
+            'search_nominatim',
+
+
+        ],
+
+        // initial state of the app
+        initState: `
+            sidebarVisible: true,
+            sidebarActivePanel: 'layers',
+            appWaiting: false,
+            toolbarVisible: true,
+            detailsContent: 'hey!'
+        `,
+
+        // application theme, use colors. for mui colors
+        theme: `
+            palette: {
+                textColor: colors.cyan500,
+            }
+        `,
 
         // application ui (must be valid JSX)
         ui: `
-            <layers.Tree />
-            <ui.InfoPanel />
+            <ui.Sidebar>
+                <details.Panel key="details" title="Info" />
+                <layers.Panel key="layers" title="Layers" />
+            </ui.Sidebar>
             <ui.Toolbar>
-                <demo.Button />
-                <demo.Informer />
                 <wfs.ListButton />
                 <wfs.IdentifyButton />
                 <selection.Button />
-                <position.Control />
             </ui.Toolbar>
+            <ui.Statusbar>
+                <position.Control />
+            </ui.Statusbar>
+            <ui.Searchbox />
 
         `
     },
@@ -55,6 +80,12 @@ module.exports = {
             center: [
                 1112420,
                 7085510
+            ],
+            extent: [
+                1102426,
+                7089623,
+                1120350,
+                7079686
             ],
             crs: {
                 server: 'EPSG:32632',

@@ -50,9 +50,7 @@ class Plugin extends app.Plugin {
             return la;
 
         la = new ol.layer.Vector({
-            source: new ol.source.Vector({
-                projection: app.config.str('map.crs.client')
-            }),
+            source: new ol.source.Vector(),
             style: this.style
         });
 
@@ -73,7 +71,7 @@ class Plugin extends app.Plugin {
 
         if (la && la.getSource().getFeatures().length) {
             let extent = la.getSource().getExtent();
-            app.map().getView().fit(extent);
+            app.map().getView().fit(ol.extent.buffer(extent, 100));
         }
     }
 

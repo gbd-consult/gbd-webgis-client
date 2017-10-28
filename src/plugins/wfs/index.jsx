@@ -132,11 +132,11 @@ class Plugin extends app.Plugin {
         });
     }
 
-    featureInfo(feature) {
+    featureInfo(feature, n) {
         let props = Object.assign({}, feature.getProperties());
         delete props[feature.getGeometryName()];
 
-        return <table>
+        return <table key={n}>
             <tbody>
             {Object.keys(props).sort().map(k => <tr key={k}>
                     <th>{k.slice(0, 10) + '...'}</th>
@@ -148,20 +148,20 @@ class Plugin extends app.Plugin {
     }
 
     async showFeatures(geom) {
-        app.set({infoPanelVisible: true, waiting: true});
+        app.set({appWaiting: true});
 
         let types = enumLayers(app.get('layerActiveUid'));
         let features = await find(geom, types);
+
+        app.set({appWaiting: false});
 
         app.perform('markerMark', {
             geometries: features.map(f => f.getGeometry()),
             pan: true
         });
 
-        app.set({
-            infoPanelVisible: true,
-            infoPanelContent: <div>{features.map(f => this.featureInfo(f))}</div>,
-            waiting: false
+        app.perform('detailsShow', {
+            content:<div>{features.map((f, n) => this.featureInfo(f))}</div>
         });
     }
 

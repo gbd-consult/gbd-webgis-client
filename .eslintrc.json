@@ -10,6 +10,7 @@
     "globals": {
         "console": false,
         "setTimeout": false,
+        "clearTimeout": false,
         "Promise": false,
         "Node": false,
         "window": false,
