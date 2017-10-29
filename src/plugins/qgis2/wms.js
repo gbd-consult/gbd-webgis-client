@@ -1,0 +1,176 @@
+import app from 'app';
+import ol from 'ol-all';
+
+
+async function request(verb, params) {
+    let res = await app.http.get(app.config.str('qgis2.server'), {
+        service: 'WMS',
+        version: '1.3',
+        request: verb,
+        ...params
+    });
+    return ol.xml.parse(res);
+}
+
+function children(el, tag) {
+    return [...el.childNodes].filter(e => e.nodeName === tag);
+}
+
+function child(el, tag) {
+    let cn = children(el, tag);
+    if (cn.length !== 1)
+        return null;
+    return cn[0];
+}
+
+function get(el, tags) {
+    for (let tag of tags.match(/\w+/g)) {
+        if (!el)
+            return null;
+        el = child(el, tag);
+    }
+
+    return el;
+}
+
+
+function getText(el, path) {
+    el = get(el, path);
+    return el && el.firstChild ? el.firstChild.nodeValue : '';
+}
+
+
+function imgLoad(image, src) {
+    //let u = new URL(src), s = u.searchParams;
+    //console.log('loading', `${s.get('LAYERS')} -- ${s.get('WIDTH')}x${s.get('HEIGHT')} -- ${s.get('BBOX')}`)
+    image.getImage().src = src;
+}
+
+function parseLayer(el) {
+    let opts = {
+        name: getText(el, 'Title'),
+        wmsName: getText(el, 'Name'),
+        wmsLegendURL: getText(el, 'Style LegendURL OnlineResource')
+    };
+
+    let sub = children(el, 'Layer');
+
+    if (sub.length) {
+        return new ol.layer.Group({
+            ...opts,
+            type: 'WMSGroup',
+            layers: sub.reverse().map(parseLayer)
+        });
+    }
+
+    opts.source = new ol.source.ImageWMS({
+        url: app.config.str('qgis2.server'),
+        params: {
+            LAYERS: opts.name
+        },
+        ratio: 1,
+        preload: 0,
+        imageLoadFunction: imgLoad
+    });
+
+    return new ol.layer.Image({
+        ...opts,
+        type: 'WMSImage'
+    });
+}
+
+function parseLayers(doc) {
+    let root,
+        layers = children(child(doc, 'Capability'), 'Layer').map(parseLayer);
+
+
+    if (!layers.length) {
+        return null;
+    }
+
+    if (layers.length === 1) {
+        root = layers[0];
+    } else {
+        root = new ol.layer.Group({
+            name: 'WMS',
+            layers
+        });
+    }
+
+    root.set('type', 'WMSRoot');
+    return root;
+}
+
+
+async function loadLayers() {
+    let descDoc = await request('GetCapabilities');
+
+    let root = parseLayers(descDoc.firstChild);
+    if (root) {
+        root.setZIndex(1);
+        app.map().addLayer(root);
+    }
+}
+
+function readFeature(node) {
+    let props = {};
+
+    [...node.querySelectorAll('Attribute')].forEach(a =>
+        props[a.getAttribute('name')] = a.getAttribute('value')
+    );
+
+    if(props.geometry) {
+        props.geometry = new ol.format.WKT().readGeometry(props.geometry, {
+            dataProjection: app.config.str('map.crs.server'),
+            featureProjection: app.config.str('map.crs.client')
+        })
+    }
+
+    let feature = new ol.Feature(props);
+    feature.setId(node.getAttribute('id'));
+
+    return feature;
+}
+
+async function query(coordinate, layerNames, limit = 100) {
+
+    let bbox = ol.proj.transformExtent(
+        app.map().getView().calculateExtent(),
+        app.config.str('map.crs.client'),
+        app.config.str('map.crs.server')
+    );
+
+    let pixel = app.map().getPixelFromCoordinate(coordinate);
+    let size = app.map().getSize();
+
+
+    let featuresDoc = await request('GetFeatureInfo', {
+        feature_count: limit,
+        info_format: 'text/xml',
+        crs: app.config.str('map.crs.server'),
+        bbox: bbox.join(','),
+        i: Math.round(pixel[0]),
+        j: Math.round(pixel[1]),
+        width: size[0],
+        height: size[1],
+        query_layers: layerNames.join(','),
+        fi_point_tolerance: 16,
+        fi_line_tolerance: 8,
+        fi_polygon_tolerance: 4,
+    });
+
+    let fmap = {};
+
+    [...featuresDoc.querySelectorAll('Feature')]
+        .map(readFeature)
+        .forEach(feature => fmap[feature.getId()] = feature);
+
+    return Object.values(fmap);
+}
+
+
+export default {
+    loadLayers,
+    query
+
+};

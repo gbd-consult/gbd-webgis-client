@@ -8,7 +8,7 @@ module.exports = {
         title: 'Example App',
 
         // plugins to include
-        plugins: ['ui', 'demo', 'details', 'layers', 'marker', 'wfs', 'wms',
+        plugins: ['ui', 'demo', 'details', 'layers', 'marker', 'identify', 'qgis2',
             'selection', 'position',
             'search_alkis',
             'search_nominatim',
@@ -39,8 +39,7 @@ module.exports = {
                 <layers.Panel key="layers" title="Layers" />
             </ui.Sidebar>
             <ui.Toolbar>
-                <wfs.ListButton />
-                <wfs.IdentifyButton />
+                <identify.Button />
                 <selection.Button />
             </ui.Toolbar>
             <ui.Statusbar>
@@ -54,14 +53,9 @@ module.exports = {
     // runtime configuration
     runtime: {
 
-        wfs: {
+        // qgis server (2 series)
+        qgis2: {
             server: 'http://qwc.gbd-consult.de/cgi-bin/qgis_mapserv.fcgi?map=/var/www/qwc1/projekte/alkishh.qgs',
-            flavor: 'qgis'
-        },
-
-        wms: {
-            server: 'http://qwc.gbd-consult.de/cgi-bin/qgis_mapserv.fcgi?map=/var/www/qwc1/projekte/alkishh.qgs',
-            flavor: 'qgis'
         },
 
         // gbd server (2 series)
