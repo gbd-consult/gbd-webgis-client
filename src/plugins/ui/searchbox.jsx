@@ -2,25 +2,24 @@ import React from 'react';
 import TextField from 'material-ui/TextField';
 import Paper from 'material-ui/Paper';
 
+import _ from 'lodash';
+
 import app from 'app';
 
+function runSearch({input}) {
+    app.set({
+        searchInput: input,
+        searchResults: []
+    });
+    if (input.trim())
+        app.perform('search', {input});
+}
+
+
 class Plugin extends app.Plugin {
-    runSearch(input) {
-        app.set({
-            searchInput: input,
-            searchResults: []
-        });
-        if (input.trim())
-            app.perform('search', {input});
-    }
 
     init() {
-        this.timeout = 0;
-
-        this.action('searchChanged', ({input}) => {
-            clearTimeout(this.timeout);
-            this.timeout = setTimeout(() => this.runSearch(input), 500);
-        });
+        this.action('searchChanged', _.debounce(runSearch, 500));
 
         this.reducer('searchReturn', (state, {results}) => ({
             searchResults: [].concat(
@@ -30,7 +29,6 @@ class Plugin extends app.Plugin {
         }));
 
     }
-
 }
 
 class SearchResult extends React.Component {
@@ -61,14 +59,15 @@ class Searchbox extends React.Component {
                 style={{
                     position: 'fixed',
                     top: 0,
-                    right: 0
+                    right: 0,
+                    width: 200
                 }}
             >
                 <TextField
                     onChange={(evt, input) => app.perform('searchChanged', {input})}
                 />
                 {
-                    results.map((r, n) => <SearchResult key={n} value={r} />)
+                    results.map((r, n) => <SearchResult key={n} value={r}/>)
                 }
             </Paper>
         )
