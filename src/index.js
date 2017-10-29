@@ -1,7 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+import app from 'app';
+
+
 import * as colors from 'material-ui/styles/colors';
+
+import 'ol/ol.css';
 
 import './index.sass';
 import './index.html';
@@ -14,6 +19,8 @@ import './index.html';
 */
 
 import Application from './Application';
+
+app.config.init(window.APP_CONFIG);
 
 
 ReactDOM.render(<Application

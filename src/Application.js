@@ -11,7 +11,6 @@ import app from 'app';
 
 export default class Application extends React.Component {
     async componentDidMount() {
-        app.config.init(window.APP_CONFIG);
         let map = app.map();
         app.set(this.props.initState);
         this.props.plugins.forEach(p => p.init());

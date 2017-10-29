@@ -119,7 +119,7 @@ function readFeature(node) {
         props[a.getAttribute('name')] = a.getAttribute('value')
     );
 
-    if(props.geometry) {
+    if (props.geometry) {
         props.geometry = new ol.format.WKT().readGeometry(props.geometry, {
             dataProjection: app.config.str('map.crs.server'),
             featureProjection: app.config.str('map.crs.client')
@@ -168,9 +168,48 @@ async function query(coordinate, layerNames, limit = 100) {
     return Object.values(fmap);
 }
 
+async function printURL(layerNames, params) {
+    let capsDoc = await request('GetProjectSettings');
+
+    let templates = [...capsDoc.querySelectorAll('ComposerTemplate')].map(t => {
+        let maps = [...t.querySelectorAll('ComposerMap')].map(m => ({
+                name: m.getAttribute('name'),
+                width: Number(m.getAttribute('width')),
+                height: Number(m.getAttribute('height')),
+        }));
+        return {
+            name: t.getAttribute('name'),
+            maps
+        }
+    });
+
+    let p = {
+        service: 'WMS',
+        version: '1.3',
+        request: 'GetPrint',
+        format: 'pdf',
+        EXCEPTIONS: 'application/vnd.ogc.se_inimage',
+        transparent: 'true',
+        srs: app.config.str('map.crs.server'),
+        dpi: app.config.number('qgis2.print.resolution'),
+        template: app.config.str('qgis2.print.template'),
+        layers: encodeURIComponent(layerNames.join(',')),
+        opacities: encodeURIComponent(layerNames.map(() => 255).join(',')),
+        'map0:extent': '560606.5,5930595.6,571166.8,5936355.8',
+        'map0:rotation': 0,
+      //  'map0:scale': 40000,
+        'map0:grid_interval_x': 2000,
+        'map0:grid_interval_y': 2000,
+    };
+
+    let qs = Object.keys(p).map(k => k + '=' + p[k]).join('&');
+    return app.config.str('qgis2.server') + '&' + qs;
+
+}
+
 
 export default {
     loadLayers,
-    query
-
+    query,
+    printURL
 };

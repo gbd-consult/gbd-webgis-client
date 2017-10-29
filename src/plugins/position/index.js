@@ -1,5 +1,4 @@
 import React from 'react';
-import Paper from 'material-ui/Paper';
 import TextField from 'material-ui/TextField';
 
 import app from 'app';
@@ -18,10 +17,10 @@ class Control extends React.Component {
     render() {
         let xy = this.props.mapMouseXY || [0, 0];
         return (
-            <Paper>
+            <div>
                 <TextField value={xy[0].toFixed(0)}/>
                 <TextField value={xy[1].toFixed(0)}/>
-            </Paper>
+            </div>
         );
     }
 }

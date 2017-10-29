@@ -8,10 +8,13 @@ module.exports = {
         title: 'Example App',
 
         // plugins to include
-        plugins: ['ui', 'demo', 'details', 'layers', 'marker', 'identify', 'qgis2',
-            'selection', 'position',
+        plugins: [
+            'map', 'ui',
+            'details', 'layers', 'marker', 'qgis2',
             'search_alkis',
             'search_nominatim',
+            'identify', 'selection',
+            'position', 'scalebar', 'rotation',
 
 
         ],
@@ -41,9 +44,12 @@ module.exports = {
             <ui.Toolbar>
                 <identify.Button />
                 <selection.Button />
+                <qgis2.PrintButton />
             </ui.Toolbar>
             <ui.Statusbar>
                 <position.Control />
+                <scalebar.Control />
+                <rotation.Control />
             </ui.Statusbar>
             <ui.Searchbox />
 
@@ -56,6 +62,10 @@ module.exports = {
         // qgis server (2 series)
         qgis2: {
             server: 'http://qwc.gbd-consult.de/cgi-bin/qgis_mapserv.fcgi?map=/var/www/qwc1/projekte/alkishh.qgs',
+            print: {
+                template: 'template1',
+                resolution: 300
+            }
         },
 
         // gbd server (2 series)
@@ -66,26 +76,50 @@ module.exports = {
         // map options
         map: {
             background: 'osm',
-            zoom: {
-                init: 14,
-                min: 10,
-                max: 28
-            },
+            scales: [
+                100,
+                200,
+                250,
+                500,
+                750,
+                1000,
+                1500,
+                2000,
+                2500,
+                3000,
+                4000,
+                5000,
+                7500,
+                10000,
+                12000,
+                15000,
+                20000,
+                25000,
+                30000,
+                35000,
+                40000,
+                45000,
+                50000,
+                75000,
+            ],
             center: [
-                1112420,
-                7085510
+                566067,
+                5934682
             ],
             extent: [
-                1102426,
-                7089623,
-                1120350,
-                7079686
+                558536,
+                5928546,
+                572957,
+                5937627,
             ],
             crs: {
-                server: 'EPSG:32632',
-                client: 'EPSG:3857',
+                server: 'EPSG:25832',
+                client: 'EPSG:25832',
                 defs: {
-                    'EPSG:32632': '+proj=utm +zone=32 +ellps=WGS84 +datum=WGS84 +units=m +no_defs'
+                    'EPSG:32632': '+proj=utm +zone=32 +ellps=WGS84 +datum=WGS84 +units=m +no_defs',
+                    'EPSG:25832': '+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs',
+                    'EPSG:25833': '+proj=utm +zone=33 +ellps=GRS80 +units=m +no_defs'
+
                 }
             }
         }
