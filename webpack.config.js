@@ -18,7 +18,7 @@ let defaults = {
 
     entry: [
         'babel-polyfill',
-        here(SRC, 'index.jsx')
+        here(SRC, 'index.js')
     ],
 
     output: {
