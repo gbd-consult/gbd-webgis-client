@@ -13,10 +13,10 @@ import './index.html';
         .join('\n')
 */
 
-import App from './App';
+import Application from './Application';
 
 
-ReactDOM.render(<App
+ReactDOM.render(<Application
     theme={{
         /*@@@ config.build.theme */
     }}

@@ -9,7 +9,7 @@ import * as ReactRedux from 'react-redux';
 import app from 'app';
 
 
-export default class App extends React.Component {
+export default class Application extends React.Component {
     async componentDidMount() {
         app.config.init(window.APP_CONFIG);
         let map = app.map();
