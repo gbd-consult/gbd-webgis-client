@@ -18,8 +18,8 @@ class Control extends React.Component {
         let xy = this.props.mapMouseXY || [0, 0];
         return (
             <div>
-                <TextField value={xy[0].toFixed(0)}/>
-                <TextField value={xy[1].toFixed(0)}/>
+                <TextField style={{width: 80}} value={xy[0].toFixed(0)}/>
+                <TextField style={{width: 80}} value={xy[1].toFixed(0)}/>
             </div>
         );
     }

@@ -168,20 +168,29 @@ async function query(coordinate, layerNames, limit = 100) {
     return Object.values(fmap);
 }
 
-async function printURL(layerNames, params) {
+async function printTemplates() {
     let capsDoc = await request('GetProjectSettings');
 
-    let templates = [...capsDoc.querySelectorAll('ComposerTemplate')].map(t => {
+    return [...capsDoc.querySelectorAll('ComposerTemplate')].map(t => {
         let maps = [...t.querySelectorAll('ComposerMap')].map(m => ({
-                name: m.getAttribute('name'),
-                width: Number(m.getAttribute('width')),
-                height: Number(m.getAttribute('height')),
+            name: m.getAttribute('name'),
+            width: Number(m.getAttribute('width')),
+            height: Number(m.getAttribute('height')),
         }));
         return {
             name: t.getAttribute('name'),
             maps
         }
     });
+}
+
+
+function printURL({layerNames, extent, rotation, scale}) {
+
+    extent = ol.proj.transformExtent(extent,
+        app.config.str('map.crs.client'),
+        app.config.str('map.crs.server')
+    );
 
     let p = {
         service: 'WMS',
@@ -195,9 +204,9 @@ async function printURL(layerNames, params) {
         template: app.config.str('qgis2.print.template'),
         layers: encodeURIComponent(layerNames.join(',')),
         opacities: encodeURIComponent(layerNames.map(() => 255).join(',')),
-        'map0:extent': '560606.5,5930595.6,571166.8,5936355.8',
-        'map0:rotation': 0,
-      //  'map0:scale': 40000,
+        'map0:extent': extent.join(','),
+        'map0:rotation': rotation,
+        //'map0:scale': scale,
         'map0:grid_interval_x': 2000,
         'map0:grid_interval_y': 2000,
     };
@@ -211,5 +220,6 @@ async function printURL(layerNames, params) {
 export default {
     loadLayers,
     query,
+    printTemplates,
     printURL
 };

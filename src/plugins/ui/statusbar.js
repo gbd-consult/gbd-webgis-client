@@ -22,8 +22,9 @@ class Statusbar extends React.Component {
             <div
                 style={{
                     position: 'fixed',
-                    top: 0,
-                    left: '34%'
+                    bottom: 0,
+                    left: 0,
+                    background: 'white'
                 }}
             >
                 {this.props.appWaiting ? <Waiting/> : null}

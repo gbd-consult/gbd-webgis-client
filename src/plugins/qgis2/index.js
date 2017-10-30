@@ -7,22 +7,9 @@ import ol from 'ol-all';
 
 import wms from './wms';
 import wfs from './wfs';
+import printer from './printer';
+import layers from './layers';
 
-
-function activeLayerNames() {
-    let activeLayer = app.map().getLayerById(app.get('layerActiveUid'));
-    return app.map()
-        .enumLayers(activeLayer)
-        .filter(layer => layer.getVisible() && layer.get('type') === 'WMSImage' && layer.get('wmsName'))
-        .map(layer => layer.get('wmsName'));
-}
-
-function visibleLayerNames() {
-    return app.map()
-        .enumLayers()
-        .filter(layer => layer.getVisible() && layer.get('type') === 'WMSImage' && layer.get('wmsName'))
-        .map(layer => layer.get('wmsName'));
-}
 
 class Plugin extends app.Plugin {
 
@@ -30,46 +17,40 @@ class Plugin extends app.Plugin {
         await wms.loadLayers();
 
         this.action('identify', async ({uid, coordinate}) => {
-            let layerNames = activeLayerNames();
-
             let features = await wms.query(
                 coordinate,
-                layerNames);
-
+                layers.activeNames());
             app.perform('identifyReturn', {uid, results: features})
         });
 
-        this.action('qgisPrint', async () => {
-            let url = await wms.printURL(visibleLayerNames());
-            //window.open(url)
-
-
-        })
-
-
-
+        this.action('qgisPrintToggleOverlay', async () => {
+            if (app.get('mapMode') === printer.mapMode)
+                return app.perform('mapDefaultMode');
+            await printer.initOverlay();
+        });
     }
 }
+
 
 class PrintButton extends React.Component {
 
     render() {
+        let active = (this.props.mapMode === printer.mapMode);
+
         return (
-            <IconButton
-                onClick={() => app.perform('qgisPrint')}
-            >
-                <FontIcon className="material-icons"
-                >print</FontIcon>
-            </IconButton>
+            <div>
+                <IconButton onClick={() => app.perform('qgisPrintToggleOverlay')}>
+                    <FontIcon className="material-icons">print</FontIcon>
+                </IconButton>
+                { active ? <printer.Overlay/> : null }
+            </div>
+
         );
     }
 }
 
 
-
-
 export default {
     Plugin,
-    PrintButton: app.connect(PrintButton)
-
+    PrintButton: app.connect(PrintButton, ['mapMode']),
 };
