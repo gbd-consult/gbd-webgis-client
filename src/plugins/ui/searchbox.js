@@ -1,6 +1,10 @@
 import React from 'react';
+import {Toolbar, ToolbarGroup} from 'material-ui/Toolbar';
+import IconButton from 'material-ui/IconButton';
 import TextField from 'material-ui/TextField';
-import Paper from 'material-ui/Paper';
+
+import muiThemeable from 'material-ui/styles/muiThemeable';
+import withWidth, {SMALL} from 'material-ui/utils/withWidth';
 
 import _ from 'lodash';
 
@@ -51,30 +55,52 @@ class SearchResult extends React.Component {
 }
 
 class Searchbox extends React.Component {
-    render() {
-        let results = this.props.searchResults || [];
-
+    toggleSidebar(){
+        app.set( { sidebarVisible : !this.props.sidebarVisible });
+    }
+    render(){
+        var style = {
+            position: 'absolute',
+            top: '0',
+            left: '0',
+            backgroundColor: this.props.muiTheme.palette.primary1Color,
+            width: this.props.width == SMALL ? '100%' : '450px',
+            zIndex: '1500',
+        };
+        var iconStyle = {
+            color : this.props.muiTheme.palette.alternateTextColor,
+        };
         return (
-            <Paper
-                style={{
-                    position: 'fixed',
-                    top: 0,
-                    right: 0,
-                    width: 200
-                }}
-            >
-                <TextField
-                    onChange={(evt, input) => app.perform('searchChanged', {input})}
-                />
-                {
-                    results.map((r, n) => <SearchResult key={n} value={r}/>)
-                }
-            </Paper>
-        )
+            <Toolbar style={style}>
+                <ToolbarGroup firstChild={true}>
+                    <IconButton
+                        iconStyle={iconStyle}
+                        iconClassName="material-icons"
+                    >
+                        menu
+                    </IconButton>
+                </ToolbarGroup>
+                <ToolbarGroup>
+                    <TextField
+                        onChange={(evt, input) => app.perform('searchChanged', {input})}
+                    />
+                </ToolbarGroup>
+                <ToolbarGroup lastChild={true}>
+                    <IconButton
+                        iconStyle={iconStyle}
+                        iconClassName="material-icons"
+                        onClick={() => app.perform('sidebarVisible', !this.props.sidebarVisible)}
+                    >
+                        { this.props.sidebarVisible ? 'expand_less' : 'expand_more' }
+                    </IconButton>
+                </ToolbarGroup>
+            </Toolbar>
+        );
     }
 }
 
 export default {
     Plugin,
-    Searchbox: app.connect(Searchbox, ['searchInput', 'searchResults'])
+    Searchbox: app.connect(withWidth()(muiThemeable()(Searchbox)),
+        ['searchInput', 'searchResults', 'sidebarVisible'])
 }

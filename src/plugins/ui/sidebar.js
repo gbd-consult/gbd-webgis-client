@@ -16,8 +16,11 @@ class Plugin extends app.Plugin {
                 sidebarActivePanel: panel
             })
         );
-
-
+        this.action('sidebarVisible', (visible) =>
+            app.set({
+                sidebarVisible: visible,
+            })
+        );
     }
 
 }
