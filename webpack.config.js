@@ -57,7 +57,7 @@ let defaults = {
                         options: {
                             presets: ['env', 'react'],
                             cacheDirectory: here('.cache'),
-                            plugins: ['transform-object-rest-spread']
+                            plugins: ['transform-object-rest-spread', 'lodash']
                         }
                     },
                     {
@@ -124,6 +124,11 @@ webpackConfigs.dev = merge(defaults, {
 
 webpackConfigs.prod = merge(defaults, {
     plugins: [
+        new webpack.DefinePlugin({
+            'process.env': {
+                'NODE_ENV': JSON.stringify('production')
+            }
+        }),
         new webpack.optimize.UglifyJsPlugin({
             parallel: true,
         })
