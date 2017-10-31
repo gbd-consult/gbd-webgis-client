@@ -1,6 +1,6 @@
 import React from 'react';
-import IconButton from 'material-ui/IconButton';
-import FontIcon from 'material-ui/FontIcon';
+
+import ToolbarButton from '../ui/components/ToolbarButton';
 
 import app from 'app';
 import ol from 'ol-all';
@@ -39,9 +39,11 @@ class PrintButton extends React.Component {
 
         return (
             <div>
-                <IconButton onClick={() => app.perform('qgisPrintToggleOverlay')}>
-                    <FontIcon className="material-icons">print</FontIcon>
-                </IconButton>
+                <ToolbarButton
+                    active={active}
+                    onClick={() => app.perform('qgisPrintToggleOverlay')}
+                    icon='print'
+                />
                 { active ? <printer.Overlay/> : null }
             </div>
 

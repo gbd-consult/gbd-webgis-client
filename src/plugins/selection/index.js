@@ -1,14 +1,11 @@
 import React from 'react';
 
-import IconButton from 'material-ui/IconButton';
-import FontIcon from 'material-ui/FontIcon';
 import Popover from 'material-ui/Popover';
 import Menu from 'material-ui/Menu';
 import MenuItem from 'material-ui/MenuItem';
 import Divider from 'material-ui/Divider';
 
-import {blue500, red500} from 'material-ui/styles/colors';
-
+import ToolbarButton from '../ui/components/ToolbarButton';
 
 import app from 'app';
 import ol from 'ol-all';
@@ -157,14 +154,11 @@ class Button extends React.Component {
         let active = this.props.mapMode === 'selection';
         return (
             <div>
-                <IconButton
+                <ToolbarButton
+                    active={active}
                     onClick={evt => this.onClick(evt)}
-                >
-                    <FontIcon
-                        className="material-icons"
-                        color={active ? red500 : blue500}
-                    >select_all</FontIcon>
-                </IconButton>
+                    icon='select_all'
+                />
                 <Popover
                     open={this.state.open}
                     anchorEl={this.state.anchorEl}
