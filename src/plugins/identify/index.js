@@ -91,6 +91,7 @@ class Button extends React.Component {
         let active = this.props.mapMode === 'identify';
         return (
             <IconButton
+                tooltip={__("buttonTooltip")}
                 onClick={() => app.perform('identifyModeToggle')}
             >
                 <FontIcon className="material-icons"

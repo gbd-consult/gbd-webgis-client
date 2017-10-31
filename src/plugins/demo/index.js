@@ -63,7 +63,7 @@ class Button extends React.Component {
 
     render() {
         return <RaisedButton
-            label="Make some dots"
+            label={__("make_dots_label")}
             onClick={() => this.onClick()}
         />
     }

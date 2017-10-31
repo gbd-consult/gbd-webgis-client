@@ -7,12 +7,12 @@ const webpack = require('webpack');
 const merge = require('webpack-merge');
 const rimraf = require('rimraf');
 
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
-
 const SRC = 'src';
 const OUT = 'dist';
 
 let here = (...paths) => path.resolve(__dirname, ...paths);
+
+let _globalAppConfig;
 
 let defaults = {
 
@@ -33,7 +33,8 @@ let defaults = {
 
     resolveLoader: {
         alias: {
-            'template-loader': './tools/template-loader.js'
+            'template-loader': './tools/template-loader.js',
+            'lang-loader': './tools/lang-loader.js'
         }
     },
 
@@ -42,7 +43,10 @@ let defaults = {
             {
                 test: here(SRC, 'index'),
                 enforce: 'pre',
-                loader: 'template-loader'
+                loader: 'template-loader',
+                options: {
+                    appConfig: () => _globalAppConfig
+                }
             },
             {
                 test: /\.jsx?$/,
@@ -53,7 +57,7 @@ let defaults = {
                         options: {
                             presets: ['env', 'react'],
                             cacheDirectory: here('.cache'),
-                        plugins: ['transform-object-rest-spread']
+                            plugins: ['transform-object-rest-spread']
                         }
                     },
                     {
@@ -63,7 +67,15 @@ let defaults = {
                             failOnWarning: false,
                             cacheDirectory: here('.cache'),
                         }
-                    }
+                    },
+                    {
+                        loader: 'lang-loader',
+                        options: {
+                            baseDir: here(SRC),
+                            appConfig: () => _globalAppConfig
+                        }
+                    },
+
                 ]
             },
             {
@@ -120,31 +132,31 @@ webpackConfigs.prod = merge(defaults, {
 
 
 const buildOl = require('./tools/build-ol');
-const PrePostPlugin = require('./tools/pre-post-plugin');
 
-function preBuild(appConfig, env) {
-    rimraf.sync(here(OUT));
-    buildOl(
-        here('node_modules'),
-        here(SRC),
-        here(SRC, 'node_modules/ol-all/index.js'),
-        env.build === 'dev');
+
+function ConfigPlugin() {
 }
 
-function postBuild(appConfig, env) {
-
-}
-
+ConfigPlugin.prototype.apply = function (compiler) {
+    compiler.plugin('compile', function () {
+        rimraf.sync(here(OUT));
+        buildOl(
+            here('node_modules'),
+            here(SRC),
+            here(SRC, 'node_modules/ol-all/index.js'),
+            _globalAppConfig.env.build === 'dev');
+    });
+};
 
 let config = function (env) {
-    let appConfig = require(here(env.appConfig));
+    _globalAppConfig = require(here(env.appConfig));
+    _globalAppConfig.env = env;
+
     let c = Object.assign({}, webpackConfigs[env.build]);
-    let p = new PrePostPlugin(
-        () => preBuild(appConfig, env),
-        () => postBuild(appConfig, env)
-    );
-    c.plugins = [p].concat(c.plugins);
-    c.module.loaders[0].options = {appConfig};
+    c.plugins = [].concat(
+        new ConfigPlugin(),
+        c.plugins);
+
     return c;
 };
 

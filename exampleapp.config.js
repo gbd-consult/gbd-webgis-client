@@ -4,6 +4,9 @@ module.exports = {
 
     // build-time configuration
     build: {
+        // application language
+        lang: 'de',
+
         // application title
         title: 'Example App',
 

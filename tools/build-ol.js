@@ -4,20 +4,8 @@ const fs = require('fs');
 const path = require('path');
 
 const writeIfChanged = require('./write-if-changed');
+const allFiles = require('./all-files');
 
-
-function allFiles(dir) {
-    let files = [];
-
-    fs.readdirSync(dir).forEach(function (file) {
-        if (fs.statSync(dir + '/' + file).isDirectory())
-            files = files.concat(allFiles(dir + '/' + file));
-        else
-            files.push(dir + '/' + file);
-    });
-
-    return files;
-}
 
 function parts(id) {
     let ls = [], e = id.split('.');
