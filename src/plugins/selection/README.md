@@ -1,1 +1,0 @@
-Select areas on the map.

@@ -1,4 +1,12 @@
-/// provides the identification (point+click) map mode
+/**
+ * @module plugins/identify
+ *
+ * @desc
+ *
+ * Provides the identification (point+click) map mode
+ *
+ */
+
 
 import React from 'react';
 import IconButton from 'material-ui/IconButton';
@@ -106,5 +114,6 @@ class Button extends React.Component {
 
 export default {
     Plugin,
+    /** Toolbar button that activates the mode */
     Button: app.connect(Button, ['mapMode'])
 };

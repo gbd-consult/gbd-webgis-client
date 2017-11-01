@@ -1,5 +1,6 @@
 /node_modules
 src/node_modules/ol-all/index.js
+/doc
 *.swp
 dist
 .cache

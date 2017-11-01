@@ -1,0 +1,68 @@
+/**
+ @module _readme/plugins
+
+ @desc
+
+ ## Plugins API
+
+ Plugns are used to extend the basic viewer functionality.
+
+ ### framework
+
+ We use redux/react-redux, however, the framework boilerplate is not exposed to plugins.
+ Instead, use wrappers provided by the {@link module:app core app module}.
+
+ Our state shape is flat, that is, a reducer can only update the root state:
+
+ ```
+ ...return {...state, key1: value1, key2: value2 }
+
+ ```
+
+ and a component can only subscribe to first-level keys:
+
+ ```
+ app.connect(MyButton, [key1, key1])
+
+ ```
+
+ ### plugin modules
+
+ A plugin is a module in `src/plugins`. A plugin must export a class called `Plugin` extending `app.Plugin`.
+ UI plugins also export their visual components, which should be connected to the store via `app.connect`
+
+ ```
+ class Plugin extends app.Plugin {
+    ...
+}
+
+ class MyButton extends React.Component {
+    ...
+}
+
+ export default {
+    Plugin,
+    MyButton: app.connect(MyButton, ['propOne', 'propTwo'])
+}
+ ```
+
+ ### plugin lifecycle
+
+ The Application calls each plugin's `init` method during the initialization. In the `init` method you
+
+ - declare action hooks (`Plugin.action`)
+ - declare custom reducers (`Plugin.reducer`)
+ - subscribe to map events (`app.map().on...`)
+
+Action hooks and event handlers can
+
+ - invoke further actions (`app.perform`)
+ - update the state (via `app.set` or custom reducers)
+ - update the map (`app.map()....`)
+ - call external APIs
+
+NB: map-to-state updates are one-way, never update the map based on the state!
+
+ *
+ *
+ */

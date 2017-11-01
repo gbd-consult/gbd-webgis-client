@@ -45,49 +45,11 @@ Run the dev server on `localhost:8080`:
 APP=my_app npm run dev-server
 ```
 
-## Plugins
-
-The client can be extended with plugins. A plugin is a module in `src/plugins`.  It must include the app code module (`app`) and export at least one class called `Plugin`:
+Build the docs in `./doc`
 ```
-import app from 'app';
-
-export class Plugin extends app.Component {
-...
-}
+APP=my_app npm run doc
 ```
 
-For OpenLayers, include the `ol-all` module, for UI plugins, `React` and `material-ui`:
+## further reading
 
-```
-import React from 'react';
-import IconButton from 'material-ui/IconButton';
-...etc
-
-import ol from `ol-all`;
-import app from 'app';
-```
-
-Plugins can communicate via messaging, to send a message use `this.emit(message-name, ...args)`:
-
-```
-export class Plugin extends app.Component {
-    onClick() {
-        this.emit('draw.geometry', new ol.geom.Circle(...))
-    }
-    ...
-}
-```
-
-To listen to a message, call `this.on(message-name, handler)` in `Plugin.componentDidMount`:
-
-```
-export class Plugin extends app.Component {
-    componentDidMount() {
-        this.on('draw.geometry', (geom) => this.doSomething(geom));
-    }
-    ...
-}
-```
-
-The `app` module provides useful globals for plugins, e.g. `app.map()` is the current map and `app.config` is your app runtime config.
-
+http://gbdclient.gbd-consult.de/doc

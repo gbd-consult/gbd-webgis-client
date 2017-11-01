@@ -1,4 +1,11 @@
-/// demo plugin
+/**
+ * @module plugins/demo
+ *
+ * @desc
+ *
+ * The demo plugin. Demonstrates the basic ascpects of the plugin API.
+ *
+ */
 
 import React from 'react';
 import RaisedButton from 'material-ui/RaisedButton';
@@ -52,7 +59,6 @@ class Plugin extends app.Plugin {
     }
 }
 
-
 class Button extends React.Component {
 
     onClick() {
@@ -77,6 +83,10 @@ class Informer extends React.Component {
 
 export default {
     Plugin,
+
+    /** Toolbar button */
     Button: app.connect(Button),
+
+    /** Statusbar component */
     Informer: app.connect(Informer, ['dotsCount'])
 };

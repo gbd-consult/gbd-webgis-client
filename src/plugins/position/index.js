@@ -1,3 +1,12 @@
+/**
+ * @module plugins/position
+ *
+ * @desc
+ *
+ * A control to show and edit the current map position.
+ *
+ */
+
 import React from 'react';
 import TextField from 'material-ui/TextField';
 
@@ -27,6 +36,8 @@ class Control extends React.Component {
 
 export default{
     Plugin,
+
+    /** Control component */
     Control: app.connect(Control, ['mapMouseXY'])
 
 };
