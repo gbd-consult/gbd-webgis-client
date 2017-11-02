@@ -12,7 +12,7 @@ const OUT = 'dist';
 
 let here = (...paths) => path.resolve(__dirname, ...paths);
 
-let _globalAppConfig;
+let _buildConfig;
 
 let defaults = {
 
@@ -45,7 +45,7 @@ let defaults = {
                 enforce: 'pre',
                 loader: 'template-loader',
                 options: {
-                    appConfig: () => _globalAppConfig
+                    buildConfig: () => _buildConfig
                 }
             },
             {
@@ -72,7 +72,7 @@ let defaults = {
                         loader: 'lang-loader',
                         options: {
                             baseDir: here(SRC),
-                            appConfig: () => _globalAppConfig
+                            buildConfig: () => _buildConfig
                         }
                     },
 
@@ -113,7 +113,13 @@ webpackConfigs.dev = merge(defaults, {
     devServer: {
         hot: true,
         inline: true,
-        port: 8080
+        port: 8080,
+        // in the dev mode, assume the runtime config to be in the app dir
+        before(app) {
+            app.get(_buildConfig.configURL, function (req, res) {
+                res.json(require('.' + _buildConfig.configURL));
+            });
+        }
     },
     devtool: 'cheap-eval-source-map',
     plugins: [
@@ -122,7 +128,7 @@ webpackConfigs.dev = merge(defaults, {
 });
 
 
-webpackConfigs.prod = merge(defaults, {
+webpackConfigs.production = merge(defaults, {
     plugins: [
         new webpack.DefinePlugin({
             'process.env': {
@@ -149,13 +155,13 @@ ConfigPlugin.prototype.apply = function (compiler) {
             here('node_modules'),
             here(SRC),
             here(SRC, 'node_modules/ol-all/index.js'),
-            _globalAppConfig.env.build === 'dev');
+            _buildConfig.env.build === 'dev');
     });
 };
 
 let config = function (env) {
-    _globalAppConfig = require(here(env.appConfig));
-    _globalAppConfig.env = env;
+    _buildConfig = require(env.app + '.build.js');
+    _buildConfig.env = env;
 
     let c = Object.assign({}, webpackConfigs[env.build]);
     c.plugins = [].concat(

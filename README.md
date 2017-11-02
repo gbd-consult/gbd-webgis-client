@@ -16,40 +16,48 @@ cd gbd-webgis-client
 npm install
 ```
 
-## Application config
+## Configuration
 
-First, create a config for your application (e.g. `my_app.config.js`). A config module must export an object like this
+There are two configuration files: build-time config and a run-time one. 
+The build config is a module called `my_app.build.js`, it should export an object like this: 
 
 ```
 module.exports = {
-    build: build-time configs, e.g. application UI
-    runtime: run-time configs, e.g. map source and initial position
+    lang: 'en',
+    configURL: 'runtime-config-url',
+    ui: '...',
+    plugins: [...]
 }
 ```
-(see `exampleapp.config.js` for details).
 
-## npm tasks
+(see `exampleapp.build.js` for more).
 
-Each task must be given your app name.
+The runtime config can any url on your server that returns a json. (see `exampleapp.runtime.json` for an example).
 
-Create a production build in `/dist`
+## Build tasks
+
+Each build task must be given your app build config (without extensions):
+
+Create a production build in `/dist`:
 ```
-APP=my_app npm run prod
+APP=path/to/my_app npm run production
 ```
 Build the fat dev version:
 ```
-APP=my_app npm run dev
+APP=path/to/my_app npm run dev
 ```
 Run the dev server on `localhost:8080`:
 ```
-APP=my_app npm run dev-server
+APP=path/to/my_app npm run dev-server
 ```
+
+## Other tasks
 
 Build the docs in `./doc`
 ```
-APP=my_app npm run doc
+npm run doc
 ```
 
-## further reading
+## Further reading
 
 http://gbdclient.gbd-consult.de/doc

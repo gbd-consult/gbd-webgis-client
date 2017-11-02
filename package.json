@@ -4,9 +4,9 @@
     "description": "",
     "main": "index.html",
     "scripts": {
-        "dev": "webpack --progress --color --env.build=dev --env.appConfig=$APP.config.js",
-        "dev-server": "webpack-dev-server --progress --color --env.build=dev --env.appConfig=$APP.config.js",
-        "prod": "webpack --progress --json --env.build=prod --env.appConfig=$APP.config.js | webpack-bundle-size-analyzer",
+        "dev": "webpack --progress --color --env.build=dev --env.app=$APP",
+        "dev-server": "webpack-dev-server --progress --color --env.build=dev --env.app=$APP",
+        "production": "webpack --progress --json --env.build=production --env.app=$APP | webpack-bundle-size-analyzer",
         "doc": "rimraf ./doc && jsdoc -c ./jsdoc.config.js"
     },
     "author": "Geoinformatikbüro Dassau GMbH",

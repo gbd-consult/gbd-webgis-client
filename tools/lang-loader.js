@@ -8,7 +8,7 @@ function loader(content) {
     let res = lang.process(
         content,
         this.resource,
-        options.appConfig().build.lang,
+        options.buildConfig().lang,
         options.baseDir);
 
     if (!res) {
@@ -25,7 +25,7 @@ function loader(content) {
         });
     }
 
-    if(res.text) {
+    if (res.text) {
         return res.text;
     }
 
