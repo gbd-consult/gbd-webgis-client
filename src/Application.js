@@ -8,7 +8,15 @@ import * as ReactRedux from 'react-redux';
 
 import app from 'app';
 
-
+/**
+ * @class Application
+ * @hideconstructor
+ *
+ * @desc
+ *
+ * Main application component.
+ *
+ */
 export default class Application extends React.Component {
     async componentDidMount() {
         let map = app.map();

@@ -4,9 +4,10 @@
     "description": "",
     "main": "index.html",
     "scripts": {
-        "dev": "webpack --progress --color --env.build=dev --env.appConfig=$APP.config.js",
-        "dev-server": "webpack-dev-server --progress --color --env.build=dev --env.appConfig=$APP.config.js",
-        "prod": "webpack --progress --json --env.build=prod --env.appConfig=$APP.config.js | webpack-bundle-size-analyzer"
+        "dev": "webpack --progress --color --env.build=dev --env.app=$APP",
+        "dev-server": "webpack-dev-server --progress --color --env.build=dev --env.app=$APP",
+        "production": "webpack --progress --json --env.build=production --env.app=$APP | webpack-bundle-size-analyzer",
+        "doc": "rimraf ./doc && jsdoc -c ./jsdoc.config.js"
     },
     "author": "Geoinformatikbüro Dassau GMbH",
     "license": "MIT",
@@ -14,6 +15,7 @@
         "axios": "^0.16.2",
         "babel-core": "^6.26.0",
         "babel-loader": "^7.1.2",
+        "babel-plugin-lodash": "^3.2.11",
         "babel-plugin-transform-object-rest-spread": "^6.26.0",
         "babel-polyfill": "^6.26.0",
         "babel-preset-env": "^1.6.1",
@@ -23,9 +25,11 @@
         "eslint-loader": "^1.9.0",
         "extract-text-webpack-plugin": "^3.0.1",
         "file-loader": "^1.1.5",
+        "jsdoc": "^3.5.5",
         "lodash": "^4.17.4",
         "material-design-icons": "^3.0.1",
         "material-ui": "^0.19.4",
+        "minami": "^1.2.3",
         "node-sass": "^4.5.3",
         "ol": "^4.4.2",
         "proj4": "^2.4.4",

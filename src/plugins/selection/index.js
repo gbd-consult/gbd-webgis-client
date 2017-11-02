@@ -1,3 +1,11 @@
+/**
+ * @module plugins/selection
+ *
+ * @desc
+ *
+ * A tool for selecting areas and objects on the map.
+ *
+ */
 import React from 'react';
 
 import Popover from 'material-ui/Popover';
@@ -181,5 +189,7 @@ class Button extends React.Component {
 
 export default {
     Plugin,
+
+    /** Toolbar button */
     Button: app.connect(Button, ['mapMode'])
 };

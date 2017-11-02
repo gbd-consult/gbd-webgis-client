@@ -17,7 +17,8 @@
         "document": false,
         "URL": false,
         "module": false,
-        "require": false
+        "require": false,
+        "__": false
     },
     "extends": "eslint:recommended",
     "rules": {

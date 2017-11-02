@@ -1,4 +1,12 @@
-/// provides the identification (point+click) map mode
+/**
+ * @module plugins/identify
+ *
+ * @desc
+ *
+ * Provides the identification (point+click) map mode
+ *
+ */
+
 
 import React from 'react';
 
@@ -90,6 +98,7 @@ class Button extends React.Component {
         return (
             <ToolbarButton
                 active={active}
+                tooltip={__("buttonTooltip")}
                 onClick={() => app.perform('identifyModeToggle')}
                 icon='info'
             />
@@ -100,5 +109,6 @@ class Button extends React.Component {
 
 export default {
     Plugin,
+    /** Toolbar button that activates the mode */
     Button: app.connect(Button, ['mapMode'])
 };
