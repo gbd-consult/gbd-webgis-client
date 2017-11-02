@@ -10,18 +10,13 @@ class Plugin extends app.Plugin {
 class Toolbar2 extends React.Component {
     render() {
         var style = {
-            position: 'fixed',
-            bottom: '10px',
+            position: 'absolute',
+            top: '10px',
             right: '10px',
         };
-        var childStyle = { marginBottom: '10px' };
         return (
             <div style={style}>
-                {React.Children.map(this.props.children, child => {
-                    return React.cloneElement(child, {
-                        style: childStyle
-                    })
-                })}
+                {this.props.children}
             </div>
         );
     }
