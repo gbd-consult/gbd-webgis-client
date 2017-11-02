@@ -33,7 +33,12 @@ module.exports = {
     // application theme, use colors... for mui colors
     theme: `
             palette: {
-                textColor: colors.cyan500,
+                primary1Color: "#0086C9",
+                primary2Color: "#005F9D",
+                primary3Color: colors.grey400,
+                accent1Color: "#B1CA34",
+                accent2Color: colors.grey100,
+                accent3Color: colors.grey500,
             }
         `,
 
