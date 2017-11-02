@@ -8,7 +8,7 @@
  */
 
 import React from 'react';
-import TextField from 'material-ui/TextField';
+import StatusbarTextField from '../ui/components/statusbarTextField'
 
 import app from 'app';
 import ol from 'ol-all';
@@ -25,10 +25,25 @@ class Control extends React.Component {
 
     render() {
         let xy = this.props.mapMouseXY || [0, 0];
+        var textFieldStyle = {
+            width: 70,
+            height: 'auto',
+            marginLeft: 3,
+            marginRight: 3,
+        };
+        var inputStyle = {
+            textAlign: 'right',
+        };
         return (
-            <div>
-                <TextField style={{width: 80}} value={xy[0].toFixed(0)}/>
-                <TextField style={{width: 80}} value={xy[1].toFixed(0)}/>
+            <div style={{marginLeft: '5px', marginRight: '5px'}}>
+                <StatusbarTextField
+                    value={xy[0].toFixed(0)}
+                    floatingLabelText='X'
+                />
+                <StatusbarTextField
+                    value={xy[1].toFixed(0)}
+                    floatingLabelText='Y'
+                />
             </div>
         );
     }
