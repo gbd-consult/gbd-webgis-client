@@ -114,10 +114,19 @@ webpackConfigs.dev = merge(defaults, {
         hot: true,
         inline: true,
         port: 8080,
+
         // in the dev mode, assume the runtime config to be in the app dir
+        // if the runtime url is `/dev`, take it from the build file
         before(app) {
             app.get(_buildConfig.configURL, function (req, res) {
-                res.json(require('.' + _buildConfig.configURL));
+                let r;
+
+                if(_buildConfig.configURL === '/dev')
+                    r = _buildConfig.runtime;
+                else
+                    r = require(path.dirname(_buildConfig.env.app) + _buildConfig.configURL);
+
+                res.json(r);
             });
         }
     },
