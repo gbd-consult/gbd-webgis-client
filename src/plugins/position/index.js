@@ -17,11 +17,11 @@ class Plugin extends app.Plugin {
     init() {
         app.set({
             mapMouseXY: app.map().getView().getCenter()
-        })
+        });
 
         app.map().on('pointermove', (evt) => {
             app.set({
-                mapMouseXY: app.map().getCoordinateFromPixel(evt.pixel)
+                mapMouseXY: evt.coordinate
             })
         });
     }
