@@ -7,17 +7,11 @@
             "experimentalObjectRestSpread": true
         }
     },
+    "env": {
+        "browser": true,
+        "node": true
+    },
     "globals": {
-        "console": false,
-        "setTimeout": false,
-        "clearTimeout": false,
-        "Promise": false,
-        "Node": false,
-        "window": false,
-        "document": false,
-        "URL": false,
-        "module": false,
-        "require": false,
         "__": false
     },
     "extends": "eslint:recommended",
