@@ -25,24 +25,17 @@ class Control extends React.Component {
 
     render() {
         let xy = this.props.mapMouseXY || [0, 0];
-        var textFieldStyle = {
-            width: 70,
-            height: 'auto',
-            marginLeft: 3,
-            marginRight: 3,
-        };
-        var inputStyle = {
-            textAlign: 'right',
-        };
         return (
-            <div style={{marginLeft: '5px', marginRight: '5px'}}>
+            <div>
                 <StatusbarTextField
                     value={xy[0].toFixed(0)}
-                    floatingLabelText='X'
+                    label='X'
+                    width={90}
                 />
                 <StatusbarTextField
                     value={xy[1].toFixed(0)}
-                    floatingLabelText='Y'
+                    label='Y'
+                    width={90}
                 />
             </div>
         );

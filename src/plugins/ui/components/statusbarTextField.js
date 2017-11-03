@@ -5,8 +5,8 @@ import muiThemeable from 'material-ui/styles/muiThemeable';
 
 class StatusbarTextField extends React.Component {
     render(){
-        var textFieldStyle = {
-            width: 80,
+        var style = {
+            width: this.props.width,
             height: 'auto',
             marginLeft: 3,
             marginRight: 3,
@@ -15,26 +15,20 @@ class StatusbarTextField extends React.Component {
         };
         var inputStyle = {
             textAlign: 'right',
-            lineHeight: '28px',
-            marginTop: 0,
-            color: this.props.muiTheme.palette.primaryTextColor,
+            width: this.props.width - 20,
+            color: this.props.muiTheme.palette.textColor,
+            backgroundColor: 'transparent',
+            padding: 0,
+            border: 'none',
         };
-        var floatingLabelStyle = {
-            position: 'static',
-            transform: 'none',
+        var labelStyle = {
+            color: this.props.muiTheme.palette.primary1Color,
         };
         return (
-            <TextField
-                disabled
-                value={this.props.value}
-                floatingLabelText={this.props.floatingLabelText}
-                style={textFieldStyle}
-                inputStyle={inputStyle}
-                underlineShow={false}
-                floatingLabelStyle={floatingLabelStyle}
-                floatingLabelFocusStyle={floatingLabelStyle}
-                floatingLabelShrinkStyle={floatingLabelStyle}
-            />
+            <div style={style}>
+                <label style={labelStyle}>{this.props.label}</label>
+                <input disabled style={inputStyle} value={this.props.value}/>
+            </div>
         );
     }
 }

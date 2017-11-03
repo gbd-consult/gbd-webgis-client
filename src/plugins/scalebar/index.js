@@ -1,5 +1,6 @@
 import React from 'react';
 import Slider from 'material-ui/Slider';
+import StatusbarTextField from '../ui/components/statusbarTextField'
 
 import app from 'app';
 import ol from 'ol-all';
@@ -23,8 +24,12 @@ class Control extends React.Component {
         });
 
         return (
-            <div style={{border: '2px solid blue'}}>
-                <b>1:{this.props.mapScale}</b>
+            <div>
+                <StatusbarTextField
+                    label='Maßstab'
+                    value={'1:' + this.props.mapScale}
+                    width={80}
+                />
                 <Slider
                     style={{width: 200}}
                     min={0}
