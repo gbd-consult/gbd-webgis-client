@@ -15,7 +15,7 @@ function buildLayerTree() {
             name: layer.get('name'),
             visible: layer.getVisible(),
             uid: ol.getUid(layer),
-            type: layer.get('type')
+            kind: layer.get('kind')
         };
 
         if(layer.getLayers) {
@@ -64,7 +64,7 @@ class Tree extends React.Component {
                         backgroundColor: active ? 'red' : 'white'
                     }}
                     onClick={() => app.perform('layerSetActive', {uid: layer.uid})}
-                >[{layer.type}] {layer.name}</a>
+                >[{layer.kind}] {layer.name}</a>
             }
             leftCheckbox={
                 <Checkbox

@@ -58,7 +58,7 @@ function parseLayer(el) {
     if (sub.length) {
         return new ol.layer.Group({
             ...opts,
-            type: 'WMSGroup',
+            kind: 'Qgis2Group',
             layers: sub.reverse().map(parseLayer)
         });
     }
@@ -75,7 +75,7 @@ function parseLayer(el) {
 
     return new ol.layer.Image({
         ...opts,
-        type: 'WMSImage'
+        kind: 'Qgis2Image'
     });
 }
 
@@ -92,12 +92,11 @@ function parseLayers(doc) {
         root = layers[0];
     } else {
         root = new ol.layer.Group({
-            name: 'WMS',
             layers
         });
     }
 
-    root.set('type', 'WMSRoot');
+    root.set('kind', 'Qgis2Root');
     return root;
 }
 
@@ -107,8 +106,7 @@ async function loadLayers() {
 
     let root = parseLayers(descDoc.firstChild);
     if (root) {
-        root.setZIndex(1);
-        app.map().addLayer(root);
+        app.map().attachLayer('project', root);
     }
 }
 

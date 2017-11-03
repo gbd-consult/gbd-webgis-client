@@ -23,7 +23,7 @@ module.exports = {
 
     // initial state of the app
     initState: `
-            sidebarVisible: false,
+            sidebarVisible: true,
             sidebarActivePanel: 'layers',
             appWaiting: false,
             toolbarVisible: true,

@@ -27,27 +27,6 @@ function getGeometry(result) {
 }
 
 
-function showResults(results) {
-    app.perform('markerMark', {
-        geometries: results.map(getGeometry).filter(g => g),
-        clear: true,
-        pan: false
-    });
-
-    app.perform('detailsShow', {
-        content: <div>
-            {results.map((r, n) => <FeatureInfo key={n} feature={r}/>)}
-        </div>
-    });
-}
-
-function clearResults() {
-    app.perform('markerClear');
-    app.perform('detailsShow', {
-        content: null
-    });
-}
-
 class Plugin extends app.Plugin {
 
     init() {
@@ -77,7 +56,7 @@ class Plugin extends app.Plugin {
 
         this.action('identifyCoordinate', ({coordinate}) => {
             this.results = [];
-            clearResults();
+            app.perform('markerClear');
             app.perform('identify', {uid: ++this.uid, coordinate});
         });
 
@@ -87,7 +66,21 @@ class Plugin extends app.Plugin {
                 return;
             }
             this.results = [].concat(results, this.results);
-            showResults(this.results);
+            this.showResults(this.results);
+        });
+    }
+
+    showResults(results) {
+        app.perform('markerMark', {
+            geometries: results.map(getGeometry).filter(g => g),
+            clear: true,
+            pan: false
+        });
+
+        app.perform('detailsShow', {
+            content: <div>
+                {results.map((r, n) => <FeatureInfo key={n} feature={r}/>)}
+            </div>
         });
     }
 }

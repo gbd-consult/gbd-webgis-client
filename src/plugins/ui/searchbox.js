@@ -1,33 +1,60 @@
 import React from 'react';
 import TextField from 'material-ui/TextField';
 import Paper from 'material-ui/Paper';
+import IconButton from 'material-ui/IconButton';
+import FontIcon from 'material-ui/FontIcon';
 
 import _ from 'lodash';
 
 import app from 'app';
 
-function runSearch({input}) {
-    app.set({
-        searchInput: input,
-        searchResults: []
-    });
-    if (input.trim())
-        app.perform('search', {input});
-}
-
 
 class Plugin extends app.Plugin {
 
     init() {
-        this.action('searchChanged', _.debounce(runSearch, 500));
+        this.uid = 0;
+        this.results = [];
 
-        this.reducer('searchReturn', (state, {results}) => ({
-            searchResults: [].concat(
-                state.searchResults,
-                results
-            )
-        }));
+        let run = ({input}) => {
+            this.results = [];
+            this.input = input.trim();
 
+            if (!this.input) {
+                return this.showResults([], '');
+            }
+
+            app.perform('search', {uid: ++this.uid, input: this.input});
+        };
+
+        this.action('searchChanged', _.debounce(run, 500));
+
+        this.action('searchReturn', ({uid, results}) => {
+            if (uid !== this.uid) {
+                return;
+            }
+            this.results = [].concat(this.results, results);
+            this.showResults(this.results, this.input);
+        });
+
+        this.action('searchHighlight', ({result}) => {
+            app.perform('markerMark', {
+                geometries: [result.geometry],
+                clear: true,
+                pan: true
+            })
+        });
+
+        this.action('searchClear', () => {
+            this.results = [];
+            this.showResults([], '');
+        });
+    }
+
+    showResults(results, input) {
+        app.set({
+            searchInput: input,
+            searchResults: results
+        });
     }
 }
 
@@ -35,16 +62,25 @@ class SearchResult extends React.Component {
     render() {
         return (
             <div
-                onClick={() =>
-                    app.perform('markerMark', {
-                        geometries: [this.props.value.geometry],
-                        pan: true
-                    })
-                }
+                onClick={() => app.perform('searchHighlight', {result: this.props.result})}
             >
-                <b>{this.props.value.category}</b>
-                {this.props.value.text}
+                <b>{this.props.result.category}</b>
+                {this.props.result.text}
             </div>
+        );
+    }
+}
+
+class SearchClearButton extends React.Component {
+    render() {
+        return (
+            <IconButton
+                tooltip={__("searchClearTooltip")}
+                onClick={() => app.perform('searchClear')}
+            >
+                <FontIcon className="material-icons"
+                >close</FontIcon>
+            </IconButton>
         );
     }
 
@@ -66,8 +102,10 @@ class Searchbox extends React.Component {
                 <TextField
                     onChange={(evt, input) => app.perform('searchChanged', {input})}
                 />
+                <SearchClearButton />
+
                 {
-                    results.map((r, n) => <SearchResult key={n} value={r}/>)
+                    results.map((r, n) => <SearchResult key={n} result={r}/>)
                 }
             </Paper>
         )

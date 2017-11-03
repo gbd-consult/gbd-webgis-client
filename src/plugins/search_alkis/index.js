@@ -20,7 +20,7 @@ function convert(rec) {
 class Plugin extends app.Plugin {
     init() {
 
-        this.action('search', async ({input}) => {
+        this.action('search', async ({uid, input}) => {
 
             let res = await app.http.get(app.config.str('server.url'), {
                 plugin: 'search_alkis',
@@ -28,11 +28,11 @@ class Plugin extends app.Plugin {
                 query: input
             });
 
-            if(res && res.length) {
-                app.perform('searchReturn', {
-                    results: res.map(convert)
-                });
-            }
+            app.perform('searchReturn', {
+                uid,
+                results: (res || []).map(convert)
+            });
+
         });
     }
 }

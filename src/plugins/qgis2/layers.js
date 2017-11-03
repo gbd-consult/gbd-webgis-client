@@ -3,16 +3,19 @@ import app from 'app';
 function activeNames() {
     let activeLayer = app.map().getLayerById(app.get('layerActiveUid'));
     return app.map()
-        .enumLayers(activeLayer)
-        .filter(layer => layer.getVisible() && layer.get('type') === 'WMSImage' && layer.get('wmsName'))
-        .map(layer => layer.get('wmsName'));
+        .getLayersOfKind('Qgis2Image', activeLayer)
+        .filter(layer => layer.getVisible())
+        .map(layer => layer.get('wmsName'))
+        .filter(Boolean);
 }
 
 function visibleNames() {
     return app.map()
-        .enumLayers()
-        .filter(layer => layer.getVisible() && layer.get('type') === 'WMSImage' && layer.get('wmsName'))
-        .map(layer => layer.get('wmsName'));
+        .getLayersOfKind('Qgis2Image')
+        .filter(layer => layer.getVisible())
+        .map(layer => layer.get('wmsName'))
+        .filter(Boolean);
+
 }
 
 export default {

@@ -98,7 +98,7 @@ function process(text, fpath, lang, baseDir) {
     let [out, missing] = replacePlaceholders(text, data.strings[lang]);
 
     return {
-        errors: missing.map(symbol => `no translation for "${symbol}"`),
+        errors: missing.map(symbol => `no translation for ${lang}:"${symbol}"`),
         resources: data.resources,
         text: out
     }
