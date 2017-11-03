@@ -1,7 +1,7 @@
 module.exports = {
 
     en: {
-        printTooltip: 'Print'
+        printTooltip: 'print'
     },
     de: {
         printTooltip: 'Drucken'

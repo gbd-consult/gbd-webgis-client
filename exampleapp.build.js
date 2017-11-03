@@ -45,7 +45,8 @@ module.exports = {
         </ui.Sidebar>
         <ui.Toolbar>
             <identify.Button />
-            <selection.Button />
+            <selection.AreaButton />
+            <selection.QueryButton />
             <qgis2.PrintButton />
         </ui.Toolbar>
         <ui.Statusbar>

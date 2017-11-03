@@ -20,7 +20,13 @@ class Plugin extends app.Plugin {
             let features = await wms.query(
                 coordinate,
                 layers.activeNames());
-            app.perform('identifyReturn', {uid, results: features})
+            app.perform('identifyReturn', {uid, features})
+        });
+
+        this.action('query', async ({geometry, done}) => {
+            done(await wfs.query(
+                geometry,
+                layers.activeNames()));
         });
 
         this.action('qgisPrintToggleOverlay', async () => {
@@ -50,6 +56,8 @@ class PrintButton extends React.Component {
         );
     }
 }
+
+
 
 
 export default {

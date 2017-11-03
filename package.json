@@ -13,6 +13,7 @@
     "author": "Geoinformatikbüro Dassau GMbH",
     "license": "MIT",
     "dependencies": {
+        "@turf/turf": "^4.7.3",
         "axios": "^0.16.2",
         "babel-core": "^6.26.0",
         "babel-loader": "^7.1.2",

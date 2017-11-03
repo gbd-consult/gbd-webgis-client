@@ -1,28 +1,10 @@
 import app from 'app';
 import ol from 'ol-all';
-
-import _ from 'lodash';
+import mapUtil from 'map-util';
 
 const LAYER_KIND = 'markerLayer';
 
-function style(opts) {
-
-    Object.keys(opts).forEach(key => {
-
-        let val = opts[key];
-
-        if (key === 'fill' && _.isPlainObject(val))
-            opts[key] = new ol.style.Fill(val);
-
-        if (key === 'stroke' && _.isPlainObject(val))
-            opts[key] = new ol.style.Stroke(val);
-
-        if (key === 'text' && _.isPlainObject(val))
-            opts[key] = new ol.style.Text(val);
-    });
-
-    return new ol.style.Style(opts);
-
+function getGeometry(feature) {
 }
 
 
@@ -37,13 +19,13 @@ class Plugin extends app.Plugin {
             stroke: {
                 color: '#fffa27',
                 lineDash: [3, 3],
-                width: 1
+                width: 2
             },
         };
 
-        this.action('markerMark', ({geometries, pan}) => {
+        this.action('markerMark', ({features, pan}) => {
             this.clear();
-            this.mark(geometries);
+            this.mark(features);
             if (pan)
                 this.pan();
         });
@@ -51,12 +33,23 @@ class Plugin extends app.Plugin {
         this.action('markerClear', () => this.clear());
     }
 
-    mark(geometries) {
-        let la = app.map().serviceLayer(LAYER_KIND, () => new ol.layer.Vector({
-            source: new ol.source.Vector(),
-            style: style(this.style)
-        }));
-        la.getSource().addFeatures(geometries.map(g => new ol.Feature(g)));
+    mark(features) {
+        let geoms = [];
+
+        features.forEach(f => {
+            if (f && f.getGeometry)
+                return geoms.push(f.getGeometry())
+            if (f && f.geometry)
+                return geoms.push(f.geometry);
+        });
+
+        if (geoms.length) {
+            let la = app.map().serviceLayer(LAYER_KIND, () => new ol.layer.Vector({
+                source: new ol.source.Vector(),
+                style: mapUtil.makeStyle(this.style)
+            }));
+            la.getSource().addFeatures(geoms.map(g => new ol.Feature(g)));
+        }
     }
 
     pan() {

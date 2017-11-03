@@ -1,5 +1,7 @@
-import app from 'app';
 import ol from 'ol-all';
+
+import app from 'app';
+import mapUtil from 'map-util';
 
 
 async function request(params) {
@@ -30,7 +32,7 @@ async function describe() {
 
 }
 
-async function query(geometry, layerNames = null, limit = 100) {
+async function query(geometry, layerNames = null, limit = 1000) {
     let tmap = await describe();
 
     let qtypes = Object.keys(tmap);
@@ -57,10 +59,14 @@ async function query(geometry, layerNames = null, limit = 100) {
         gmlFormat: new ol.format.GML2()
     });
 
-    return fmt.readFeatures(featuresDoc, {
+    let fs = fmt.readFeatures(featuresDoc, {
         dataProjection: app.config.str('map.crs.server'),
         featureProjection: app.config.str('map.crs.client')
     });
+
+    return mapUtil.intersectingFeatures(fs, geometry);
+
+
 }
 
 

@@ -13,26 +13,17 @@ import IconButton from 'material-ui/IconButton';
 import FontIcon from 'material-ui/FontIcon';
 import {blue500, red500} from 'material-ui/styles/colors';
 
-import FeatureInfo from 'components/FeatureInfo';
-
 import _ from 'lodash';
 
 import app from 'app';
 import ol from 'ol-all';
-
-function getGeometry(result) {
-    if (result.getGeometry)
-        return result.getGeometry();
-    return result.geometry;
-}
-
 
 class Plugin extends app.Plugin {
 
     init() {
 
         this.uid = 0;
-        this.results = [];
+        this.features = [];
 
         let run = evt => app.perform('identifyCoordinate', {coordinate: evt.coordinate});
 
@@ -55,33 +46,27 @@ class Plugin extends app.Plugin {
         });
 
         this.action('identifyCoordinate', ({coordinate}) => {
-            this.results = [];
+            this.features = [];
             app.perform('markerClear');
             app.perform('identify', {uid: ++this.uid, coordinate});
         });
 
-        this.action('identifyReturn', ({uid, results}) => {
+        this.action('identifyReturn', ({uid, features}) => {
             if (uid !== this.uid) {
-                console.log('identify results arrived too late, discarding');
                 return;
             }
-            this.results = [].concat(results, this.results);
-            this.showResults(this.results);
+            this.features = [].concat(features, this.features);
+            this.update();
         });
     }
 
-    showResults(results) {
+    update() {
         app.perform('markerMark', {
-            geometries: results.map(getGeometry).filter(g => g),
-            clear: true,
+            features: this.features,
             pan: false
         });
 
-        app.perform('detailsShow', {
-            content: <div>
-                {results.map((r, n) => <FeatureInfo key={n} feature={r}/>)}
-            </div>
-        });
+        app.perform('detailsShowFeatures', {features: this.features});
     }
 }
 

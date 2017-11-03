@@ -17,75 +17,69 @@ import Divider from 'material-ui/Divider';
 
 import {blue500, red500} from 'material-ui/styles/colors';
 
-
 import app from 'app';
+import mapUtil from 'map-util';
 import ol from 'ol-all';
 
-const LAYER_NAME = 'selectionLayer';
-const MODE_NAME = 'selectionMode';
 
 export class Plugin extends app.Plugin {
     init() {
+        this.uid = 0;
+        this.features = [];
+
+
         this.source = null;
-        this.style = new ol.style.Style({
-            stroke: new ol.style.Stroke({
+        this.style = mapUtil.makeStyle({
+            fill: {
+                color: 'rgba(255,255,255,0.2)'
+            },
+            stroke: {
                 color: '#000000',
                 lineDash: [5, 5],
                 width: 1
-            })
+            }
         });
 
         this.action('selectionStart', ({shape}) => this.start(shape));
         this.action('selectionDrop', () => this.drop());
 
-        this.action('mapMode', ({name, cursor, interactions}) => {
-            app.map().setMode(name, cursor, interactions)
-            app.set({mapMode: name})
+        this.action('selectionQuery', () => {
+            this.features = [];
+            app.perform('markerClear');
+            app.perform('query', {
+                geometry: this.getGeometry(),
+                done: features => {
+                    this.features.push(...features);
+                    app.perform('markerMark', {features: this.features});
+                    app.perform('detailsShowFeatures', {features: this.features});
+                }
+            });
         });
 
-        this.action('mapDefaultMode', () => {
-            app.map().defaultMode();
-            app.set({mapMode: ''})
-        });
+        this.action('queryReturn', ({uid, features}) => {
+            this.features.push(...features);
+            app.perform('markerMark', {features: this.features});
+            app.perform('detailsShowFeatures', {features: this.features});
 
+        });
 
     }
 
-    removeLayer() {
-        for (let la of app.map().getLayers().getArray()) {
-            if (la.get('name') === LAYER_NAME) {
-                app.map().removeLayer(la);
-                return;
-            }
-        }
-    }
-
-    addLayer() {
-        this.removeLayer();
-        let la = new ol.layer.Vector({
-            source: this.source,
-            style: this.style
-        });
-
-        la.set('name', LAYER_NAME);
-        app.map().addLayer(la);
-        return la;
-    }
-
-    interactions(shape) {
+    drawInteraction(shape) {
         if (shape === 'Polygon' || shape === 'Circle') {
-
-            let draw = new ol.interaction.Draw({
+            return new ol.interaction.Draw({
                 type: shape,
                 style: this.style,
                 source: this.source
             });
-            draw.on('drawend', (evt) => this.end(evt));
-            return [
-                draw,
-                new ol.interaction.DragPan(),
-                new ol.interaction.MouseWheelZoom()
-            ];
+        }
+        if (shape === 'Box') {
+            return new ol.interaction.Draw({
+                type: 'Circle',
+                geometryFunction: ol.interaction.Draw.createBox(),
+                style: this.style,
+                source: this.source
+            });
         }
     }
 
@@ -93,11 +87,23 @@ export class Plugin extends app.Plugin {
         this.source = new ol.source.Vector({
             projection: app.config.str('map.crs.client')
         });
-        this.addLayer();
+        app.map().removeServiceLayer('selection');
+        app.map().serviceLayer('selection', () => new ol.layer.Vector({
+            source: this.source,
+            style: this.style
+        }));
+
+        let draw = this.drawInteraction(shape);
+        draw.on('drawend', (evt) => this.end(evt));
+
         app.perform('mapMode', {
             name: 'selection',
             cursor: 'crosshair',
-            interactions: this.interactions(shape)
+            interactions: [
+                draw,
+                new ol.interaction.DragPan(),
+                new ol.interaction.MouseWheelZoom()
+            ]
         });
     }
 
@@ -108,7 +114,7 @@ export class Plugin extends app.Plugin {
 
 
     drop() {
-        this.removeLayer();
+        app.map().removeServiceLayer('selection');
         this.source = null;
         app.set({selectionGeometry: null});
     }
@@ -124,7 +130,7 @@ export class Plugin extends app.Plugin {
     }
 }
 
-class Button extends React.Component {
+class AreaButton extends React.Component {
 
 
     constructor(props) {
@@ -181,6 +187,7 @@ class Button extends React.Component {
                     onRequestClose={evt => this.onClose(evt)}
                 >
                     <Menu onChange={(evt, value) => this.onChange(evt, value)}>
+                        <MenuItem value="Box" primaryText="Box"/>
                         <MenuItem value="Polygon" primaryText="Polygon"/>
                         <MenuItem value="Circle" primaryText="Circle"/>
                         <Divider/>
@@ -193,9 +200,30 @@ class Button extends React.Component {
 
 }
 
+class QueryButton extends React.Component {
+
+    render() {
+        return (
+            <div>
+                <IconButton
+                    tooltip={__("queryTooltip")}
+                    onClick={() => app.perform('selectionQuery')}>
+                    <FontIcon className="material-icons">search</FontIcon>
+                </IconButton>
+            </div>
+
+        );
+    }
+}
+
+
 export default {
     Plugin,
 
-    /** Toolbar button */
-    Button: app.connect(Button, ['mapMode'])
+    /** Toolbar button to select areas */
+    AreaButton: app.connect(AreaButton, ['mapMode']),
+
+    /** Toolbar button to query selection */
+    QueryButton: app.connect(QueryButton),
+
 };
