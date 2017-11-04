@@ -1,4 +1,4 @@
-/// example application build configuration
+/// example application showing Hamburg ALKIS data
 
 module.exports = {
 
@@ -6,10 +6,10 @@ module.exports = {
     lang: 'de',
 
     // application title
-    title: 'Example Application',
+    title: 'Hamburg ALKIS',
 
     // where to find the runtime config
-    configURL: '/exampleapp.runtime.json',
+    configURL: '/hamburg.runtime.json',
 
     // plugins to include
     plugins: [
