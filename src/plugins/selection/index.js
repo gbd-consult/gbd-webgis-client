@@ -24,10 +24,6 @@ import ol from 'ol-all';
 
 export class Plugin extends app.Plugin {
     init() {
-        this.uid = 0;
-        this.features = [];
-
-
         this.source = null;
         this.style = mapUtil.makeStyle({
             fill: {
@@ -44,25 +40,18 @@ export class Plugin extends app.Plugin {
         this.action('selectionDrop', () => this.drop());
 
         this.action('selectionQuery', () => {
-            this.features = [];
+            let features = [];
+
             app.perform('markerClear');
-            app.perform('query', {
+            app.perform('search', {
                 geometry: this.getGeometry(),
-                done: features => {
-                    this.features.push(...features);
-                    app.perform('markerMark', {features: this.features});
-                    app.perform('detailsShowFeatures', {features: this.features});
+                done: found => {
+                    features = [].concat(features, found);
+                    app.perform('markerMark', {features});
+                    app.perform('detailsShowFeatures', {features});
                 }
             });
         });
-
-        this.action('queryReturn', ({uid, features}) => {
-            this.features.push(...features);
-            app.perform('markerMark', {features: this.features});
-            app.perform('detailsShowFeatures', {features: this.features});
-
-        });
-
     }
 
     drawInteraction(shape) {

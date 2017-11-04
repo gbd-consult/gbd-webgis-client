@@ -2,40 +2,41 @@
 
 import React from 'react';
 
+import FlatButton from 'material-ui/FlatButton';
 
-function toObject(feature) {
-    if (!feature.getProperties) {
-        // already an object
-        return feature;
-    }
+import _ from 'lodash';
 
-    let r = Object.assign({}, feature.getProperties());
-    delete r[feature.getGeometryName()];
-    r.geometry = feature.getGeometry();
-    return r;
-}
-
-function isEmpty(val) {
-    return typeof(val) === 'undefined' || val === null || !String(val).trim();
-}
-
+import app from 'app';
 
 export default class FeatureInfo extends React.Component {
 
+    button() {
+        let geom = this.props.feature.getGeometry();
+        if(!geom)
+            return null;
+        return (
+            <FlatButton
+                label={"show"}
+                onClick={() => app.perform('markerMark', {
+                    features: [this.props.feature],
+                    pan: true
+                })}
+            />
+        )
+    }
+
     render() {
-        let obj = toObject(this.props.feature),
+        let props = this.props.feature.getProperties(),
             rows = [];
 
-        Object.keys(obj).sort().forEach((key, n) => {
-            if (key === 'geometry')
-                return;
+        Object.keys(props).sort().forEach(key => {
+            let val = props[key];
 
-            let val = obj[key];
-            if (isEmpty(val))
+            if(_.isEmpty(val) || key === 'geometry')
                 return;
 
             rows.push(
-                <div key={n}>
+                <div key={key}>
                     <b>{key}</b>
                     <span>{val}</span>
                 </div>
@@ -50,7 +51,10 @@ export default class FeatureInfo extends React.Component {
             padding: 10,
             margin: 10
 
-        }}>{rows}</div>;
+        }}>
+            {rows}
+            {this.button()}
+        </div>;
 
     }
 }

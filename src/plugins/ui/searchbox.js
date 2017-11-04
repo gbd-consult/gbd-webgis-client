@@ -12,48 +12,40 @@ import app from 'app';
 class Plugin extends app.Plugin {
 
     init() {
-        this.uid = 0;
-        this.results = [];
-
         let run = ({input}) => {
-            this.results = [];
-            this.input = input.trim();
+            let features = [];
 
-            if (!this.input) {
-                return this.showResults([], '');
+            input = input.trim();
+            if (!input) {
+                return this.update([], '');
             }
 
-            app.perform('search', {uid: ++this.uid, input: this.input});
+            app.perform('search', {
+                text: input,
+                done: found => {
+                    features = [].concat(features, found);
+                    this.update(features, input);
+
+                }
+            });
         };
 
         this.action('searchChanged', _.debounce(run, 500));
 
-        this.action('searchReturn', ({uid, results}) => {
-            if (uid !== this.uid) {
-                return;
-            }
-            this.results = [].concat(this.results, results);
-            this.showResults(this.results, this.input);
-        });
-
-        this.action('searchHighlight', ({result}) => {
+        this.action('searchHighlight', ({feature}) => {
             app.perform('markerMark', {
-                geometries: [result.geometry],
-                clear: true,
+                features: [feature],
                 pan: true
             })
         });
 
-        this.action('searchClear', () => {
-            this.results = [];
-            this.showResults([], '');
-        });
+        this.action('searchClear', () => this.update([], ''));
     }
 
-    showResults(results, input) {
+    update(features, input) {
         app.set({
             searchInput: input,
-            searchResults: results
+            searchResults: features
         });
     }
 }
@@ -62,10 +54,9 @@ class SearchResult extends React.Component {
     render() {
         return (
             <div
-                onClick={() => app.perform('searchHighlight', {result: this.props.result})}
+                onClick={() => app.perform('searchHighlight', {feature: this.props.feature})}
             >
-                <b>{this.props.result.category}</b>
-                {this.props.result.text}
+                {this.props.feature.get('text')}
             </div>
         );
     }
@@ -86,10 +77,28 @@ class SearchClearButton extends React.Component {
 
 }
 
+class SearchResults extends React.Component {
+    render() {
+        if (!this.props.results)
+            return null;
+
+        let byCat = _.groupBy(this.props.results, f => f.get('category'));
+
+        return (
+            <div>
+                { Object.keys(byCat).sort().map(cat => (
+                    <div key={cat}>
+                        <h6>{cat}</h6>
+                        { byCat[cat].map((feature, n) => <SearchResult key={n} feature={feature}/>) }
+                    </div>
+                ))}
+            </div>
+        );
+    }
+}
+
 class Searchbox extends React.Component {
     render() {
-        let results = this.props.searchResults || [];
-
         return (
             <Paper
                 style={{
@@ -102,11 +111,8 @@ class Searchbox extends React.Component {
                 <TextField
                     onChange={(evt, input) => app.perform('searchChanged', {input})}
                 />
-                <SearchClearButton />
-
-                {
-                    results.map((r, n) => <SearchResult key={n} result={r}/>)
-                }
+                <SearchClearButton/>
+                <SearchResults results={this.props.searchResults}/>
             </Paper>
         )
     }

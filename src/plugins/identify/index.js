@@ -22,9 +22,6 @@ class Plugin extends app.Plugin {
 
     init() {
 
-        this.uid = 0;
-        this.features = [];
-
         let run = evt => app.perform('identifyCoordinate', {coordinate: evt.coordinate});
 
         this.action('identifyModeToggle', () => {
@@ -46,9 +43,16 @@ class Plugin extends app.Plugin {
         });
 
         this.action('identifyCoordinate', ({coordinate}) => {
-            this.features = [];
+            let features = [];
+
             app.perform('markerClear');
-            app.perform('identify', {uid: ++this.uid, coordinate});
+            app.perform('search', {
+                coordinate,
+                done: found => {
+                    features = [].concat(features, found);
+                    this.update(features);
+                }
+            });
         });
 
         this.action('identifyReturn', ({uid, features}) => {
@@ -60,13 +64,13 @@ class Plugin extends app.Plugin {
         });
     }
 
-    update() {
+    update(features) {
         app.perform('markerMark', {
-            features: this.features,
+            features,
             pan: false
         });
 
-        app.perform('detailsShowFeatures', {features: this.features});
+        app.perform('detailsShowFeatures', {features});
     }
 }
 

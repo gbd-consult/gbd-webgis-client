@@ -27,30 +27,29 @@ const categoryNames = {
 };
 
 function convert(rec) {
-    return {
+    return new ol.Feature({
         category: categoryNames[rec.category],
         text: rec.text,
         geometry: new ol.format.WKT().readGeometry(rec.wkt)
-    };
+    });
 }
 
 class Plugin extends app.Plugin {
     init() {
 
-        this.action('search', async ({uid, input}) => {
+        this.action('search', async ({text, done}) => {
+            if (!text)
+                return;
 
             let res = await app.http.get(app.config.str('server.url'), {
                 plugin: 'search_nominatim',
                 cmd: 'search',
-                query: input,
+                query: text,
                 crs: app.config.str('map.crs.client'),
                 viewbox: app.config.object('map.extent').join(',')
             });
 
-            app.perform('searchReturn', {
-                uid,
-                results: (res || []).map(convert)
-            });
+            done((res || []).map(convert));
 
         });
     }

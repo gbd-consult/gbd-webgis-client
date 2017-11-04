@@ -34,14 +34,10 @@ class Plugin extends app.Plugin {
     }
 
     mark(features) {
-        let geoms = [];
-
-        features.forEach(f => {
-            if (f && f.getGeometry)
-                return geoms.push(f.getGeometry())
-            if (f && f.geometry)
-                return geoms.push(f.geometry);
-        });
+        let geoms = features
+            .filter(Boolean)
+            .map(f => f.getGeometry())
+            .filter(Boolean);
 
         if (geoms.length) {
             let la = app.map().serviceLayer(LAYER_KIND, () => new ol.layer.Vector({
