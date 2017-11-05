@@ -1,4 +1,4 @@
-/// example application build configuration
+/// example application showing Hamburg ALKIS data
 
 module.exports = {
 
@@ -6,10 +6,10 @@ module.exports = {
     lang: 'de',
 
     // application title
-    title: 'Example Application',
+    title: 'Hamburg ALKIS',
 
     // where to find the runtime config
-    configURL: '/exampleapp.runtime.json',
+    configURL: '/hamburg.runtime.json',
 
     // plugins to include
     plugins: [
@@ -23,7 +23,7 @@ module.exports = {
 
     // initial state of the app
     initState: `
-            sidebarVisible: false,
+            sidebarVisible: true,
             sidebarActivePanel: 'layers',
             appWaiting: false,
             toolbarVisible: true,
@@ -50,7 +50,8 @@ module.exports = {
         </ui.Sidebar>
         <ui.Toolbar>
             <identify.Button />
-            <selection.Button />
+            <selection.AreaButton />
+            <selection.QueryButton />
             <qgis2.PrintButton />
         </ui.Toolbar>
         <ui.Statusbar>

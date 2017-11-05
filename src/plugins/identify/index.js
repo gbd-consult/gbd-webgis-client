@@ -10,7 +10,6 @@
 
 import React from 'react';
 
-import FeatureInfo from 'components/FeatureInfo';
 import ToolbarButton from '../ui/components/ToolbarButton';
 
 import _ from 'lodash';
@@ -18,40 +17,9 @@ import _ from 'lodash';
 import app from 'app';
 import ol from 'ol-all';
 
-function getGeometry(result) {
-    if (result.getGeometry)
-        return result.getGeometry();
-    return result.geometry;
-}
-
-
-function showResults(results) {
-    app.perform('markerMark', {
-        geometries: results.map(getGeometry).filter(g => g),
-        clear: true,
-        pan: false
-    });
-
-    app.perform('detailsShow', {
-        content: <div>
-            {results.map((r, n) => <FeatureInfo key={n} feature={r}/>)}
-        </div>
-    });
-}
-
-function clearResults() {
-    app.perform('markerClear');
-    app.perform('detailsShow', {
-        content: null
-    });
-}
-
 class Plugin extends app.Plugin {
 
     init() {
-
-        this.uid = 0;
-        this.results = [];
 
         let run = evt => app.perform('identifyCoordinate', {coordinate: evt.coordinate});
 
@@ -74,19 +42,34 @@ class Plugin extends app.Plugin {
         });
 
         this.action('identifyCoordinate', ({coordinate}) => {
-            this.results = [];
-            clearResults();
-            app.perform('identify', {uid: ++this.uid, coordinate});
+            let features = [];
+
+            app.perform('markerClear');
+            app.perform('search', {
+                coordinate,
+                done: found => {
+                    features = [].concat(features, found);
+                    this.update(features);
+                }
+            });
         });
 
-        this.action('identifyReturn', ({uid, results}) => {
+        this.action('identifyReturn', ({uid, features}) => {
             if (uid !== this.uid) {
-                console.log('identify results arrived too late, discarding');
                 return;
             }
-            this.results = [].concat(results, this.results);
-            showResults(this.results);
+            this.features = [].concat(features, this.features);
+            this.update();
         });
+    }
+
+    update(features) {
+        app.perform('markerMark', {
+            features,
+            pan: false
+        });
+
+        app.perform('detailsShowFeatures', {features});
     }
 }
 

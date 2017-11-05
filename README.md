@@ -30,9 +30,9 @@ module.exports = {
 }
 ```
 
-(see `exampleapp.build.js` for more).
+(see `examples/` for more).
 
-The runtime config can any url on your server that returns a json. (see `exampleapp.runtime.json` for an example).
+The runtime config can any url on your server that returns a json.
 
 ## Build tasks
 

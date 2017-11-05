@@ -10,28 +10,45 @@ import _ from 'lodash';
 
 import app from 'app';
 
-function runSearch({input}) {
-    app.set({
-        searchInput: input,
-        searchResults: []
-    });
-    if (input.trim())
-        app.perform('search', {input});
-}
-
 
 class Plugin extends app.Plugin {
 
     init() {
-        this.action('searchChanged', _.debounce(runSearch, 500));
+        let run = ({input}) => {
+            let features = [];
 
-        this.reducer('searchReturn', (state, {results}) => ({
-            searchResults: [].concat(
-                state.searchResults,
-                results
-            )
-        }));
+            input = input.trim();
+            if (!input) {
+                return this.update([], '');
+            }
 
+            app.perform('search', {
+                text: input,
+                done: found => {
+                    features = [].concat(features, found);
+                    this.update(features, input);
+
+                }
+            });
+        };
+
+        this.action('searchChanged', _.debounce(run, 500));
+
+        this.action('searchHighlight', ({feature}) => {
+            app.perform('markerMark', {
+                features: [feature],
+                pan: true
+            })
+        });
+
+        this.action('searchClear', () => this.update([], ''));
+    }
+
+    update(features, input) {
+        app.set({
+            searchInput: input,
+            searchResults: features
+        });
     }
 }
 
@@ -39,16 +56,24 @@ class SearchResult extends React.Component {
     render() {
         return (
             <div
-                onClick={() =>
-                    app.perform('markerMark', {
-                        geometries: [this.props.value.geometry],
-                        pan: true
-                    })
-                }
+                onClick={() => app.perform('searchHighlight', {feature: this.props.feature})}
             >
-                <b>{this.props.value.category}</b>
-                {this.props.value.text}
+                {this.props.feature.get('text')}
             </div>
+        );
+    }
+}
+
+class SearchClearButton extends React.Component {
+    render() {
+        return (
+            <IconButton
+                tooltip={__("searchClearTooltip")}
+                onClick={() => app.perform('searchClear')}
+            >
+                <FontIcon className="material-icons"
+                >close</FontIcon>
+            </IconButton>
         );
     }
 

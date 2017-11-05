@@ -16,11 +16,17 @@ class Plugin extends app.Plugin {
     async init() {
         await wms.loadLayers();
 
-        this.action('identify', async ({uid, coordinate}) => {
-            let features = await wms.query(
-                coordinate,
-                layers.activeNames());
-            app.perform('identifyReturn', {uid, results: features})
+        this.action('search', async ({coordinate, geometry, done}) => {
+            if (coordinate) {
+                return done(await wms.query(
+                    coordinate,
+                    layers.activeNames()));
+            }
+            if (geometry) {
+                return done(await wfs.query(
+                    geometry,
+                    layers.activeNames()));
+            }
         });
 
         this.action('qgisPrintToggleOverlay', async () => {
