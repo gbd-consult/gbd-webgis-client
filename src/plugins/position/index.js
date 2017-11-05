@@ -30,12 +30,12 @@ class Control extends React.Component {
                 <StatusbarTextField
                     value={xy[0].toFixed(0)}
                     label='X'
-                    width={90}
+                    width={70}
                 />
                 <StatusbarTextField
                     value={xy[1].toFixed(0)}
                     label='Y'
-                    width={90}
+                    width={70}
                 />
             </div>
         );

@@ -1,5 +1,6 @@
 import React from 'react';
-import Slider from 'material-ui/Slider';
+import StatusbarTextField from '../ui/components/statusbarTextField'
+import StatusbarSlider from '../ui/components/statusbarSlider'
 
 import app from 'app';
 import ol from 'ol-all';
@@ -16,10 +17,14 @@ class Control extends React.Component {
         let deg = rad2deg(this.props.mapRotation || 0);
 
         return (
-            <div style={{border: '2px solid blue'}}>
-                <b>{deg}&deg;</b>
-                <Slider
-                    style={{width: 200}}
+            <div>
+                <StatusbarTextField
+                    label='Rotation'
+                    value={deg + '°'}
+                    width={40}
+                />
+                <StatusbarSlider
+                    width={80}
                     min={0}
                     max={360}
                     step={1}

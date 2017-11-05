@@ -1,6 +1,6 @@
 import React from 'react';
 import Paper from 'material-ui/Paper';
-import {Toolbar, ToolbarGroup, ToolbarTitle} from 'material-ui/Toolbar';
+import Divider from 'material-ui/Divider';
 import CircularProgress from 'material-ui/CircularProgress';
 
 import muiThemeable from 'material-ui/styles/muiThemeable';
@@ -27,15 +27,28 @@ class Statusbar extends React.Component {
             bottom: 0,
             right: 0,
             display: this.props.width == SMALL ? 'none' : 'flex',
-            height: 28,
-            lineHeight: "28px",
+            height: this.props.muiTheme.toolbar.height / 2,
+            lineHeight: this.props.muiTheme.toolbar.height / 2 + 'px',
+        };
+        var childStyle = {
+            paddingLeft: 5,
+            paddingRight: 5,
+            borderRightStyle: 'solid',
+            borderRightWidth: 1,
+            borderRightColor: this.props.muiTheme.palette.borderColor,
         };
         return (
             <Paper
                 style={style}
             >
                 {this.props.appWaiting ? <Waiting/> : null}
-                {this.props.children}
+                {React.Children.map(this.props.children, child => {
+                    return (
+                        <div style={childStyle}>
+                            {child}
+                        </div>
+                    )
+                })}
             </Paper>
         )
     }

@@ -1,12 +1,10 @@
 import React from 'react';
-import TextField from 'material-ui/TextField';
 import muiThemeable from 'material-ui/styles/muiThemeable';
 
 
 class StatusbarTextField extends React.Component {
     render(){
         var style = {
-            width: this.props.width,
             height: 'auto',
             marginLeft: 3,
             marginRight: 3,
@@ -15,7 +13,7 @@ class StatusbarTextField extends React.Component {
         };
         var inputStyle = {
             textAlign: 'right',
-            width: this.props.width - 20,
+            width: this.props.width,
             color: this.props.muiTheme.palette.textColor,
             backgroundColor: 'transparent',
             padding: 0,
