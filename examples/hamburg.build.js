@@ -18,12 +18,12 @@ module.exports = {
         'search_alkis',
         'search_nominatim',
         'identify', 'selection',
-        'position', 'scalebar', 'rotation',
+        'position', 'scalebar', 'rotation', 'zoom'
     ],
 
     // initial state of the app
     initState: `
-            sidebarVisible: true,
+            sidebarVisible: false,
             sidebarActivePanel: 'layers',
             appWaiting: false,
             toolbarVisible: true,
@@ -44,6 +44,9 @@ module.exports = {
             <layers.Panel key="layers" title="Layers" />
         </ui.Sidebar>
         <ui.Toolbar>
+            <zoom.MinusButton />
+            <zoom.PlusButton />
+            <zoom.BoxButton />
             <identify.Button />
             <selection.AreaButton />
             <selection.QueryButton />
