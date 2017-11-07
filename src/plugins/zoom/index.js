@@ -48,31 +48,33 @@ class Plugin extends app.Plugin {
     }
 
     start() {
-        let boxInt = new ol.interaction.DragBox();
+        // do not enter new mapMode here,
+        // just temporarily disable current interactions
+
+        this.activeInteractions = [];
+        app.map().getInteractions().forEach(int => {
+            if(int.getActive()) {
+                int.setActive(false)
+                this.activeInteractions.push(int);
+            }
+        });
 
         this.boxStartCoordinate = null;
+
+        let boxInt = new ol.interaction.DragBox();
 
         boxInt.on('boxstart', evt => {
             this.boxStartCoordinate = evt.coordinate;
         });
+
         boxInt.on('boxend', evt => {
             if(this.boxStartCoordinate)
                 this.zoomExtent(this.boxStartCoordinate, evt.coordinate);
-            this.end();
-        })
-
-        app.perform('mapMode', {
-            name: 'zoom',
-            cursor: 'zoom-in',
-            interactions: [
-                boxInt,
-                new ol.interaction.MouseWheelZoom()
-            ]
+            app.map().removeInteraction(boxInt);
+            this.activeInteractions.forEach(int => int.setActive(true));
         });
-    }
 
-    end() {
-        app.perform('mapDefaultMode');
+        app.map().addInteraction(boxInt);
     }
 
     zoomExtent(a, b) {
