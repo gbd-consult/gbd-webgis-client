@@ -45,19 +45,16 @@ module.exports = {
             <layers.Panel key="layers" title="Layers" />
         </ui.Sidebar>
         <ui.Toolbar>
-            <measure.Button />
             <zoom.MinusButton />
             <zoom.PlusButton />
             <zoom.BoxButton />
             <identify.Button />
-            <selection.AreaButton />
-            <selection.QueryButton />
+            <measure.Button />
             <qgis2.PrintButton />
         </ui.Toolbar>
         <ui.Statusbar>
             <position.Control />
             <scalebar.Control />
-            <rotation.Control />
         </ui.Statusbar>
         <ui.Searchbox />
 
