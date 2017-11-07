@@ -18,7 +18,8 @@ module.exports = {
         'search_alkis',
         'search_nominatim',
         'identify', 'selection',
-        'position', 'scalebar', 'rotation', 'zoom'
+        'position', 'scalebar', 'rotation',
+        'zoom', 'measure'
     ],
 
     // initial state of the app
@@ -44,6 +45,7 @@ module.exports = {
             <layers.Panel key="layers" title="Layers" />
         </ui.Sidebar>
         <ui.Toolbar>
+            <measure.Button />
             <zoom.MinusButton />
             <zoom.PlusButton />
             <zoom.BoxButton />
