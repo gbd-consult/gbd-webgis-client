@@ -100,6 +100,7 @@ class Sidebar extends React.Component {
                     {this.props.children}
                 </Switch>
                 <Content
+                    width={this.props.width}
                     open={this.props.sidebarVisible}
                     active={this.props.sidebarActivePanel}
                     muiTheme={this.props.muiTheme}
