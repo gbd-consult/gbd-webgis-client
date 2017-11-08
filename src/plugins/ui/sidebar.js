@@ -25,24 +25,52 @@ class Plugin extends app.Plugin {
 
 }
 
-class Waiting  extends React.Component {
+class Switch extends React.Component {
     render() {
-        return <CircularProgress />
+        return (
+            <div>
+                {
+                    React.Children.map(this.props.children, elem => {
+                        let panel = elem.key,
+                            title = elem.props.title;
+
+                        if (panel === this.props.active)
+                            return <b>{title}</b>;
+                        return (
+                            <a
+                                onClick={() => app.perform('sidebarShow', {panel})}
+                            >
+                                {title}
+                            </a>
+                        )
+                    })
+                }
+            </div>
+
+        )
+    }
+}
+
+class Content extends React.Component {
+    render() {
+        return (
+            <div style={{border: '1px solid red'}}>
+                {
+                    React.Children.map(this.props.children, elem => {
+                        if (elem.key === this.props.active)
+                            return elem;
+                        return null;
+                    })
+                }
+            </div>
+
+        )
     }
 
 }
 
 
-
 class Sidebar extends React.Component {
-    content() {
-        return React.Children.map(this.props.children, panel => {
-            let display = panel.key === this.props.sidebarActivePanel ? 'block' : 'none';
-            return <div key={panel.key} style={{display}}>{panel}</div>;
-        });
-    }
-
-
     render() {
         return (
             <VerticalDrawer
@@ -50,7 +78,8 @@ class Sidebar extends React.Component {
                 open={this.props.sidebarVisible}
                 containerStyle={{paddingTop : this.props.muiTheme.toolbar.height}}
             >
-                {this.props.appWaiting ? <Waiting/> : this.content()}
+                <Switch active={this.props.sidebarActivePanel}>{this.props.children}</Switch>
+                <Content active={this.props.sidebarActivePanel}>{this.props.children}</Content>
             </VerticalDrawer>
         )
     }
