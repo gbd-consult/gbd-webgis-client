@@ -80,9 +80,6 @@ class SearchClearButton extends React.Component {
 }
 
 class Searchbox extends React.Component {
-    toggleSidebar(){
-        app.set( { sidebarVisible : !this.props.sidebarVisible });
-    }
     render(){
         var style = {
             position: 'absolute',
@@ -101,6 +98,7 @@ class Searchbox extends React.Component {
                     <IconButton
                         iconStyle={iconStyle}
                         iconClassName="material-icons"
+                        onClick={() => app.perform('navbarVisible', true)}
                     >
                         menu
                     </IconButton>
@@ -127,5 +125,5 @@ class Searchbox extends React.Component {
 export default {
     Plugin,
     Searchbox: app.connect(withWidth()(muiThemeable()(Searchbox)),
-        ['searchInput', 'searchResults', 'sidebarVisible'])
+        ['searchInput', 'searchResults', 'sidebarVisible', 'navbarVisible'])
 }
