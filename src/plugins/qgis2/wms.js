@@ -1,6 +1,6 @@
 import app from 'app';
 import ol from 'ol-all';
-
+import mapUtil from 'map-util';
 
 async function request(verb, params) {
     let res = await app.http.get(app.config.str('qgis2.server'), {
@@ -52,6 +52,15 @@ function parseLayer(el) {
         wmsName: getText(el, 'Name'),
         wmsLegendURL: getText(el, 'Style LegendURL OnlineResource')
     };
+
+    let minScale = getText(el, 'MinScaleDenominator');
+    let maxScale = getText(el, 'MaxScaleDenominator');
+
+    if (minScale)
+        opts.minResolution = mapUtil.scaleToResolution(Number(minScale));
+
+    if (maxScale)
+        opts.maxResolution = mapUtil.scaleToResolution(Number(maxScale));
 
     let sub = children(el, 'Layer');
 

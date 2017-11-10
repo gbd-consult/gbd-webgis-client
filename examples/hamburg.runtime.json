@@ -10,7 +10,22 @@
         "url": "http://qwc.gbd-consult.de/"
     },
     "map": {
-        "background": "osm",
+        "backgrounds": [
+            {
+                "type": "osm",
+                "opacity": 0.3
+            },
+            {
+                "type": "wms",
+                "name": "Webatlas-Grau",
+                "url": "http://sg.geodatenzentrum.de/wms_webatlasde.light_grau",
+                "params": {
+                    "LAYERS": "webatlasde.light_grau",
+                    "CRS": "EPSG:25832"
+                },
+                "opacity": 0.3
+            }
+        ],
         "scales": [
             100,
             200,
