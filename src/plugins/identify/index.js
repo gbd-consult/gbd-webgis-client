@@ -80,6 +80,7 @@ class Button extends React.Component {
         let active = this.props.mapMode === 'identify';
         return (
             <ToolbarButton
+                {...this.props}
                 active={active}
                 tooltip={__("buttonTooltip")}
                 onClick={() => app.perform('identifyModeToggle')}

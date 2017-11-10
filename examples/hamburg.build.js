@@ -50,11 +50,11 @@ module.exports = {
             <layers.Panel key="layers" title="Layers" />
         </ui.Sidebar>
         <ui.Toolbar>
-            <zoom.MinusButton />
-            <zoom.PlusButton />
+            <zoom.MinusButton showMobile/>
+            <zoom.PlusButton showMobile/>
             <zoom.BoxButton />
-            <identify.Button />
-            <measure.Button />
+            <identify.Button showMobile/>
+            <measure.Button showMobile/>
             <qgis2.PrintButton />
         </ui.Toolbar>
         <ui.Statusbar>

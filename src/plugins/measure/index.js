@@ -12,7 +12,10 @@
 import React from 'react';
 import IconButton from 'material-ui/IconButton';
 import FontIcon from 'material-ui/FontIcon';
+import MenuItem from 'material-ui/MenuItem';
 import Paper from 'material-ui/Paper';
+import ToolbarButton from '../ui/components/ToolbarButton';
+import ToolbarMenu from '../ui/components/ToolbarMenu';
 
 import {blue500, red500} from 'material-ui/styles/colors';
 
@@ -65,6 +68,7 @@ class Plugin extends app.Plugin {
         });
 
         this.action('measureMode', ({mode}) => {
+            this.start();
             this.interactions.drawString.setActive(mode === 'distance');
             this.interactions.drawPolygon.setActive(mode === 'area');
             app.set({measureMode: mode})
@@ -251,74 +255,38 @@ class Plugin extends app.Plugin {
 
 
 class Button extends React.Component {
-
-    button(active) {
-        return (
-            <IconButton
-                tooltip={__("buttonTooltip")}
-                onClick={() => app.perform('measureToggle')}
-            >
-                <FontIcon
-                    color={active ? red500 : blue500}
-                    className="material-icons">straighten</FontIcon>
-            </IconButton>
-        );
-    }
-
-    toolbar(mode) {
-        return (
-            <div style={{
-                position: 'fixed',
-                right: 0,
-                bottom: 150
-            }}>
-                <Paper>
-                    <IconButton
-                        tooltip={__("distanceTooltip")}
-                        onClick={() => app.perform('measureMode', {mode: 'distance'})}
-                    >
-                        <FontIcon
-                            color={mode === 'distance' ? red500 : blue500}
-                            className="material-icons">linear_scale</FontIcon>
-                    </IconButton>
-
-                    <IconButton
-                        tooltip={__("areaTooltip")}
-                        onClick={() => app.perform('measureMode', {mode: 'area'})}
-                    >
-                        <FontIcon
-                            color={mode === 'area' ? red500 : blue500}
-                            className="material-icons">texture</FontIcon>
-                    </IconButton>
-
-                    <IconButton
-                        tooltip={__("cancelTooltip")}
-                        onClick={() => app.perform('measureToggle')}
-                    >
-                        <FontIcon className="material-icons">close</FontIcon>
-                    </IconButton>
-
-
-                </Paper>
-            </div>
-
-
-
-        )
-
-    }
-
     render() {
         let active = this.props.mapMode === 'measure';
 
-        if (!active)
-            return this.button(false);
-
         return (
-            <div>
-                {this.toolbar(this.props.measureMode)}
-                {this.button(true)}
-            </div>
+            <ToolbarMenu
+                {...this.props}
+                active={active}
+                tooltip={__("buttonTooltip")}
+                icon='straighten'
+            > 
+                <MenuItem
+                    active={this.props.measureMode === 'distance' && this.props.mapMode === 'measure'}
+                    onClick={() => app.perform('measureMode', {mode: 'distance'})}
+                    leftIcon={<FontIcon className="material-icons">linear_scale</FontIcon>}
+                >
+                    {__('distanceTooltip')}
+                </MenuItem>
+                <MenuItem
+                    active={this.props.measureMode === 'area' && this.props.mapMode === 'measure'}
+                    onClick={() => app.perform('measureMode', {mode: 'area'})}
+                    leftIcon={<FontIcon className="material-icons">texture</FontIcon>}
+                >
+                    {__('areaTooltip')}
+                </MenuItem>
+                <MenuItem
+                    onClick={() => app.perform('mapDefaultMode')}
+                    leftIcon={<FontIcon className="material-icons">close</FontIcon>}
+                    disabled={this.props.mapMode !== 'measure'}
+                >
+                    {__('cancelTooltip')}
+                </MenuItem>
+            </ToolbarMenu>
         )
     }
 }

@@ -1,18 +1,24 @@
 import React from 'react';
-import FloatingActionButton from 'material-ui/FloatingActionButton';
 import IconButton from 'material-ui/IconButton';
 import FontIcon from 'material-ui/FontIcon';
+
 import muiThemeable from 'material-ui/styles/muiThemeable';
+import withWidth, {SMALL} from 'material-ui/utils/withWidth';
 
 
 class ToolbarButton extends React.Component {
     render(){
         var style = {
             marginBottom: '10px',
+            marginRight: '10px',
             borderRadius: '50%',
-            background: this.props.active
+            background: this.props.primary
+                ? this.props.muiTheme.palette.primary1Color
+                : this.props.active
                 ? this.props.muiTheme.palette.accent1Color
                 : this.props.muiTheme.palette.accent3Color,
+            display: !this.props.showMobile && this.props.width === SMALL
+                ? 'none' : 'inherit',
         };
         return(
             <IconButton
@@ -21,7 +27,10 @@ class ToolbarButton extends React.Component {
                 onClick={this.props.onClick}
                 style={style}
             >
-                <FontIcon className="material-icons" color={this.props.muiTheme.palette.alternateTextColor}>
+                <FontIcon 
+                    className="material-icons" 
+                    color={this.props.muiTheme.palette.alternateTextColor}
+                >
                     {this.props.icon}
                 </FontIcon>
             </IconButton>
@@ -29,4 +38,4 @@ class ToolbarButton extends React.Component {
     }
 }
 
-export default muiThemeable()(ToolbarButton);
+export default withWidth()(muiThemeable()(ToolbarButton));

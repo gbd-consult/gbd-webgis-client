@@ -46,6 +46,7 @@ class PrintButton extends React.Component {
         return (
             <div>
                 <ToolbarButton
+                    {...this.props}
                     active={active}
                     onClick={() => app.perform('qgisPrintToggleOverlay')}
                     icon='print'
