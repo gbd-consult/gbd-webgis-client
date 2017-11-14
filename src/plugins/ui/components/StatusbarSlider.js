@@ -5,10 +5,10 @@ import muiThemeable from 'material-ui/styles/muiThemeable';
 
 class StatusbarSlider extends React.Component {
     render(){
-        var style = {
+        let style = {
             display: 'inline-flex',
         };
-        var sliderStyle = {
+        let sliderStyle = {
             width: this.props.width,
             height: this.props.muiTheme.toolbar.height / 4,
             margin: '0px 10px',

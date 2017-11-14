@@ -1,6 +1,6 @@
 import React from 'react';
-import StatusbarTextField from '../ui/components/statusbarTextField'
-import StatusbarSlider from '../ui/components/statusbarSlider'
+import StatusbarTextField from '../ui/components/StatusbarTextField'
+import StatusbarSlider from '../ui/components/StatusbarSlider'
 
 import app from 'app';
 import ol from 'ol-all';

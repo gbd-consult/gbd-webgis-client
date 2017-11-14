@@ -81,15 +81,15 @@ class SearchClearButton extends React.Component {
 
 class Searchbox extends React.Component {
     render(){
-        var style = {
+        let style = {
             position: 'absolute',
             top: '0',
             left: '0',
             backgroundColor: this.props.muiTheme.palette.primary1Color,
-            width: this.props.width == SMALL ? '100%' : '450px',
+            width: this.props.width === SMALL ? '100%' : '450px',
             zIndex: '1500',
         };
-        var iconStyle = {
+        let iconStyle = {
             color : this.props.muiTheme.palette.alternateTextColor,
         };
         return (

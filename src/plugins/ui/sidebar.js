@@ -1,5 +1,5 @@
 import React from 'react';
-import VerticalDrawer from './components/VerticalDrawer';
+import VerticalDrawer from './components/VerticalDrawer.js';
 import Drawer from 'material-ui/Drawer';
 import MenuItem from 'material-ui/MenuItem';
 import CircularProgress from 'material-ui/CircularProgress';
@@ -34,7 +34,7 @@ class Plugin extends app.Plugin {
 
 class Switch extends React.Component {
     render() {
-        var activeStyle = {
+        let activeStyle = {
             color : this.props.muiTheme.palette.primary1Color,
         };
         return (
@@ -68,11 +68,15 @@ class Switch extends React.Component {
 
 class Content extends React.Component {
     render() {
+        let containerStyle = {
+            top : this.props.muiTheme.toolbar.height,
+            height : 'calc(100vh - ' + this.props.muiTheme.toolbar.height + 'px)',
+        };
         return (
             <VerticalDrawer
-                width={this.props.width == SMALL ? '100%' : 450}
+                width={this.props.width === SMALL ? '100%' : 450}
                 open={this.props.open}
-                containerStyle={{paddingTop : this.props.muiTheme.toolbar.height}}
+                containerStyle={containerStyle}
             >
                 {
                     React.Children.map(this.props.children, elem => {

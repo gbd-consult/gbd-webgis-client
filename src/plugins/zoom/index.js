@@ -11,7 +11,7 @@ import React from 'react';
 import IconButton from 'material-ui/IconButton';
 import FontIcon from 'material-ui/FontIcon';
 
-import ToolbarButton from '../ui/components/ToolbarButton';
+import ToolbarButton from '../ui/components/ToolbarButton.js';
 
 import _ from 'lodash';
 

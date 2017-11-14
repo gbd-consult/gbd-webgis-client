@@ -4,14 +4,14 @@ import muiThemeable from 'material-ui/styles/muiThemeable';
 
 class StatusbarTextField extends React.Component {
     render(){
-        var style = {
+        let style = {
             height: 'auto',
             marginLeft: 3,
             marginRight: 3,
             display: 'inline-flex',
             cursor: 'default',
         };
-        var inputStyle = {
+        let inputStyle = {
             textAlign: 'right',
             width: this.props.width,
             color: this.props.muiTheme.palette.textColor,
@@ -19,7 +19,7 @@ class StatusbarTextField extends React.Component {
             padding: 0,
             border: 'none',
         };
-        var labelStyle = {
+        let labelStyle = {
             color: this.props.muiTheme.palette.primary1Color,
         };
         return (

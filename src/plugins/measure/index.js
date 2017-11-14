@@ -10,14 +10,9 @@
 // roughly based on https://openlayers.org/en/latest/examples/measure.html
 
 import React from 'react';
-import IconButton from 'material-ui/IconButton';
 import FontIcon from 'material-ui/FontIcon';
 import MenuItem from 'material-ui/MenuItem';
-import Paper from 'material-ui/Paper';
-import ToolbarButton from '../ui/components/ToolbarButton';
-import ToolbarMenu from '../ui/components/ToolbarMenu';
-
-import {blue500, red500} from 'material-ui/styles/colors';
+import ToolbarMenu from '../ui/components/ToolbarMenu.js';
 
 
 import app from 'app';

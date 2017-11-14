@@ -10,12 +10,12 @@ class Plugin extends app.Plugin {
 
 class Toolbar2 extends React.Component {
     render() {
-        var style = {
+        let style = {
             position: 'absolute',
             top: '10px',
             right: '0px',
         };
-        var mobileStyle = {
+        let mobileStyle = {
             position: 'absolute',
             bottom: '0px',
             right: '0px',

@@ -13,7 +13,7 @@ import Menu from 'material-ui/Menu';
 import MenuItem from 'material-ui/MenuItem';
 import Divider from 'material-ui/Divider';
 
-import ToolbarButton from '../ui/components/ToolbarButton';
+import ToolbarButton from '../ui/components/ToolbarButton.js';
 
 import app from 'app';
 import mapUtil from 'map-util';

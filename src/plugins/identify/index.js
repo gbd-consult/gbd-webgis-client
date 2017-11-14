@@ -10,7 +10,7 @@
 
 import React from 'react';
 
-import ToolbarButton from '../ui/components/ToolbarButton';
+import ToolbarButton from '../ui/components/ToolbarButton.js';
 
 import _ from 'lodash';
 

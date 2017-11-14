@@ -1,5 +1,5 @@
 import React from 'react';
-import ToolbarButton from './ToolbarButton';
+import ToolbarButton from './ToolbarButton.js';
 import IconMenu from 'material-ui/IconMenu';
 
 import muiThemeable from 'material-ui/styles/muiThemeable';
@@ -7,10 +7,10 @@ import withWidth, {SMALL} from 'material-ui/utils/withWidth';
 
 class ToolbarMenu extends React.Component {
     render() {
-        var activeStyle = {
+        let activeStyle = {
             color : this.props.muiTheme.palette.primary1Color,
         };
-        var origin = {
+        let origin = {
             anchor : {
                 mobile : { horizontal: 'left', vertical : 'top'},
                 desktop : { horizontal: 'left', vertical : 'top'},

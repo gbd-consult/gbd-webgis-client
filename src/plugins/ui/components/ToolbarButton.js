@@ -8,7 +8,7 @@ import withWidth, {SMALL} from 'material-ui/utils/withWidth';
 
 class ToolbarButton extends React.Component {
     render(){
-        var style = {
+        let style = {
             marginBottom: '10px',
             marginRight: '10px',
             borderRadius: '50%',

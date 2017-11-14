@@ -8,7 +8,7 @@
  */
 
 import React from 'react';
-import StatusbarTextField from '../ui/components/statusbarTextField'
+import StatusbarTextField from '../ui/components/StatusbarTextField'
 
 import app from 'app';
 import ol from 'ol-all';
