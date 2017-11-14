@@ -93,12 +93,13 @@ class Plugin extends app.Plugin {
             });
         }
 
-        app.perform('mapMode', {
+        app.perform('mapSetMode', {
             name: 'measure',
             cursor: 'crosshair',
             interactions: [
-                new ol.interaction.DragPan(),
-                new ol.interaction.MouseWheelZoom(),
+                'DragPan',
+                'MouseWheelZoom',
+                'PinchZoom',
                 this.interactions.modify,
                 this.interactions.drawString,
                 this.interactions.drawPolygon,

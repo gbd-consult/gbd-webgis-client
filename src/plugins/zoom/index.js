@@ -20,45 +20,14 @@ import mapUtil from 'map-util';
 class Plugin extends app.Plugin {
     init() {
         this.action('zoom', ({delta}) => {
-
-            let scales = app.config.object('map.scales'),
-                currScale = app.map().getScale() + 0.5 * Math.sign(delta),
-                newScale;
-
-            if (delta > 0)
-                newScale = _.find(scales, s => s > currScale);
-            if (delta < 0)
-                newScale = _.findLast(scales, s => s < currScale);
-
-            if (newScale) {
-                let view = app.map().getView();
-                if (view.getAnimating()) {
-                    view.cancelAnimations();
-                }
-                view.animate({
-                    resolution: mapUtil.scaleToResolution(newScale),
-                    duration: 500,
-                    easing: ol.easing.easeOut
-                });
-            }
+            app.map().setScaleLevel(
+                app.map().getScaleLevel() + delta
+            );
         });
-
-
         this.action('zoomBoxStart', () => this.start());
     }
 
     start() {
-        // do not enter new mapMode here,
-        // just temporarily disable current interactions
-
-        this.activeInteractions = [];
-        app.map().getInteractions().forEach(int => {
-            if(int.getActive()) {
-                int.setActive(false)
-                this.activeInteractions.push(int);
-            }
-        });
-
         this.boxStartCoordinate = null;
 
         let boxInt = new ol.interaction.DragBox();
@@ -68,13 +37,16 @@ class Plugin extends app.Plugin {
         });
 
         boxInt.on('boxend', evt => {
-            if(this.boxStartCoordinate)
+            if (this.boxStartCoordinate)
                 this.zoomExtent(this.boxStartCoordinate, evt.coordinate);
-            app.map().removeInteraction(boxInt);
-            this.activeInteractions.forEach(int => int.setActive(true));
+            app.perform('mapPopMode');
         });
 
-        app.map().addInteraction(boxInt);
+        app.perform('mapPushMode', {
+            name: 'zoomBox',
+            cursor: 'zoom-in',
+            interactions: [boxInt]
+        });
     }
 
     zoomExtent(a, b) {
@@ -90,7 +62,7 @@ class PlusButton extends React.Component {
         return (
             <IconButton
                 tooltip={__("plusTooltip")}
-                onClick={() => app.perform('zoom', {delta: -1})}
+                onClick={() => app.perform('zoom', {delta: +1})}
             >
                 <FontIcon className="material-icons">add</FontIcon>
             </IconButton>
@@ -105,7 +77,7 @@ class MinusButton extends React.Component {
         return (
             <IconButton
                 tooltip={__("minusTooltip")}
-                onClick={() => app.perform('zoom', {delta: +1})}
+                onClick={() => app.perform('zoom', {delta: -1})}
             >
                 <FontIcon className="material-icons">remove</FontIcon>
             </IconButton>

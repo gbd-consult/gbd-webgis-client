@@ -28,7 +28,7 @@ class Plugin extends app.Plugin {
             if (app.get('mapMode') === 'identify')
                 return app.perform('mapDefaultMode');
 
-            app.perform('mapMode', {
+            app.perform('mapSetMode', {
                 name: 'identify',
                 cursor: 'help',
                 interactions: [
@@ -36,8 +36,9 @@ class Plugin extends app.Plugin {
                         handleDownEvent: run,
                         handleMoveEvent: _.debounce(evt => (evt.originalEvent.shiftKey) ? run(evt) : '', 500)
                     }),
-                    new ol.interaction.DragPan(),
-                    new ol.interaction.MouseWheelZoom()
+                    'DragPan',
+                    'MouseWheelZoom',
+                    'PinchZoom',
                 ]
             });
         });
