@@ -25,12 +25,12 @@ async function initOverlay() {
         qgisPrintOverlayURL: null
     });
 
-    app.perform('mapMode', {
+    app.perform('mapSetMode', {
         name: mapMode,
         cursor: 'crosshair',
         interactions: [
-            new ol.interaction.DragPan(),
-            new ol.interaction.MouseWheelZoom()
+            'DragPan',
+            'MouseWheelZoom'
         ]
     });
 }

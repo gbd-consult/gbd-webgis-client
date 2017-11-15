@@ -11,32 +11,28 @@ class Plugin extends app.Plugin {
 class Control extends React.Component {
 
     render() {
-        let slist = app.config.object('map.scales'),
-            scale = this.props.mapScale;
+        let scales = app.map().getScales(),
+            level = this.props.mapScaleLevel;
 
-        if(!slist || !scale)
+        if (!scales || isNaN(level))
             return null;
 
-        let nearest = 0;
-        slist.forEach((s, n) => {
-            if(Math.abs(s - scale) < Math.abs(slist[nearest] - scale))
-                nearest = n
-        });
+        let len = scales.length - 1;
 
         return (
             <div>
                 <StatusbarTextField
                     label='Maßstab'
-                    value={'1:' + this.props.mapScale}
+                    value={'1:' + scales[level]}
                     width={60}
                 />
                 <StatusbarSlider
-                    width={80}
+                    width={200}
                     min={0}
-                    max={slist.length - 1}
+                    max={len}
                     step={1}
-                    value={nearest}
-                    onChange={(evt, value) => app.perform('mapSetScale', {scale: slist[value]})}
+                    value={len - level}
+                    onChange={(evt, value) => app.perform('mapSetScaleLevel', {level: len - value})}
                 />
             </div>
         );
@@ -45,7 +41,7 @@ class Control extends React.Component {
 
 export default {
     Plugin,
-    Control: app.connect(Control, ['mapScale'])
+    Control: app.connect(Control, ['mapScaleLevel'])
 
 };
 

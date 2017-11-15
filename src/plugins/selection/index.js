@@ -83,7 +83,7 @@ export class Plugin extends app.Plugin {
         let draw = this.drawInteraction(shape);
         draw.on('drawend', (evt) => this.end(evt));
 
-        app.perform('mapMode', {
+        app.perform('mapSetMode', {
             name: 'selection',
             cursor: 'crosshair',
             interactions: [

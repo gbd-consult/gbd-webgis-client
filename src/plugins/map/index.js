@@ -1,4 +1,14 @@
-// generic map events
+/**
+ * @module plugins/map
+ *
+ * @desc
+ *
+ * System plugin that acts as a bridge between the map (TMap) and the redux store.
+ *
+ */
+
+
+import _ from 'lodash';
 
 import app from 'app';
 import ol from 'ol-all';
@@ -8,35 +18,46 @@ export class Plugin extends app.Plugin {
     init() {
 
         app.set({
-            mapScale: app.map().getScale(),
+            mapScaleLevel: app.map().getScaleLevel(),
             mapRotation: 0
         });
 
-        this.action('mapMode', ({name, cursor, interactions}) => {
-            app.map().setMode(name, cursor, interactions)
-            app.set({mapMode: name})
+        this.action('mapSetMode', (opts) => {
+            app.map().setMode(opts);
+            app.set({mapMode: app.map().getModeName()});
         });
 
         this.action('mapDefaultMode', () => {
-            app.map().defaultMode();
-            app.set({mapMode: ''})
+            app.map().setDefaultMode();
+            app.set({mapMode: app.map().getModeName()});
         });
 
-        this.action('mapSetScale', ({scale}) => {
-            app.map().setScale(scale)
+        this.action('mapPushMode', (opts) => {
+            app.map().pushMode(opts);
+        });
+
+        this.action('mapPopMode', () => {
+            app.map().popMode();
+            app.set({mapMode: app.map().getModeName()});
+        });
+
+        this.action('mapSetScaleLevel', ({level}) => {
+            app.map().setScaleLevel(level)
         });
 
         this.action('mapSetRotation', ({angle}) => {
             app.map().getView().setRotation(angle);
         });
 
-        app.map().getView().on('change:resolution', () => {
-            app.set({mapScale: app.map().getScale()});
-        });
+        app.map().getView().on('change:resolution', _.debounce(evt => {
+            if (!evt.target.getAnimating())
+                app.set({mapScaleLevel: app.map().getScaleLevel()});
+        }, 500));
 
-        app.map().getView().on('change:rotation', () => {
-            app.set({mapRotation: app.map().getView().getRotation()});
-        });
+        app.map().getView().on('change:rotation', _.debounce(evt => {
+            if (!evt.target.getAnimating())
+                app.set({mapRotation: app.map().getView().getRotation()});
+        }, 500));
     }
 }
 
