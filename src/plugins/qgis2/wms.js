@@ -75,7 +75,7 @@ function parseLayer(el) {
     opts.source = new ol.source.ImageWMS({
         url: app.config.str('qgis2.server'),
         params: {
-            LAYERS: opts.name
+            LAYERS: opts.wmsName
         },
         ratio: 1,
         preload: 0,
