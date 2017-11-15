@@ -87,13 +87,6 @@ let defaults = {
                 loader: ['style-loader', 'css-loader', 'sass-loader']
             },
             {
-                test: /\.html$/,
-                loader: 'file-loader',
-                options: {
-                    name: '[name].[ext]',
-                }
-            },
-            {
                 test: /\.(eot|svg|ttf|woff|woff2)$/,
                 loader: 'file-loader',
                 options: {
@@ -109,6 +102,29 @@ let defaults = {
 
 let webpackConfigs = {};
 
+let devIndexTemplate = `
+    <!DOCTYPE html>
+    <html lang="de">
+    
+        <head>
+            <meta charset="UTF-8">
+            <link href="https://fonts.googleapis.com/css?family=Roboto:400,400i,700,700i" rel="stylesheet">
+            <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        </head>
+    
+        <body>
+            <div id="app"></div>
+            <script src="index.js"></script>
+            <script>window.onload = function() {
+                let config = "@@@";
+                gbdWebgisClient.main(config, document.getElementById('app')).then(() => console.log('STARTED!'));
+            }
+            </script>
+        </body>
+    
+    </html>
+`;
+
 webpackConfigs.dev = merge(defaults, {
     devServer: {
         hot: true,
@@ -118,15 +134,13 @@ webpackConfigs.dev = merge(defaults, {
         // in the dev mode, assume the runtime config to be in the app dir
         // if the runtime url is `/dev`, take it from the build file
         before(app) {
-            app.get(_buildConfig.configURL, function (req, res) {
-                let r;
-
+            app.get('/', function (req, res) {
                 if(_buildConfig.configURL === '/dev')
                     r = _buildConfig.runtime;
                 else
                     r = require(path.dirname(_buildConfig.env.app) + _buildConfig.configURL);
-
-                res.json(r);
+                let html = devIndexTemplate.replace(/"@@@"/, JSON.stringify(r));
+                res.send(html);
             });
         }
     },
