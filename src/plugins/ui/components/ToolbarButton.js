@@ -1,6 +1,7 @@
 import React from 'react';
 import IconButton from 'material-ui/IconButton';
 import FontIcon from 'material-ui/FontIcon';
+import Paper from 'material-ui/Paper';
 
 import muiThemeable from 'material-ui/styles/muiThemeable';
 import withWidth, {SMALL} from 'material-ui/utils/withWidth';
@@ -21,19 +22,24 @@ class ToolbarButton extends React.Component {
                 ? 'none' : 'inherit',
         };
         return(
-            <IconButton
-                tooltip={this.props.tooltip}
-                tooltipPosition='bottom-left'
-                onClick={this.props.onClick}
+            <Paper
+                circle
                 style={style}
+                zDepth={1}
             >
-                <FontIcon 
-                    className="material-icons" 
-                    color={this.props.muiTheme.palette.alternateTextColor}
+                <IconButton
+                    tooltip={this.props.tooltip}
+                    tooltipPosition='bottom-left'
+                    onClick={this.props.onClick}
                 >
-                    {this.props.icon}
-                </FontIcon>
-            </IconButton>
+                    <FontIcon 
+                        className="material-icons" 
+                        color={this.props.muiTheme.palette.alternateTextColor}
+                    >
+                        {this.props.icon}
+                    </FontIcon>
+                </IconButton>
+            </Paper>
         );
     }
 }
