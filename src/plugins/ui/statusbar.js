@@ -26,7 +26,7 @@ class Statusbar extends React.Component {
             position: 'absolute',
             bottom: 0,
             right: 0,
-            display: this.props.width === SMALL ? 'none' : 'flex',
+            display: 'flex',
             height: this.props.muiTheme.toolbar.height / 2,
             lineHeight: this.props.muiTheme.toolbar.height / 2 + 'px',
         };

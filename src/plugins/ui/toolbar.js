@@ -2,6 +2,7 @@ import React from 'react';
 
 import {Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle} from 'material-ui/Toolbar';
 import withWidth, {SMALL} from 'material-ui/utils/withWidth';
+import muiThemeable from 'material-ui/styles/muiThemeable';
 
 import app from 'app';
 
@@ -17,7 +18,7 @@ class Toolbar2 extends React.Component {
         };
         let mobileStyle = {
             position: 'absolute',
-            bottom: '0px',
+            bottom: this.props.muiTheme.toolbar.height / 2 + 'px',
             right: '0px',
             display: 'inline-flex',
         };
@@ -32,5 +33,5 @@ class Toolbar2 extends React.Component {
 
 export default {
     Plugin,
-    Toolbar: app.connect(withWidth()(Toolbar2))
+    Toolbar: app.connect(muiThemeable()(withWidth()(Toolbar2)))
 }
