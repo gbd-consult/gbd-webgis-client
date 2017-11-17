@@ -34,7 +34,12 @@ module.exports = {
     // application theme, use colors... for mui colors
     theme: `
             palette: {
-                textColor: colors.cyan500,
+                primary1Color: "#0086C9",
+                primary2Color: "#005F9D",
+                primary3Color: colors.grey400,
+                accent1Color: "#B1CA34",
+                accent2Color: colors.grey100,
+                accent3Color: colors.grey500,
             }
         `,
 
@@ -45,11 +50,11 @@ module.exports = {
             <layers.Panel key="layers" title="Layers" />
         </ui.Sidebar>
         <ui.Toolbar>
-            <zoom.MinusButton />
-            <zoom.PlusButton />
+            <zoom.MinusButton showMobile/>
+            <zoom.PlusButton showMobile/>
             <zoom.BoxButton />
-            <identify.Button />
-            <measure.Button />
+            <identify.Button showMobile/>
+            <measure.Button showMobile/>
             <qgis2.PrintButton />
         </ui.Toolbar>
         <ui.Statusbar>

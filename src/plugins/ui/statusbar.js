@@ -1,6 +1,10 @@
 import React from 'react';
-import Drawer from 'material-ui/Drawer';
+import Paper from 'material-ui/Paper';
+import Divider from 'material-ui/Divider';
 import CircularProgress from 'material-ui/CircularProgress';
+
+import muiThemeable from 'material-ui/styles/muiThemeable';
+import withWidth, {SMALL} from 'material-ui/utils/withWidth';
 
 import app from 'app';
 
@@ -18,23 +22,39 @@ class Waiting  extends React.Component {
 
 class Statusbar extends React.Component {
     render() {
+        let style = {
+            position: 'absolute',
+            bottom: 0,
+            right: 0,
+            display: 'flex',
+            height: this.props.muiTheme.toolbar.height / 2,
+            lineHeight: this.props.muiTheme.toolbar.height / 2 + 'px',
+        };
+        let childStyle = {
+            paddingLeft: 5,
+            paddingRight: 5,
+            borderRightStyle: 'solid',
+            borderRightWidth: 1,
+            borderRightColor: this.props.muiTheme.palette.borderColor,
+        };
         return (
-            <div
-                style={{
-                    position: 'fixed',
-                    bottom: 0,
-                    left: 0,
-                    background: 'white'
-                }}
+            <Paper
+                style={style}
             >
                 {this.props.appWaiting ? <Waiting/> : null}
-                {this.props.children}
-            </div>
+                {React.Children.map(this.props.children, child => {
+                    return (
+                        <div style={childStyle}>
+                            {child}
+                        </div>
+                    )
+                })}
+            </Paper>
         )
     }
 }
 
 export default {
     Plugin,
-    Statusbar: app.connect(Statusbar)
+    Statusbar: app.connect(withWidth()(muiThemeable()(Statusbar)))
 }

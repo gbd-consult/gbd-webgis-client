@@ -9,9 +9,8 @@
 
 
 import React from 'react';
-import IconButton from 'material-ui/IconButton';
-import FontIcon from 'material-ui/FontIcon';
-import {blue500, red500} from 'material-ui/styles/colors';
+
+import ToolbarButton from '../ui/components/ToolbarButton.js';
 
 import _ from 'lodash';
 
@@ -81,15 +80,13 @@ class Button extends React.Component {
     render() {
         let active = this.props.mapMode === 'identify';
         return (
-            <IconButton
+            <ToolbarButton
+                {...this.props}
+                active={active}
                 tooltip={__("buttonTooltip")}
                 onClick={() => app.perform('identifyModeToggle')}
-            >
-                <FontIcon className="material-icons"
-                          color={active ? red500 : blue500}
-
-                >my_location</FontIcon>
-            </IconButton>
+                icon='info'
+            />
         );
     }
 }

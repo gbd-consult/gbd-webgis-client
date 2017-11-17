@@ -4,9 +4,7 @@ import Paper from 'material-ui/Paper';
 import {List, ListItem} from 'material-ui/List';
 import Subheader from 'material-ui/Subheader';
 import Checkbox from 'material-ui/Checkbox';
-import {
-    grey300, cyan50, cyan100, cyan300, cyan500
-} from 'material-ui/styles/colors';
+import muiThemeable from 'material-ui/styles/muiThemeable';
 
 
 import app from 'app';
@@ -73,15 +71,13 @@ class Plugin extends app.Plugin {
 class Tree extends React.Component {
     itemStyle(active, visible, enabled) {
         let s = {
-            color: cyan100
+            color: this.props.muiTheme.palette.textColor
         };
 
         if (active)
-            s.backgroundColor = cyan50;
-        if (visible)
-            s.color = cyan300;
+            s.backgroundColor = this.props.muiTheme.palette.accent2Color;
         if (!enabled)
-            s.color = grey300;
+            s.color = this.props.muiTheme.palette.disabledColor;
 
         return s;
     }
@@ -161,7 +157,7 @@ class Tree extends React.Component {
     }
 }
 
-let ConnectedTree = app.connect(Tree, ['layerRoot', 'layerActiveUid']);
+let ConnectedTree = app.connect(muiThemeable()(Tree), ['layerRoot', 'layerActiveUid']);
 
 class Panel extends React.Component {
     render() {

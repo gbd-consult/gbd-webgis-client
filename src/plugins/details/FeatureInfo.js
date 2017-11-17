@@ -2,7 +2,10 @@
 
 import React from 'react';
 
-import FlatButton from 'material-ui/FlatButton';
+import FontIcon from 'material-ui/FontIcon';
+import {List, ListItem} from 'material-ui/List';
+import Divider from 'material-ui/Divider';
+import TextField from 'material-ui/TextField';
 
 import _ from 'lodash';
 
@@ -15,46 +18,64 @@ export default class FeatureInfo extends React.Component {
         if(!geom)
             return null;
         return (
-            <FlatButton
-                label={"show"}
+            <FontIcon
+                className='material-icons'
                 onClick={() => app.perform('markerMark', {
                     features: [this.props.feature],
                     pan: true
                 })}
-            />
+            >
+                open_with
+            </FontIcon>
         )
+    }
+
+    focus_feature() {
+        let geom = this.props.feature.getGeometry();
+        if(!geom)
+            return null;
+        app.perform('markerMark', {
+            features: [this.props.feature],
+            pan :true
+        });
     }
 
     render() {
         let props = this.props.feature.getProperties(),
-            rows = [];
+            rows = [],
+            title = 'ObjectID';
 
         Object.keys(props).sort().forEach(key => {
             let val = props[key];
+
+            if(key === 'gml_id'){
+                title = val;
+                return;
+            }
 
             if(_.isEmpty(val) || key === 'geometry')
                 return;
 
             rows.push(
-                <div key={key}>
-                    <b>{key}</b>
-                    <span>{val}</span>
-                </div>
+                <ListItem
+                    key={key}
+                    primaryText={key}
+                    secondaryText={val}
+                />
             );
         });
 
         if (!rows.length)
             return null;
 
-        return <div style={{
-            border: '1px solid red',
-            padding: 10,
-            margin: 10
-
-        }}>
-            {rows}
-            {this.button()}
-        </div>;
+        return (
+            <ListItem
+                primaryText={title}
+                onClick={() => this.focus_feature()}
+                initiallyOpen={true}
+                nestedItems={rows}
+            />
+        );
 
     }
 }

@@ -1,8 +1,10 @@
 import React from 'react';
-import TextField from 'material-ui/TextField';
-import Paper from 'material-ui/Paper';
+import {Toolbar, ToolbarGroup} from 'material-ui/Toolbar';
 import IconButton from 'material-ui/IconButton';
-import FontIcon from 'material-ui/FontIcon';
+import TextField from 'material-ui/TextField';
+
+import muiThemeable from 'material-ui/styles/muiThemeable';
+import withWidth, {SMALL} from 'material-ui/utils/withWidth';
 
 import _ from 'lodash';
 
@@ -77,48 +79,51 @@ class SearchClearButton extends React.Component {
 
 }
 
-class SearchResults extends React.Component {
-    render() {
-        if (!this.props.results)
-            return null;
-
-        let byCat = _.groupBy(this.props.results, f => f.get('category'));
-
-        return (
-            <div>
-                { Object.keys(byCat).sort().map(cat => (
-                    <div key={cat}>
-                        <h6>{cat}</h6>
-                        { byCat[cat].map((feature, n) => <SearchResult key={n} feature={feature}/>) }
-                    </div>
-                ))}
-            </div>
-        );
-    }
-}
-
 class Searchbox extends React.Component {
-    render() {
+    render(){
+        let style = {
+            position: 'absolute',
+            top: '0',
+            left: '0',
+            backgroundColor: this.props.muiTheme.palette.primary1Color,
+            width: this.props.width === SMALL ? '100%' : '450px',
+            zIndex: '1500',
+        };
+        let iconStyle = {
+            color : this.props.muiTheme.palette.alternateTextColor,
+        };
         return (
-            <Paper
-                style={{
-                    position: 'fixed',
-                    top: 0,
-                    right: 0,
-                    width: 200
-                }}
-            >
-                <TextField
-                    onChange={(evt, input) => app.perform('searchChanged', {input})}
-                />
-                <SearchClearButton/>
-                <SearchResults results={this.props.searchResults}/>
-            </Paper>
-        )
+            <Toolbar style={style}>
+                <ToolbarGroup firstChild={true}>
+                    <IconButton
+                        iconStyle={iconStyle}
+                        iconClassName="material-icons"
+                        onClick={() => app.perform('navbarVisible', true)}
+                    >
+                        menu
+                    </IconButton>
+                </ToolbarGroup>
+                <ToolbarGroup>
+                    <TextField
+                        onChange={(evt, input) => app.perform('searchChanged', {input})}
+                    />
+                </ToolbarGroup>
+                <ToolbarGroup lastChild={true}>
+                    <IconButton
+                        iconStyle={iconStyle}
+                        iconClassName="material-icons"
+                        onClick={() => app.perform('sidebarVisible', !this.props.sidebarVisible)}
+                    >
+                        { this.props.sidebarVisible ? 'expand_less' : 'expand_more' }
+                    </IconButton>
+                </ToolbarGroup>
+            </Toolbar>
+        );
     }
 }
 
 export default {
     Plugin,
-    Searchbox: app.connect(Searchbox, ['searchInput', 'searchResults'])
+    Searchbox: app.connect(withWidth()(muiThemeable()(Searchbox)),
+        ['searchInput', 'searchResults', 'sidebarVisible', 'navbarVisible'])
 }

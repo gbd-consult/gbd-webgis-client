@@ -1,5 +1,6 @@
 import React from 'react';
-import Slider from 'material-ui/Slider';
+import StatusbarTextField from '../ui/components/StatusbarTextField'
+import StatusbarSlider from '../ui/components/StatusbarSlider'
 
 import app from 'app';
 import ol from 'ol-all';
@@ -19,10 +20,14 @@ class Control extends React.Component {
         let len = scales.length - 1;
 
         return (
-            <div style={{border: '2px solid blue'}}>
-                <b>1:{scales[level]}</b>
-                <Slider
-                    style={{width: 200}}
+            <div>
+                <StatusbarTextField
+                    label='Maßstab'
+                    value={'1:' + scales[level]}
+                    width={60}
+                />
+                <StatusbarSlider
+                    width={200}
                     min={0}
                     max={len}
                     step={1}

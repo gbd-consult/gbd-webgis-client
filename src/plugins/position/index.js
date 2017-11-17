@@ -8,7 +8,7 @@
  */
 
 import React from 'react';
-import TextField from 'material-ui/TextField';
+import StatusbarTextField from '../ui/components/StatusbarTextField'
 
 import app from 'app';
 import ol from 'ol-all';
@@ -33,8 +33,16 @@ class Control extends React.Component {
         let xy = this.props.mapMouseXY || [0, 0];
         return (
             <div>
-                <TextField id="positionX" style={{width: 80}} value={xy[0].toFixed(0)}/>
-                <TextField id="positionY" style={{width: 80}} value={xy[1].toFixed(0)}/>
+                <StatusbarTextField
+                    value={xy[0].toFixed(0)}
+                    label='X'
+                    width={70}
+                />
+                <StatusbarTextField
+                    value={xy[1].toFixed(0)}
+                    label='Y'
+                    width={70}
+                />
             </div>
         );
     }
