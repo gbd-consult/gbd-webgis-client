@@ -55,7 +55,18 @@ let defaults = {
                     {
                         loader: 'babel-loader',
                         options: {
-                            presets: ['env', 'react'],
+                            presets: [
+                                [
+                                    'env', {
+                                        targets: {
+                                            browsers: [
+                                                'ios > 5',
+                                                'last 2 versions'
+                                            ]
+                                        }
+                                    }
+                                ],
+                                'react'],
                             cacheDirectory: here('.cache'),
                             plugins: ['transform-object-rest-spread', 'lodash']
                         }
@@ -102,52 +113,27 @@ let defaults = {
 
 let webpackConfigs = {};
 
-let devIndexTemplate = `
-    <!DOCTYPE html>
-    <html lang="de">
-    
-        <head>
-            <meta charset="UTF-8">
-            <link href="https://fonts.googleapis.com/css?family=Roboto:400,400i,700,700i" rel="stylesheet">
-            <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-        </head>
-    
-        <body>
-            <div id="app"></div>
-            <script src="index.js"></script>
-            <script>window.onload = function() {
-                let config = "@@@";
-                gbdWebgisClient.main(config, document.getElementById('app')).then(() => console.log('STARTED!'));
-            }
-            </script>
-        </body>
-    
-    </html>
-`;
-
 webpackConfigs.dev = merge(defaults, {
     devServer: {
-        hot: true,
+        hot: false,
         inline: true,
+        host: '0.0.0.0',
         port: 8080,
+        disableHostCheck: true,
 
-        // in the dev mode, assume the runtime config to be in the app dir
-        // if the runtime url is `/dev`, take it from the build file
         before(app) {
             app.get('/', function (req, res) {
-                if(_buildConfig.configURL === '/dev')
-                    r = _buildConfig.runtime;
-                else
-                    r = require(path.dirname(_buildConfig.env.app) + _buildConfig.configURL);
-                let html = devIndexTemplate.replace(/"@@@"/, JSON.stringify(r));
-                res.send(html);
+                let html = fs.readFileSync(here('tools/index.dev.html'), 'utf8');
+                let conf = _buildConfig.devConfig;
+                if (typeof conf === 'string')
+                    conf = require(path.resolve(path.dirname(_buildConfig.env.app), conf));
+                res.send(html.replace(/"<CONFIG>"/, JSON.stringify(conf)));
             });
         }
     },
-    devtool: 'cheap-eval-source-map',
-    plugins: [
-        new webpack.HotModuleReplacementPlugin()
-    ]
+
+    //devtool: 'cheap-eval-source-map',
+    devtool: 'none'
 });
 
 

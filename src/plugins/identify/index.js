@@ -10,7 +10,7 @@
 
 import React from 'react';
 
-import ToolbarButton from '../ui/components/ToolbarButton.js';
+import ToolbarButton from 'components/ToolbarButton';
 
 import _ from 'lodash';
 
@@ -78,14 +78,13 @@ class Plugin extends app.Plugin {
 class Button extends React.Component {
 
     render() {
-        let active = this.props.mapMode === 'identify';
         return (
             <ToolbarButton
                 {...this.props}
-                active={active}
+                active={this.props.mapMode === 'identify'}
                 tooltip={__("buttonTooltip")}
                 onClick={() => app.perform('identifyModeToggle')}
-                icon='info'
+                icon='near_me'
             />
         );
     }

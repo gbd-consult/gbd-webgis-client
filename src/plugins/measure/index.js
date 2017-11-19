@@ -10,22 +10,21 @@
 // roughly based on https://openlayers.org/en/latest/examples/measure.html
 
 import React from 'react';
-import FontIcon from 'material-ui/FontIcon';
-import MenuItem from 'material-ui/MenuItem';
-import ToolbarMenu from '../ui/components/ToolbarMenu.js';
+
+import ToolbarButton from 'components/ToolbarButton';
+import ToolbarGroup from 'components/ToolbarGroup';
 
 
 import app from 'app';
 import ol from 'ol-all';
 import mapUtil from 'map-util';
 
-import './index.sass'
-
-
 const LAYER_KIND = 'measure';
 
 class Plugin extends app.Plugin {
     init() {
+
+        let th = app.theme().gbd.plugin.measure;
 
         this.listeners = {};
         this.overlays = {};
@@ -36,18 +35,28 @@ class Plugin extends app.Plugin {
                 color: 'rgba(255,255,255,0.5)'
             },
             stroke: {
-                color: 'red',
-                lineDash: [6, 6],
-                width: 2
+                color: th.strokeColor,
+                lineDash: [th.strokeDash, th.strokeDash],
+                width: th.strokeWidth
             }
         });
 
         this.handleImage = new ol.style.Circle({
             radius: 6,
             fill: new ol.style.Fill({
-                color: 'red'
+                color: th.strokeColor
             }),
         });
+
+        this.tooltipStyle = {
+            'position': 'relative',
+            'font-family': 'Roboto, sans-serif',
+            'font-size': '11px',
+            'padding': '5px',
+            'background': th.tooltip.background,
+            'color': th.tooltip.color,
+        };
+
 
         this.subscribe('mapMode', (newMode) => {
             if (newMode !== 'measure') {
@@ -55,7 +64,7 @@ class Plugin extends app.Plugin {
             }
         });
 
-        this.action('measureToggle', () => {
+        this.action('measureModeToggle', () => {
             if (app.get('mapMode') === 'measure')
                 return app.perform('mapDefaultMode');
             this.start();
@@ -99,7 +108,7 @@ class Plugin extends app.Plugin {
                 'DragPan',
                 'MouseWheelZoom',
                 'PinchZoom',
-                this.interactions.modify,
+                //this.interactions.modify,
                 this.interactions.drawString,
                 this.interactions.drawPolygon,
             ]
@@ -215,7 +224,7 @@ class Plugin extends app.Plugin {
 
     createTooltipOverlay() {
         let elem = document.createElement('div');
-        elem.className = 'measure-tooltip';
+        Object.keys(this.tooltipStyle).forEach(s => elem.style[s] = this.tooltipStyle[s]);
         let overlay = new ol.Overlay({
             element: elem,
             offset: [0, -15],
@@ -254,36 +263,42 @@ class Button extends React.Component {
     render() {
         let active = this.props.mapMode === 'measure';
 
+        if (active) {
+            return (
+                <ToolbarGroup>
+                    <ToolbarButton
+                        secondary
+                        active={this.props.measureMode === 'distance'}
+                        tooltip={__("distanceTooltip")}
+                        onClick={() => app.perform('measureMode', {mode: 'distance'})}
+                        icon='linear_scale'
+                    />
+                    <ToolbarButton
+                        secondary
+                        active={this.props.measureMode === 'area'}
+                        tooltip={__("areaTooltip")}
+                        onClick={() => app.perform('measureMode', {mode: 'area'})}
+                        icon='texture'
+                    />
+                    <ToolbarButton
+                        secondary
+                        tooltip={__("cancelTooltip")}
+                        onClick={() => app.perform('measureModeToggle')}
+                        icon='close'
+                    />
+                </ToolbarGroup>
+            );
+        }
+
         return (
-            <ToolbarMenu
+            <ToolbarButton
                 {...this.props}
-                active={active}
+                active={false}
                 tooltip={__("buttonTooltip")}
+                onClick={() => app.perform('measureModeToggle')}
                 icon='straighten'
-            > 
-                <MenuItem
-                    active={this.props.measureMode === 'distance' && this.props.mapMode === 'measure'}
-                    onClick={() => app.perform('measureMode', {mode: 'distance'})}
-                    leftIcon={<FontIcon className="material-icons">linear_scale</FontIcon>}
-                >
-                    {__('distanceTooltip')}
-                </MenuItem>
-                <MenuItem
-                    active={this.props.measureMode === 'area' && this.props.mapMode === 'measure'}
-                    onClick={() => app.perform('measureMode', {mode: 'area'})}
-                    leftIcon={<FontIcon className="material-icons">texture</FontIcon>}
-                >
-                    {__('areaTooltip')}
-                </MenuItem>
-                <MenuItem
-                    onClick={() => app.perform('mapDefaultMode')}
-                    leftIcon={<FontIcon className="material-icons">close</FontIcon>}
-                    disabled={this.props.mapMode !== 'measure'}
-                >
-                    {__('cancelTooltip')}
-                </MenuItem>
-            </ToolbarMenu>
-        )
+            />
+        );
     }
 }
 

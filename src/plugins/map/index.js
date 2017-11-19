@@ -22,14 +22,30 @@ export class Plugin extends app.Plugin {
             mapRotation: 0
         });
 
+        let updateMode = opts => {
+            let s = {
+                mapMode: app.map().getModeName(),
+                overlayVisible: false
+            }
+
+            if(opts.overlay) {
+                s.overlayVisible = true;
+                s.overlayWidth = opts.overlay.width;
+                s.overlayHeight = opts.overlay.height;
+                s.overlayRatio = opts.overlay.ratio;
+            }
+
+            app.set(s);
+        }
+
         this.action('mapSetMode', (opts) => {
             app.map().setMode(opts);
-            app.set({mapMode: app.map().getModeName()});
+            updateMode(opts);
         });
 
         this.action('mapDefaultMode', () => {
             app.map().setDefaultMode();
-            app.set({mapMode: app.map().getModeName()});
+            updateMode({});
         });
 
         this.action('mapPushMode', (opts) => {
@@ -38,7 +54,7 @@ export class Plugin extends app.Plugin {
 
         this.action('mapPopMode', () => {
             app.map().popMode();
-            app.set({mapMode: app.map().getModeName()});
+            updateMode({});
         });
 
         this.action('mapSetScaleLevel', ({level}) => {

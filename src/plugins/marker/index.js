@@ -11,15 +11,16 @@ function getGeometry(feature) {
 class Plugin extends app.Plugin {
 
     init() {
+        let th = app.theme().gbd.plugin.marker;
 
         this.style = {
             fill: {
-                color: 'rgba(0, 0, 255, 0.5)'
+                color: th.fill
             },
             stroke: {
-                color: '#fffa27',
-                lineDash: [3, 3],
-                width: 2
+                color: th.strokeColor,
+                lineDash: [th.strokeDash, th.strokeDash],
+                width: th.strokeWidth
             },
         };
 

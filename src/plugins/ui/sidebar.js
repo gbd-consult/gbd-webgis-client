@@ -1,13 +1,13 @@
 import React from 'react';
-import VerticalDrawer from './components/VerticalDrawer.js';
-import Drawer from 'material-ui/Drawer';
-import MenuItem from 'material-ui/MenuItem';
-import CircularProgress from 'material-ui/CircularProgress';
 
-import muiThemeable from 'material-ui/styles/muiThemeable';
-import withWidth, {SMALL} from 'material-ui/utils/withWidth';
+import Paper from 'material-ui/Paper';
+import IconButton from 'material-ui/IconButton';
+import {SMALL, MEDIUM, LARGE} from 'material-ui/utils/withWidth';
 
 import app from 'app';
+import MaterialIcon from 'components/MaterialIcon';
+
+import zindex from './zindex';
 
 class Plugin extends app.Plugin {
     init() {
@@ -18,99 +18,190 @@ class Plugin extends app.Plugin {
                 sidebarActivePanel: panel
             })
         );
-        this.action('sidebarVisible', (visible) =>
+        this.action('sidebarToggle', () =>
             app.set({
-                sidebarVisible: visible,
+                sidebarVisible: !app.get('sidebarVisible'),
             })
-        );
-        this.action('navbarVisible', (visible) =>
-            app.set({
-                navbarVisible: visible,
-            })
-        );
-    }
-
-}
-
-class Switch extends React.Component {
-    render() {
-        let activeStyle = {
-            color : this.props.muiTheme.palette.primary1Color,
-        };
-        return (
-            <Drawer
-                docked={false}
-                open={this.props.open}
-                width={300}
-                containerStyle={{ zIndex : 2100 }}
-                overlayStyle={{ zIndex : 2000 }}
-                onRequestChange={(open) => app.perform('navbarVisible', open)}
-            >
-                {React.Children.map(this.props.children, child => {
-                    let panel = child.key,
-                        title = child.props.title;
-                    return (
-                        <MenuItem
-                            style={panel === this.props.active ? activeStyle : null}
-                            onClick={() => {
-                                app.perform('sidebarShow', {panel});
-                                app.perform('navbarVisible', false);
-                            }}
-                        >
-                            {title}
-                        </MenuItem>
-                    );
-                })}
-            </Drawer>
         );
     }
 }
 
-class Content extends React.Component {
-    render() {
-        let containerStyle = {
-            top : this.props.muiTheme.toolbar.height,
-            height : 'calc(100vh - ' + this.props.muiTheme.toolbar.height + 'px)',
+class HeaderButton extends React.Component {
+    style() {
+        let th = app.theme().gbd.ui.sidebar.header;
+
+        let s = {
+            padding: 0,
+            marginTop: 8,
+            marginRight: 16,
+            borderRadius: '50%',
+            width: 36,
+            height: 36,
         };
+
+        if (this.props.active) {
+            s.backgroundColor = th.activeBackground;
+            s.color = th.activeColor;
+        }
+
+        return s;
+    }
+
+    render() {
         return (
-            <VerticalDrawer
-                width={this.props.width === SMALL ? '100%' : 450}
-                open={this.props.open}
-                containerStyle={containerStyle}
+            <IconButton
+                tooltip={this.props.tooltip}
+                style={this.style()}
+                onClick={this.props.onClick}
             >
+                <MaterialIcon
+                    color={app.theme().palette.secondaryTextColor}
+                    icon={this.props.icon}/>
+            </IconButton>
+        );
+    }
+}
+
+class Header extends React.Component {
+    style() {
+        let th = app.theme().gbd.ui.sidebar.header;
+
+        return {
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            right: 0,
+            paddingLeft: 8,
+            display: 'flex',
+            height: app.theme().toolbar.height,
+            background: th.background,
+            color: th.color
+        }
+    }
+
+    render() {
+        return (
+            <div style={this.style()}>
+                <HeaderButton
+                    onClick={() => app.perform('sidebarToggle')}
+                    icon="close"/>
+
                 {
-                    React.Children.map(this.props.children, elem => {
-                        if (elem.key === this.props.active)
-                            return elem;
-                        return null;
-                    })
+                    React.Children.map(this.props.children, c =>
+                        <HeaderButton
+                            onClick={() => app.perform('sidebarShow', {panel: c.key})}
+                            active={c.key === this.props.sidebarActivePanel}
+                            tooltip={c.props.title}
+                            icon={c.props.icon}/>
+                    )
                 }
-            </VerticalDrawer>
+            </div>
+        );
+    }
+}
+
+class Body extends React.Component {
+    style() {
+        return {
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            top: app.theme().toolbar.height,
+            bottom:
+                this.props.appIsMobile ? 0 : app.theme().gbd.ui.statusbar.height,
+            overflow: 'auto',
+        };
+    }
+
+    render() {
+        return (
+            <div style={this.style()}>
+                {
+                    React.Children.map(this.props.children, c =>
+                        (c.key === this.props.sidebarActivePanel) ? c : null
+                    )
+                }
+            </div>
+        );
+    }
+}
+
+class OpenButton extends React.Component {
+    style() {
+        let th = app.theme().gbd.ui.sidebar.header;
+
+        return {
+            padding: 0,
+            position: 'absolute',
+            left: 8,
+            top: 8,
+            borderRadius: 0,
+            width: 36,
+            height: 36,
+            background: th.background,
+            color: th.color
+        }
+    }
+
+    render() {
+        return (
+            <IconButton
+                style={this.style()}
+                onClick={() => app.perform('sidebarToggle')}
+            >
+                <MaterialIcon icon='menu' color={app.theme().palette.secondaryTextColor}/>
+            </IconButton>
+
         )
     }
-
 }
 
-
 class Sidebar extends React.Component {
+    width() {
+        switch (this.props.appWidth) {
+            case SMALL:
+                return '100%';
+            case MEDIUM:
+                return app.theme().gbd.ui.sidebar.mediumWidth;
+            case LARGE:
+            default:
+                return app.theme().gbd.ui.sidebar.largeWidth;
+        }
+    }
+
+    css() {
+        let w = this.width();
+        let style = {
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            bottom: 0,
+            width: w,
+            backgroundColor: 'white',
+            transition: 'transform 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms',
+            boxShadow: 'rgba(0, 0, 0, 0.16) 0px 3px 10px',
+            tranform: 'translate(0, 0)',
+            zIndex: zindex.sidebar
+        }
+
+        if (!this.props.sidebarVisible) {
+            if (typeof w === 'number')
+                w += 'px';
+            style.transform = `translate(-${w},0)`
+        }
+
+        return {style};
+
+    }
+
     render() {
         return (
             <div>
-                <Switch
-                    open={this.props.navbarVisible}
-                    active={this.props.sidebarActivePanel}
-                    muiTheme={this.props.muiTheme}
-                >
-                    {this.props.children}
-                </Switch>
-                <Content
-                    width={this.props.width}
-                    open={this.props.sidebarVisible}
-                    active={this.props.sidebarActivePanel}
-                    muiTheme={this.props.muiTheme}
-                >
-                    {this.props.children}
-                </Content>
+                <OpenButton/>
+                <Paper {...this.css()}>
+                    <Header {...this.props} />
+                    <Body {...this.props} />
+                </Paper>
             </div>
         )
     }
@@ -118,6 +209,6 @@ class Sidebar extends React.Component {
 
 export default {
     Plugin,
-    Sidebar: app.connect(muiThemeable()(withWidth()(Sidebar)),
-                ['sidebarVisible', 'navbarVisible', 'sidebarActivePanel', 'appWaiting']),
+    Sidebar: app.connect(Sidebar,
+        ['appWidth', 'appIsMobile', 'sidebarVisible', 'sidebarActivePanel'])
 }

@@ -1,6 +1,6 @@
 {
     "qgis2": {
-        "server": "http://qwc.gbd-consult.de/cgi-bin/qgis_mapserv.fcgi?map=/var/www/qwc1/projekte/alkishh.qgs",
+        "server": "http://qwc.gbd-consult.de/cgi-bin/qgis_mapserv.fcgi?map=/var/www/qwc1/projekte/alkishh2.qgs",
         "print": {
             "template": "template1",
             "resolution": 300
@@ -10,48 +10,43 @@
         "url": "http://qwc.gbd-consult.de/"
     },
     "map": {
-        "backgrounds": [
+        "layers": [
             {
-                "type": "osm",
-                "opacity": 0.3
+                "type": "wmsGroup",
+                "url": "http://qwc.gbd-consult.de:9090/wms",
+                "name": "ALKIS/Hamburg"
             },
             {
-                "type": "wms",
+                "type": "osm",
+                "opacity": 0.3,
+                "background": true
+            },
+            {
+                "type": "wmsTile",
                 "name": "Webatlas-Grau",
                 "url": "http://sg.geodatenzentrum.de/wms_webatlasde.light_grau",
                 "params": {
                     "LAYERS": "webatlasde.light_grau",
                     "CRS": "EPSG:25832"
                 },
-                "opacity": 0.3
+                "opacity": 0.3,
+                "visible": false,
+                "background": true
             }
         ],
         "scales": [
-            100,
-            200,
-            250,
-            500,
-            750,
-            1000,
-            1500,
-            2000,
-            2500,
-            3000,
-            4000,
-            5000,
-            7500,
-            10000,
-            12000,
-            15000,
-            20000,
-            25000,
-            30000,
+            70000,
             35000,
-            40000,
-            45000,
-            50000,
-            75000
+            15000,
+            8000,
+            4000,
+            2000,
+            1000,
+            500,
+            250,
+            100
         ],
+        "scale": 8000,
         "extent": [
             560096,
             5929178,

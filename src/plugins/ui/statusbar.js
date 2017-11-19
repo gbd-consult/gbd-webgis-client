@@ -1,60 +1,55 @@
 import React from 'react';
+
 import Paper from 'material-ui/Paper';
 import Divider from 'material-ui/Divider';
-import CircularProgress from 'material-ui/CircularProgress';
 
 import muiThemeable from 'material-ui/styles/muiThemeable';
 import withWidth, {SMALL} from 'material-ui/utils/withWidth';
 
 import app from 'app';
+import * as sb from 'components/StatusbarWidgets';
+
+import zindex from './zindex';
 
 class Plugin extends app.Plugin {
 }
 
-class Waiting  extends React.Component {
-    render() {
-        return <CircularProgress />
-    }
-
-}
-
-
-
 class Statusbar extends React.Component {
-    render() {
-        let style = {
+
+    style() {
+        let th = app.theme().gbd.ui.statusbar;
+
+        return {
             position: 'absolute',
             bottom: 0,
             right: 0,
+            left: 0,
             display: 'flex',
-            height: this.props.muiTheme.toolbar.height / 2,
-            lineHeight: this.props.muiTheme.toolbar.height / 2 + 'px',
+            height: th.height,
+            boxSizing: 'border-box',
+            padding: '0 8px',
+            alignItems: 'center',
+            zIndex: zindex.statusbar,
+            backgroundColor: th.background
         };
-        let childStyle = {
-            paddingLeft: 5,
-            paddingRight: 5,
-            borderRightStyle: 'solid',
-            borderRightWidth: 1,
-            borderRightColor: this.props.muiTheme.palette.borderColor,
-        };
+    }
+
+    render() {
+        if (this.props.appIsMobile)
+            return null;
         return (
-            <Paper
-                style={style}
-            >
-                {this.props.appWaiting ? <Waiting/> : null}
-                {React.Children.map(this.props.children, child => {
-                    return (
-                        <div style={childStyle}>
-                            {child}
-                        </div>
-                    )
-                })}
+            <Paper style={this.style()}>
+                {this.props.children}
             </Paper>
         )
     }
 }
 
+Statusbar.Widgets = {...sb};
+Statusbar.Widgets.Progress = app.connect(sb.Progress, ['appWaiting']);
+
+
 export default {
     Plugin,
-    Statusbar: app.connect(withWidth()(muiThemeable()(Statusbar)))
+    Statusbar: app.connect(Statusbar, ['appIsMobile', 'appWaiting']),
 }

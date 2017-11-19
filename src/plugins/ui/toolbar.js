@@ -1,29 +1,32 @@
 import React from 'react';
 
-import {Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle} from 'material-ui/Toolbar';
-import withWidth, {SMALL} from 'material-ui/utils/withWidth';
-import muiThemeable from 'material-ui/styles/muiThemeable';
-
 import app from 'app';
+
+import zindex from './zindex';
 
 class Plugin extends app.Plugin {
 }
 
-class Toolbar2 extends React.Component {
+class Toolbar extends React.Component {
+    style() {
+        let b = this.props.appIsMobile ? 0 : app.theme().gbd.ui.statusbar.height;
+
+        return {
+            position: 'absolute',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'flex-end',
+            bottom:
+                b +
+                app.theme().gbd.ui.toolbar.gutter,
+            right: app.theme().gbd.ui.toolbar.gutter,
+            zIndex: zindex.toolbar
+        }
+    }
+
     render() {
-        let style = {
-            position: 'absolute',
-            top: '10px',
-            right: '0px',
-        };
-        let mobileStyle = {
-            position: 'absolute',
-            bottom: this.props.muiTheme.toolbar.height / 2 + 'px',
-            right: '0px',
-            display: 'inline-flex',
-        };
         return (
-            <div style={this.props.width === SMALL ? mobileStyle : style}>
+            <div style={this.style()}>
                 {this.props.children}
             </div>
         );
@@ -33,5 +36,5 @@ class Toolbar2 extends React.Component {
 
 export default {
     Plugin,
-    Toolbar: app.connect(muiThemeable()(withWidth()(Toolbar2)))
+    Toolbar: app.connect(Toolbar, ['appIsMobile'])
 }

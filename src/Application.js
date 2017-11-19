@@ -8,6 +8,11 @@ import * as ReactRedux from 'react-redux';
 
 import app from 'app';
 
+import withWidth, {SMALL} from 'material-ui/utils/withWidth';
+
+
+
+
 /**
  * @class Application
  * @hideconstructor
@@ -17,23 +22,41 @@ import app from 'app';
  * Main application component.
  *
  */
-export default class Application extends React.Component {
+class Application extends React.Component {
+    constructor(props) {
+        super(props);
+        app.initStore();
+        app.set({
+            appTheme: getMuiTheme(this.props.theme),
+            appWidth: props.width,
+            appIsMobile: props.width === SMALL
+        });
+    }
+
+
     async componentDidMount() {
         let map = app.map();
         app.set(this.props.initState);
         this.props.plugins.forEach(p => p.init());
         await map.load('map-container')
+    }
 
+    componentWillUpdate(newProps) {
+        app.set({
+            appWidth: newProps.width,
+            appIsMobile: newProps.width === SMALL
+        });
     }
 
     render() {
-        let theme = getMuiTheme(this.props.theme);
         return (
             <ReactRedux.Provider store={app.store()}>
                 <div id='app-wrap'>
                     <div id='map-container'/>
-                    <MuiThemeProvider muiTheme={theme}>
-                        {this.props.ui}
+                    <MuiThemeProvider muiTheme={app.get('appTheme')}>
+                        <div>
+                            {this.props.ui}
+                        </div>
                     </MuiThemeProvider>
                 </div>
             </ReactRedux.Provider>
@@ -41,3 +64,4 @@ export default class Application extends React.Component {
     }
 }
 
+export default withWidth()(Application);

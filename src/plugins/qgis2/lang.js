@@ -4,7 +4,11 @@ module.exports = {
         printTooltip: 'print'
     },
     de: {
-        printTooltip: 'Drucken'
+        printTooltip: 'Drucken',
+        quality0: 'niedrige Qualität',
+        quality1: 'mittlere Qualität',
+        quality2: 'hohe Qualität',
+        cancelTooltip: 'Abbrechen',
     },
 };
 

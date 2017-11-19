@@ -44,7 +44,7 @@ class Panel extends React.Component {
 
     render() {
         return (
-            <Paper ref={this}>
+            <Paper zDepth={0}>
                 {this.content()}
             </Paper>
         )

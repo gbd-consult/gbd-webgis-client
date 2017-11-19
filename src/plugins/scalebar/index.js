@@ -1,9 +1,7 @@
 import React from 'react';
-import StatusbarTextField from '../ui/components/StatusbarTextField'
-import StatusbarSlider from '../ui/components/StatusbarSlider'
 
 import app from 'app';
-import ol from 'ol-all';
+import * as sb from 'components/StatusbarWidgets';
 
 class Plugin extends app.Plugin {
 }
@@ -20,21 +18,22 @@ class Control extends React.Component {
         let len = scales.length - 1;
 
         return (
-            <div>
-                <StatusbarTextField
-                    label='Maßstab'
-                    value={'1:' + scales[level]}
+            <sb.Group>
+                <sb.Label
+                    value='1:' />
+                <sb.Input
                     width={60}
-                />
-                <StatusbarSlider
-                    width={200}
+                    onChange={() => 0}
+                    value={scales[level]} />
+
+                <sb.SmallSlider
                     min={0}
                     max={len}
                     step={1}
                     value={len - level}
                     onChange={(evt, value) => app.perform('mapSetScaleLevel', {level: len - value})}
                 />
-            </div>
+            </sb.Group>
         );
     }
 }

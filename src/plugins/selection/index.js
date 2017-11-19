@@ -13,8 +13,7 @@ import Menu from 'material-ui/Menu';
 import MenuItem from 'material-ui/MenuItem';
 import Divider from 'material-ui/Divider';
 
-import ToolbarButton from '../ui/components/ToolbarButton.js';
-
+import ToolbarButton from 'components/ToolbarButton';
 import app from 'app';
 import mapUtil from 'map-util';
 import ol from 'ol-all';
@@ -159,6 +158,7 @@ class AreaButton extends React.Component {
         return (
             <div>
                 <ToolbarButton
+                    {...this.props}
                     active={active}
                     onClick={evt => this.onClick(evt)}
                     icon='select_all'
@@ -190,6 +190,7 @@ class QueryButton extends React.Component {
         return (
             <div>
                 <ToolbarButton
+                    {...this.props}
                     tooltip={__("queryTooltip")}
                     onClick={() => app.perform('selectionQuery')}
                     icon='search'

@@ -8,16 +8,12 @@
  */
 
 import React from 'react';
-import IconButton from 'material-ui/IconButton';
-import FontIcon from 'material-ui/FontIcon';
-
-import ToolbarButton from '../ui/components/ToolbarButton.js';
-
 import _ from 'lodash';
 
 import app from 'app';
 import ol from 'ol-all';
-import mapUtil from 'map-util';
+
+import ToolbarButton from 'components/ToolbarButton';
 
 class Plugin extends app.Plugin {
     init() {
@@ -64,7 +60,6 @@ class PlusButton extends React.Component {
         return (
             <ToolbarButton
                 {...this.props}
-                primary
                 tooltip={__("plusTooltip")}
                 onClick={() => app.perform('zoom', {delta: +1})}
                 icon='add'
@@ -80,7 +75,6 @@ class MinusButton extends React.Component {
         return (
             <ToolbarButton
                 {...this.props}
-                primary
                 tooltip={__("minusTooltip")}
                 onClick={() => app.perform('zoom', {delta: -1})}
                 icon='remove'
@@ -96,7 +90,6 @@ class BoxButton extends React.Component {
         return (
             <ToolbarButton
                 {...this.props}
-                primary
                 tooltip={__("boxTooltip")}
                 onClick={() => app.perform('zoomBoxStart')}
                 icon='zoom_in'

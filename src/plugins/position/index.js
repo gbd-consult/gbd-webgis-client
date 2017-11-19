@@ -8,10 +8,12 @@
  */
 
 import React from 'react';
-import StatusbarTextField from '../ui/components/StatusbarTextField'
 
 import app from 'app';
 import ol from 'ol-all';
+
+import * as sb from 'components/StatusbarWidgets';
+
 
 class Plugin extends app.Plugin {
     init() {
@@ -32,18 +34,20 @@ class Control extends React.Component {
     render() {
         let xy = this.props.mapMouseXY || [0, 0];
         return (
-            <div>
-                <StatusbarTextField
-                    value={xy[0].toFixed(0)}
-                    label='X'
+            <sb.Group>
+                <sb.Label
+                    value='x' />
+                <sb.Input
                     width={70}
-                />
-                <StatusbarTextField
-                    value={xy[1].toFixed(0)}
-                    label='Y'
+                    onChange={() => 0}
+                    value={xy[0].toFixed(0)} />
+                <sb.Label
+                    value='y' />
+                <sb.Input
                     width={70}
-                />
-            </div>
+                    onChange={() => 0}
+                    value={xy[1].toFixed(0)} />
+            </sb.Group>
         );
     }
 }

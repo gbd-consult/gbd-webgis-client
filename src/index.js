@@ -2,17 +2,13 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import app from 'app';
-
-import * as colors from 'material-ui/styles/colors';
-
 import 'ol/ol.css';
-
 import './index.sass';
 
 /*=
     config.plugins
-        .map(name => `import ${name.replace(/-/g, '')} from './plugins/${name}';`)
-        .join('\n')
+        .map(name => `import ${name} from './plugins/${name}'`)
+        .join(';\n')
 */
 
 import Application from './Application';
@@ -23,25 +19,30 @@ window.gbdWebgisClient = {
 
         let App = <Application
             theme={{
-                /*= config.theme */
+                /*=
+                    JSON.stringify(config.theme)
+                        .slice(1, -1)
+                */
             }}
 
             initState={{
-                /*= config.initState */
+                /*=
+                    JSON.stringify(config.initState)
+                        .slice(1, -1)
+                 */
             }}
 
             plugins={[
                 /*=
                     config.plugins
-                    .map(name => `new ${name.replace(/-/g, '')}.Plugin`)
-                    .join(',\n')
+                        .map(name => `new ${name}.Plugin`)
+                        .join(',\n')
                  */
             ]}
 
             ui={<div>
-                /*= config.ui */
+                /*= '<ui.Overlay/>' + config.ui */
             </div>}
-
         />;
 
         if(typeof(config) === 'string') {

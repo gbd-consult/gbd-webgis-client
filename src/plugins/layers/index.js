@@ -1,10 +1,8 @@
 import React from 'react';
 
-import Paper from 'material-ui/Paper';
 import {List, ListItem} from 'material-ui/List';
 import Subheader from 'material-ui/Subheader';
 import Checkbox from 'material-ui/Checkbox';
-import muiThemeable from 'material-ui/styles/muiThemeable';
 
 
 import app from 'app';
@@ -71,13 +69,13 @@ class Plugin extends app.Plugin {
 class Tree extends React.Component {
     itemStyle(active, visible, enabled) {
         let s = {
-            color: this.props.muiTheme.palette.textColor
+            color: app.theme().palette.textColor
         };
 
         if (active)
-            s.backgroundColor = this.props.muiTheme.palette.accent2Color;
+            s.backgroundColor = app.theme().palette.accent2Color;
         if (!enabled)
-            s.color = this.props.muiTheme.palette.disabledColor;
+            s.color = app.theme().palette.disabledColor;
 
         return s;
     }
@@ -124,53 +122,28 @@ class Tree extends React.Component {
         return null;
     }
 
-    drawBackgrounds(root) {
-        for (let g of root.children) {
-            if (g.kind === '_BACKGROUND') {
-                return <List>
-                    {g.children.map(la => this.drawLayer(la, 0))}
-                </List>;
-            }
-        }
-        return null;
-    }
-
     render() {
         if (!this.props.layerRoot)
             return null;
 
         let project = this.drawProject(this.props.layerRoot);
-        let backgrounds = this.drawBackgrounds(this.props.layerRoot);
-
         return (
             <div>
                 {project}
-                {backgrounds ?
-                    <div>
-                        <Subheader>{__("backgroundsTitle")}</Subheader>
-                        {backgrounds}
-                    </div>
-                    : null
-                }
             </div>
         );
     }
 }
 
-let ConnectedTree = app.connect(muiThemeable()(Tree), ['layerRoot', 'layerActiveUid']);
-
 class Panel extends React.Component {
     render() {
         return (
-            <Paper>
-                <ConnectedTree/>
-            </Paper>
+            <Tree {...this.props} />
         );
     }
 }
 
 export default {
     Plugin,
-    Tree: ConnectedTree,
-    Panel: app.connect(Panel)
+    Panel: app.connect(Panel, ['layerRoot', 'layerActiveUid'])
 };

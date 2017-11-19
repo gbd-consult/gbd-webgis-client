@@ -192,7 +192,7 @@ async function printTemplates() {
 }
 
 
-function printURL({layerNames, extent, rotation, scale}) {
+function printURL({layerNames, extent, rotation, scale, dpi}) {
 
     extent = ol.proj.transformExtent(extent,
         app.config.str('map.crs.client'),
@@ -207,7 +207,7 @@ function printURL({layerNames, extent, rotation, scale}) {
         EXCEPTIONS: 'application/vnd.ogc.se_inimage',
         transparent: 'true',
         srs: app.config.str('map.crs.server'),
-        dpi: app.config.number('qgis2.print.resolution'),
+        dpi: dpi,
         template: app.config.str('qgis2.print.template'),
         layers: encodeURIComponent(layerNames.join(',')),
         opacities: encodeURIComponent(layerNames.map(() => 255).join(',')),
