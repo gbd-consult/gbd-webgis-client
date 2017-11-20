@@ -8,6 +8,7 @@ const categoryNames = {
 
 function convert(rec) {
     return new ol.Feature({
+        source: 'ALKIS',
         category: categoryNames[rec.category],
         text: rec.text,
         geometry: new ol.format.WKT().readGeometry(rec.wkt_geometry, {

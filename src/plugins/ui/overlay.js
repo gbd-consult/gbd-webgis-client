@@ -7,7 +7,7 @@ import IconButton from 'material-ui/IconButton';
 import {SMALL, MEDIUM, LARGE} from 'material-ui/utils/withWidth';
 
 import app from 'app';
-import zindex from './zindex';
+import helpers from './helpers';
 
 const minSize = 50;
 
@@ -90,7 +90,7 @@ class Overlay extends React.Component {
                 cursor: 'pointer',
                 borderRadius: '50%',
                 backgroundColor: th.borderColor,
-                zIndex: zindex.overlayHandles
+                zIndex: helpers.zIndex.overlayHandles
             }
         }
     }

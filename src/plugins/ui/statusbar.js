@@ -9,7 +9,7 @@ import withWidth, {SMALL} from 'material-ui/utils/withWidth';
 import app from 'app';
 import * as sb from 'components/StatusbarWidgets';
 
-import zindex from './zindex';
+import helpers from './helpers';
 
 class Plugin extends app.Plugin {
 }
@@ -29,7 +29,7 @@ class Statusbar extends React.Component {
             boxSizing: 'border-box',
             padding: '0 8px',
             alignItems: 'center',
-            zIndex: zindex.statusbar,
+            zIndex: helpers.zIndex.statusbar,
             backgroundColor: th.background
         };
     }

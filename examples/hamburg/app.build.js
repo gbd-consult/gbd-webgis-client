@@ -24,8 +24,8 @@ module.exports = {
 
     // initial state of the app
     initState: {
-        sidebarVisible: true,
-        sidebarActivePanel: 'search',
+        sidebarVisible: false,
+        sidebarActivePanel: 'layers',
         overlayVisible: false,
         appWaiting: false,
         toolbarVisible: true,
@@ -38,15 +38,15 @@ module.exports = {
         <ui.Toolbar>
             <zoom.MinusButton/>
             <zoom.PlusButton/>
-            <zoom.BoxButton hideMobile/>
+            <zoom.BoxButton desktopOnly />
             <identify.Button/>
             <measure.Button/>
-            <qgis2.PrintButton hideMobile/>
+            <qgis2.PrintButton/>
         </ui.Toolbar>
         <ui.Sidebar>
-            <search.Panel key="search" title="Suche" icon="search" />
             <layers.Panel key="layers" title="Layers" icon="layers" />
             <details.Panel key="details" title="Info" icon="list" />
+            <search.Panel key="search" title="Suche" icon="search" mobileOnly />
         </ui.Sidebar>
         <ui.Statusbar>
             <position.Control />
@@ -58,7 +58,9 @@ module.exports = {
             <ui.Statusbar.Widgets.Link mode="popover" 
                 text={<img src="http://gbdclient.gbd-consult.de/gbd-logo.png" width={12} height={12} />}/>
         </ui.Statusbar>
-
+        <ui.Altbar>
+            <search.Box desktopOnly />
+        </ui.Altbar>
     `
 };
 

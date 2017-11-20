@@ -7,7 +7,7 @@ import {SMALL, MEDIUM, LARGE} from 'material-ui/utils/withWidth';
 import app from 'app';
 import MaterialIcon from 'components/MaterialIcon';
 
-import zindex from './zindex';
+import helpers from './helpers';
 
 class Plugin extends app.Plugin {
     init() {
@@ -87,7 +87,7 @@ class Header extends React.Component {
                     icon="close"/>
 
                 {
-                    React.Children.map(this.props.children, c =>
+                    React.Children.map(this.props.children, c => helpers.deviceCheck(this, c) &&
                         <HeaderButton
                             onClick={() => app.perform('sidebarShow', {panel: c.key})}
                             active={c.key === this.props.sidebarActivePanel}
@@ -133,8 +133,8 @@ class OpenButton extends React.Component {
         return {
             padding: 0,
             position: 'absolute',
-            left: 8,
-            top: 8,
+            left: app.theme().gbd.ui.gutter,
+            top: app.theme().gbd.ui.gutter,
             borderRadius: 0,
             width: 36,
             height: 36,
@@ -169,9 +169,9 @@ class Sidebar extends React.Component {
         }
     }
 
-    css() {
+    style() {
         let w = this.width();
-        let style = {
+        let s = {
             position: 'absolute',
             left: 0,
             top: 0,
@@ -181,24 +181,23 @@ class Sidebar extends React.Component {
             transition: 'transform 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms',
             boxShadow: 'rgba(0, 0, 0, 0.16) 0px 3px 10px',
             tranform: 'translate(0, 0)',
-            zIndex: zindex.sidebar
-        }
+            zIndex: helpers.zIndex.sidebar
+        };
 
         if (!this.props.sidebarVisible) {
             if (typeof w === 'number')
                 w += 'px';
-            style.transform = `translate(-${w},0)`
+            s.transform = `translate(-${w},0)`
         }
 
-        return {style};
-
+        return s;
     }
 
     render() {
         return (
             <div>
                 <OpenButton/>
-                <Paper {...this.css()}>
+                <Paper style={this.style()}>
                     <Header {...this.props} />
                     <Body {...this.props} />
                 </Paper>

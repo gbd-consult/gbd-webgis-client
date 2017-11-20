@@ -19,6 +19,8 @@ module.exports = {
     palette: pal,
     gbd: {
         ui: {
+            gutter: 12,
+
             statusbar: {
                 height: 40,
                 background: COLOR.blueGrey900,
@@ -54,7 +56,6 @@ module.exports = {
             },
 
             toolbar: {
-                gutter: 5,
                 button: {
                     size: 45,
 
@@ -70,9 +71,13 @@ module.exports = {
 
                     borderWidth: 2,
                     borderColor: COLOR.white
-
-
                 }
+            },
+
+            altbar: {
+                background: COLOR.white,
+                width: 300
+
             },
 
             overlay: {
@@ -97,6 +102,21 @@ module.exports = {
                 strokeColor: COLOR.tealA200,
                 strokeDash: 5,
                 strokeWidth: 3
+            },
+
+            search: {
+                sources: {
+                    OSM: {
+                        color: COLOR.white,
+                        background: COLOR.pink700
+                    },
+                    ALKIS: {
+                        color: COLOR.white,
+                        background: COLOR.green700
+                    }
+
+                }
+
 
             }
 

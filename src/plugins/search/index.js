@@ -2,7 +2,7 @@ import React from 'react';
 import {Toolbar, ToolbarGroup} from 'material-ui/Toolbar';
 import IconButton from 'material-ui/IconButton';
 import TextField from 'material-ui/TextField';
-import Chip from 'material-ui/Chip';
+import Paper from 'material-ui/Paper';
 
 import _ from 'lodash';
 
@@ -19,17 +19,16 @@ class Plugin extends app.Plugin {
 
             input = input.trim();
             if (!input) {
-                return this.update(null, '');
+                return app.set({searchResults: []});
             }
 
             app.perform('search', {
                 text: input,
                 done: found => {
-                    features = [].concat(features, found);
-                    this.update(
-                        _.groupBy(features, f => f.get('category')),
-                        input);
-
+                    features = _.sortBy(
+                        [].concat(features, found),
+                        f => f.get('text'));
+                    app.set({searchResults: features});
                 }
             });
         };
@@ -43,104 +42,95 @@ class Plugin extends app.Plugin {
             })
         });
 
-        this.action('searchClear', () => this.update(null, ''));
+        //this.action('searchClear', () => this.update(null, ''));
 
-    }
-
-    update(results, input) {
-        app.set({
-            searchInput: input,
-            searchResults: results
-        });
     }
 }
 
+class ResultChip extends React.Component {
+    style() {
+        let th = app.theme().gbd.plugin.search.sources[this.props.feature.get('source')];
+        return {
+            float: 'right',
+            marginRight: 6,
+            padding: '2px',
+            fontSize: 10,
+            color: th.color,
+            borderRadius: 6,
+            background: th.background
+        }
+    }
+
+    render() {
+        return (
+            <div style={this.style()}>{this.props.feature.get('source')}</div>
+        );
+    }
+
+
+}
+
 class Result extends React.Component {
+
+    style() {
+        let s = {
+            padding: 16,
+            cursor: 'pointer',
+        }
+
+        if (!this.props.odd) {
+            s.backgroundColor = '#f9f9f9';
+        }
+
+        return s;
+
+    }
 
     render() {
         let feature = this.props.feature;
 
         return (
             <div
-                style={this.props.css.feature}
+                style={this.style()}
                 onClick={() => app.perform('searchHighlight', {feature})}
             >
+                <ResultChip feature={feature}/>
                 {feature.get('text').split('\n').map(line => <div>{line}</div>)}
             </div>
         );
     }
 }
 
-class ResultsSection extends React.Component {
-    render() {
-        return (
-            <div style={this.props.css.section}>
-                <div style={this.props.css.title}>
-                    {this.props.title}
-                </div>
-                {this.props.features.map(f => <Result
-                    key={ol.getUid(f)}
-                    css={this.props.css}
-                    feature={f}
-                />)}
-            </div>
-        )
-    }
-
-}
-
 class Results extends React.Component {
-    css() {
+    style() {
         return {
-            container: {
+            panel: {
                 position: 'absolute',
                 left: 0,
                 right: 0,
-                top: app.theme().toolbar.height,
                 bottom: 0,
+                top: app.theme().toolbar.height,
                 overflow: 'auto',
-                padding: '0 16px 16px 16px'
             },
-            section: {
-                margin: '16px 0'
-            },
-            title: {
-                background: app.theme().palette.accent2Color,
-                color: 'white',
-                margin: '8px 0',
-                padding: 8,
-                borderRadius: 4,
-                fontSize: 12,
-                display: 'inline-block'
-            },
-            feature: {
-                color: app.theme().palette.primary1Color,
-                margin: '8px 0',
-                cursor: 'pointer'
+            box: {
+                overflow: 'auto',
+                maxHeight: 300,
+                borderTopWidth: 1,
+                borderTopStyle: 'solid',
+                borderTopColor: app.theme().palette.borderColor
             }
-
         }
     }
 
     render() {
-        if (!this.props.searchResults)
+        let res = this.props.searchResults;
+
+        if (!res || !res.length)
             return null;
 
-        let titles = Object.keys(this.props.searchResults).sort();
-        let css = this.css();
-
         return (
-            <div style={css.container}>
-                {
-                    titles.map(t => <ResultsSection
-                        key={t}
-                        title={t}
-                        features={this.props.searchResults[t]}
-                        css={css}
-
-
-                    />)
-                }
+            <div style={this.style()[this.props.mode]}>
+                {res.map((f, i) => <Result key={ol.getUid(f)} feature={f} odd={i % 2}/>)}
             </div>
         );
     }
@@ -148,12 +138,10 @@ class Results extends React.Component {
 
 }
 
-class Box extends React.Component {
+class Input extends React.Component {
     style() {
         return {
             flex: 1,
-            marginLeft: 8,
-            marginRight: 8,
         }
     }
 
@@ -161,6 +149,7 @@ class Box extends React.Component {
         return (
             <TextField
                 style={this.style()}
+                underlineShow={false}
                 hintText={__("searchHint")}
                 onChange={(evt, input) => app.perform('searchChanged', {input})}
             />
@@ -176,50 +165,79 @@ class ClearButton extends React.Component {
                 tooltipPosition='bottom-left'
                 onClick={() => app.perform('searchClear')}
             >
-                <MaterialIcon icon='backspace'/>
+                <MaterialIcon
+                    color={app.theme().palette.borderColor}
+                    icon='cancel'
+
+                />
             </IconButton>
         );
     }
-
 }
 
 class Header extends React.Component {
     style() {
         return {
-                position: 'absolute',
-                left: 0,
-                top: 0,
-                right: 0,
+            panel: {
+                boxSizing: 'border-box',
+                width: '100%',
+                display: 'flex',
+                padding: '4px 16px 0 16px',
                 height: app.theme().toolbar.height,
-                display: 'flex'
+                borderBottomWidth: 1,
+                borderBottomStyle: 'solid',
+                borderBottomColor: app.theme().palette.borderColor
+            },
+            box: {
+                boxSizing: 'border-box',
+                width: '100%',
+                display: 'flex',
+                padding: '0 16px 0 16px',
+            }
         }
     }
 
     render() {
         return (
-            <div style={this.style()}>
-                <Box {...this.props} />
-                <ClearButton/>
+            <div style={this.style()[this.props.mode]}>
+                <Input {...this.props} />
             </div>
         )
-
-
     }
 }
-
 
 class Panel extends React.Component {
     render() {
         return (
             <div>
-                <Header {...this.props} />
-                <Results {...this.props} />
+                <Header {...this.props} mode="panel"/>
+                <Results {...this.props} mode="panel"/>
             </div>
+        );
+    }
+}
+
+class Box extends React.Component {
+    style() {
+        return {
+            position: 'relative',
+            width: app.theme().gbd.ui.altbar.width,
+            background: app.theme().gbd.ui.altbar.background
+        }
+    }
+
+    render() {
+        return (
+            <Paper zDepth={2} style={this.style()}>
+                <Header {...this.props} mode="box"/>
+                <Results {...this.props} mode="box"/>
+            </Paper>
         );
     }
 }
 
 export default {
     Plugin,
-    Panel: app.connect(Panel, ['searchInput', 'searchResults'])
+    Panel: app.connect(Panel, ['searchInput', 'searchResults']),
+    Box: app.connect(Box, ['searchInput', 'searchResults']),
 };

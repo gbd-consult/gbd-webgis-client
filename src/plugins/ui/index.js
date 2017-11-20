@@ -5,6 +5,7 @@ import app from 'app';
 import toolbar from './toolbar';
 import sidebar from './sidebar';
 import statusbar from './statusbar';
+import altbar from './altbar';
 import overlay from './overlay';
 
 class Plugin extends app.Plugin {
@@ -23,5 +24,6 @@ export default {
     Toolbar: toolbar.Toolbar,
     Sidebar: sidebar.Sidebar,
     Statusbar: statusbar.Statusbar,
+    Altbar: altbar.Altbar,
     Overlay: overlay.Overlay,
 }
