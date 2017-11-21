@@ -71,7 +71,9 @@ module.exports = {
                     secondaryActiveColor: COLOR.white,
 
                     borderWidth: 2,
-                    borderColor: COLOR.white
+                    borderColor: COLOR.white,
+
+                    shadow: '0 0 5px rgba(0,0,0,0.3)'
                 }
             },
 

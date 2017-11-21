@@ -22,6 +22,12 @@ class Plugin extends app.Plugin {
                 app.map().getScaleLevel() + delta
             );
         });
+
+        this.action('zoomFull', () => {
+            let scales = app.map().getScales();
+            app.map().setScale(scales[0]);
+        });
+
         this.action('zoomBoxStart', () => this.start());
     }
 
@@ -62,7 +68,7 @@ class PlusButton extends React.Component {
                 {...this.props}
                 tooltip={__("plusTooltip")}
                 onClick={() => app.perform('zoom', {delta: +1})}
-                icon='add'
+                icon='add_circle_outline'
             />
         );
 
@@ -77,7 +83,22 @@ class MinusButton extends React.Component {
                 {...this.props}
                 tooltip={__("minusTooltip")}
                 onClick={() => app.perform('zoom', {delta: -1})}
-                icon='remove'
+                icon='remove_circle_outline'
+            />
+        );
+
+    }
+}
+
+class FullButton extends React.Component {
+
+    render() {
+        return (
+            <ToolbarButton
+                {...this.props}
+                tooltip={__("fullTooltip")}
+                onClick={() => app.perform('zoomFull')}
+                icon='zoom_out_map'
             />
         );
 
@@ -103,7 +124,8 @@ export default {
     Plugin,
     PlusButton: app.connect(PlusButton),
     MinusButton: app.connect(MinusButton),
-    BoxButton: app.connect(BoxButton)
+    BoxButton: app.connect(BoxButton),
+    FullButton: app.connect(FullButton),
 
 };
 

@@ -36,8 +36,9 @@ module.exports = {
     // application ui (must be valid JSX)
     ui: `
         <ui.Toolbar>
-            <zoom.MinusButton/>
             <zoom.PlusButton/>
+            <zoom.MinusButton/>
+            <zoom.FullButton/>
             <zoom.BoxButton desktopOnly />
             <identify.Button/>
             <measure.Button/>
