@@ -157,29 +157,31 @@ class OpenButton extends React.Component {
 }
 
 class Sidebar extends React.Component {
-    width() {
+    style() {
+        let th = app.theme().gbd.ui.sidebar;
+        let w;
+
         switch (this.props.appWidth) {
             case SMALL:
-                return '100%';
+                w = '100%';
+                break;
             case MEDIUM:
-                return app.theme().gbd.ui.sidebar.mediumWidth;
+                w = th.mediumWidth;
+                break;
             case LARGE:
             default:
-                return app.theme().gbd.ui.sidebar.largeWidth;
-        }
-    }
+                w = th.largeWidth;
+        };
 
-    style() {
-        let w = this.width();
         let s = {
             position: 'absolute',
             left: 0,
             top: 0,
             bottom: 0,
             width: w,
-            backgroundColor: 'white',
+            backgroundColor: th.background,
             transition: 'transform 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms',
-            boxShadow: 'rgba(0, 0, 0, 0.16) 0px 3px 10px',
+            boxShadow: th.shadow,
             tranform: 'translate(0, 0)',
             zIndex: helpers.zIndex.sidebar
         };

@@ -219,16 +219,19 @@ class Panel extends React.Component {
 
 class Box extends React.Component {
     style() {
+        let th = app.theme().gbd.ui.altbar;
+
         return {
             position: 'relative',
-            width: app.theme().gbd.ui.altbar.width,
-            background: app.theme().gbd.ui.altbar.background
+            width: th.width,
+            background: th.background,
+            shadow: th.shadow
         }
     }
 
     render() {
         return (
-            <Paper zDepth={2} style={this.style()}>
+            <Paper style={this.style()}>
                 <Header {...this.props} mode="box"/>
                 <Results {...this.props} mode="box"/>
             </Paper>

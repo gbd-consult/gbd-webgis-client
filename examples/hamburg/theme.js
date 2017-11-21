@@ -48,6 +48,8 @@ module.exports = {
             sidebar: {
                 largeWidth: 400,
                 mediumWidth: 400,
+                background: COLOR.white,
+                shadow: '0 0 5px rgba(0, 0, 0, 0.3)',
                 header: {
                     background: pal.primary1Color,
                     color: COLOR.white,
@@ -73,14 +75,14 @@ module.exports = {
                     borderWidth: 2,
                     borderColor: COLOR.white,
 
-                    shadow: '0 0 5px rgba(0,0,0,0.3)'
+                    shadow: '0 0 5px rgba(0, 0, 0, 0.3)'
                 }
             },
 
             altbar: {
                 background: COLOR.white,
-                width: 300
-
+                width: 300,
+                shadow: '0 0 5px rgba(0, 0, 0, 0.3)'
             },
 
             overlay: {
