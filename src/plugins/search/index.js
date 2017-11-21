@@ -1,5 +1,4 @@
 import React from 'react';
-import {Toolbar, ToolbarGroup} from 'material-ui/Toolbar';
 import IconButton from 'material-ui/IconButton';
 import TextField from 'material-ui/TextField';
 import Paper from 'material-ui/Paper';
@@ -14,12 +13,17 @@ import MaterialIcon from 'components/MaterialIcon';
 class Plugin extends app.Plugin {
 
     init() {
-        let run = ({input}) => {
+        let reset = () => app.set({
+            searchInput: '',
+            searchResults: []
+        });
+
+        let run = (input) => {
             let features = [];
 
-            input = input.trim();
-            if (!input) {
-                return app.set({searchResults: []});
+            if(!input.trim()) {
+                app.set({searchResults: []});
+                return;
             }
 
             app.perform('search', {
@@ -33,7 +37,9 @@ class Plugin extends app.Plugin {
             });
         };
 
-        this.action('searchChanged', _.debounce(run, 500));
+        reset();
+
+        this.subscribe('searchInput', _.debounce(run, 500));
 
         this.action('searchHighlight', ({feature}) => {
             app.perform('markerMark', {
@@ -42,7 +48,7 @@ class Plugin extends app.Plugin {
             })
         });
 
-        //this.action('searchClear', () => this.update(null, ''));
+        this.action('searchClear', reset);
 
     }
 }
@@ -66,8 +72,6 @@ class ResultChip extends React.Component {
             <div style={this.style()}>{this.props.feature.get('source')}</div>
         );
     }
-
-
 }
 
 class Result extends React.Component {
@@ -95,7 +99,7 @@ class Result extends React.Component {
                 onClick={() => app.perform('searchHighlight', {feature})}
             >
                 <ResultChip feature={feature}/>
-                {feature.get('text').split('\n').map(line => <div>{line}</div>)}
+                {feature.get('text').split('\n').map((line, i) => <div key={i}>{line}</div>)}
             </div>
         );
     }
@@ -125,7 +129,7 @@ class Results extends React.Component {
     render() {
         let res = this.props.searchResults;
 
-        if (!res || !res.length)
+        if (_.isEmpty(res))
             return null;
 
         return (
@@ -139,6 +143,30 @@ class Results extends React.Component {
 }
 
 class Input extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            value: '',
+        };
+    }
+
+    onChange(evt) {
+        this.setState({
+            value: evt.target.value
+        });
+    }
+
+    componentDidUpdate() {
+        app.set({searchInput: this.state.value});
+    }
+
+    componentWillReceiveProps(props) {
+        this.setState({
+            value: props.searchInput
+        });
+    }
+
     style() {
         return {
             flex: 1,
@@ -151,7 +179,8 @@ class Input extends React.Component {
                 style={this.style()}
                 underlineShow={false}
                 hintText={__("searchHint")}
-                onChange={(evt, input) => app.perform('searchChanged', {input})}
+                value={this.state.value}
+                onChange={evt => this.onChange(evt)}
             />
         );
     }
@@ -159,6 +188,11 @@ class Input extends React.Component {
 
 class ClearButton extends React.Component {
     render() {
+        let color =
+            (_.isEmpty(this.props.searchResults) && _.isEmpty(this.props.searchInput))
+                ? app.theme().palette.borderColor
+                : app.theme().palette.primary1Color;
+
         return (
             <IconButton
                 tooltip={__("searchClearTooltip")}
@@ -166,7 +200,7 @@ class ClearButton extends React.Component {
                 onClick={() => app.perform('searchClear')}
             >
                 <MaterialIcon
-                    color={app.theme().palette.borderColor}
+                    color={color}
                     icon='cancel'
 
                 />
@@ -182,7 +216,7 @@ class Header extends React.Component {
                 boxSizing: 'border-box',
                 width: '100%',
                 display: 'flex',
-                padding: '4px 16px 0 16px',
+                padding: '4px 0 0 16px',
                 height: app.theme().toolbar.height,
                 borderBottomWidth: 1,
                 borderBottomStyle: 'solid',
@@ -192,7 +226,7 @@ class Header extends React.Component {
                 boxSizing: 'border-box',
                 width: '100%',
                 display: 'flex',
-                padding: '0 16px 0 16px',
+                padding: '0 0 0 16px',
             }
         }
     }
@@ -201,6 +235,7 @@ class Header extends React.Component {
         return (
             <div style={this.style()[this.props.mode]}>
                 <Input {...this.props} />
+                <ClearButton {...this.props} />
             </div>
         )
     }
