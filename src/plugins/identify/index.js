@@ -84,7 +84,7 @@ class Button extends React.Component {
                 active={this.props.mapMode === 'identify'}
                 tooltip={__("buttonTooltip")}
                 onClick={() => app.perform('identifyModeToggle')}
-                icon='near_me'
+                icon='gps_fixed'
             />
         );
     }
