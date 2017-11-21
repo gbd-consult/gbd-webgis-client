@@ -9,16 +9,12 @@ class Plugin extends app.Plugin {
 
 class Toolbar extends React.Component {
     style() {
-        let b = this.props.appIsMobile ? 0 : app.theme().gbd.ui.statusbar.height;
-
         return {
             position: 'absolute',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'flex-end',
-            bottom:
-            b +
-            app.theme().gbd.ui.gutter,
+            bottom: app.theme().gbd.ui.statusbar.height + app.theme().gbd.ui.gutter,
             right: app.theme().gbd.ui.gutter,
             zIndex: helpers.zIndex.toolbar
         }

@@ -17,10 +17,15 @@ import ol from 'ol-all';
 export class Plugin extends app.Plugin {
     init() {
 
-        app.set({
-            mapScaleLevel: app.map().getScaleLevel(),
-            mapRotation: 0
-        });
+        let updateView = () => {
+            app.set({
+                mapScaleLevel: app.map().getScaleLevel(),
+                mapResolution: app.map().getView().getResolution(),
+                mapRotation: app.map().getView().getRotation()
+            });
+        };
+
+        updateView();
 
         let updateMode = opts => {
             let s = {
@@ -67,12 +72,12 @@ export class Plugin extends app.Plugin {
 
         app.map().getView().on('change:resolution', _.debounce(evt => {
             if (!evt.target.getAnimating())
-                app.set({mapScaleLevel: app.map().getScaleLevel()});
+                updateView();
         }, 500));
 
         app.map().getView().on('change:rotation', _.debounce(evt => {
             if (!evt.target.getAnimating())
-                app.set({mapRotation: app.map().getView().getRotation()});
+                updateView();
         }, 500));
     }
 }

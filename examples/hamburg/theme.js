@@ -22,7 +22,8 @@ module.exports = {
             gutter: 12,
 
             statusbar: {
-                height: 40,
+                height: 30,
+                padding: 4,
                 background: COLOR.blueGrey900,
 
                 input: {
@@ -87,6 +88,11 @@ module.exports = {
         },
 
         plugin: {
+            scale: {
+                sliderWidth: 200,
+                barWidth: 150
+            },
+
             marker: {
                 fill: 'rgba(255,0,0,0.5)',
                 strokeColor: COLOR.limeA100,

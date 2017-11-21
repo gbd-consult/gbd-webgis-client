@@ -18,7 +18,7 @@ module.exports = {
         'search_alkis',
         'search_nominatim',
         'identify', 'selection',
-        'position', 'scalebar', 'rotation',
+        'position', 'scale', 'rotation',
         'zoom', 'measure'
     ],
 
@@ -49,14 +49,20 @@ module.exports = {
             <search.Panel key="search" title="Suche" icon="search" mobileOnly />
         </ui.Sidebar>
         <ui.Statusbar>
-            <position.Control />
-            <scalebar.Control />
-            <ui.Statusbar.Widgets.Flex/>
-            <ui.Statusbar.Widgets.Link target="help.html" mode="popup" text="Hilfe" />
-            <ui.Statusbar.Widgets.Link target="terms.html" mode="popup" text="Nutzungsbedingungen" />
-            <ui.Statusbar.Widgets.Link mode="popover" text="&copy;">&copy; OpenStreetMaps</ui.Statusbar.Widgets.Link>
-            <ui.Statusbar.Widgets.Link mode="popover" 
-                text={<img src="http://gbdclient.gbd-consult.de/gbd-logo.png" width={12} height={12} />}/>
+            <position.Control desktopOnly/>
+            <scale.Control desktopOnly/>
+            <scale.Bar />
+            <ui.Statusbar.Widget.Flex />
+            <ui.Statusbar.Widget.Link href="help.html" mode="popup" text="Hilfe" />
+            <ui.Statusbar.Widget.Separator />
+            <ui.Statusbar.Widget.Link href="terms.html" mode="popup" text="Nutzungsbedingungen" />
+            <ui.Statusbar.Widget.Separator />
+            <ui.Statusbar.Widget.Link href="about.html" mode="popup"  
+                text={<img 
+                    src="http://gbdclient.gbd-consult.de/gbd-logo.png" 
+                    style={{width: 12, height: 12, marginRight: 8, verticalAlign: 'middle'}} 
+                    />}
+            />
         </ui.Statusbar>
         <ui.Altbar>
             <search.Box desktopOnly />

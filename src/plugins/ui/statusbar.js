@@ -21,35 +21,35 @@ class Statusbar extends React.Component {
 
         return {
             position: 'absolute',
+            boxSizing: 'border-box',
+            height: th.height,
+            paddingLeft: th.padding,
+            paddingRight: th.padding,
             bottom: 0,
             right: 0,
             left: 0,
             display: 'flex',
-            height: th.height,
-            boxSizing: 'border-box',
-            padding: '0 8px',
             alignItems: 'center',
             zIndex: helpers.zIndex.statusbar,
-            backgroundColor: th.background
+            backgroundColor: th.background,
         };
     }
 
     render() {
-        if (this.props.appIsMobile)
+        if (this.props.appIsMobile && this.props.sidebarVisible)
             return null;
         return (
             <Paper style={this.style()}>
-                {this.props.children}
+                {React.Children.map(this.props.children, c => helpers.deviceCheck(this, c) && c)}
             </Paper>
         )
     }
 }
 
-Statusbar.Widgets = {...sb};
-Statusbar.Widgets.Progress = app.connect(sb.Progress, ['appWaiting']);
+Statusbar.Widget = {...sb};
 
 
 export default {
     Plugin,
-    Statusbar: app.connect(Statusbar, ['appIsMobile', 'appWaiting']),
+    Statusbar: app.connect(Statusbar, ['appIsMobile', 'appWaiting', 'sidebarVisible']),
 }

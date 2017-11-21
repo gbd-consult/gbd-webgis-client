@@ -36,13 +36,13 @@ class Control extends React.Component {
         return (
             <sb.Group>
                 <sb.Label
-                    value='x' />
+                    value='X' />
                 <sb.Input
                     width={70}
                     onChange={() => 0}
                     value={xy[0].toFixed(0)} />
                 <sb.Label
-                    value='y' />
+                    value='Y' />
                 <sb.Input
                     width={70}
                     onChange={() => 0}
