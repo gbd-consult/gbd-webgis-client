@@ -11,6 +11,7 @@
 import React from 'react';
 
 import ToolbarButton from 'components/ToolbarButton';
+import IdentifyIcon from './icon'
 
 import _ from 'lodash';
 
@@ -84,8 +85,9 @@ class Button extends React.Component {
                 active={this.props.mapMode === 'identify'}
                 tooltip={__("buttonTooltip")}
                 onClick={() => app.perform('identifyModeToggle')}
-                icon='gps_fixed'
-            />
+            >
+                <IdentifyIcon/>
+            </ToolbarButton>
         );
     }
 }
