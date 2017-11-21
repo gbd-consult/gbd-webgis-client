@@ -39,10 +39,10 @@ module.exports = {
             <zoom.PlusButton/>
             <zoom.MinusButton/>
             <zoom.FullButton/>
-            <zoom.BoxButton desktopOnly />
+            <zoom.BoxButton desktopOnly/>
             <identify.Button/>
             <measure.Button/>
-            <qgis2.PrintButton/>
+            <qgis2.PrintButton desktopOnly/>
         </ui.Toolbar>
         <ui.Sidebar>
             <layers.Panel key="layers" title="Layers" icon="layers" />
