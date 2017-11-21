@@ -22,7 +22,7 @@ class Control extends React.Component {
                 <sb.Label
                     value='1:'/>
                 <sb.Input
-                    width={60}
+                    width={50}
                     onChange={() => 0}
                     value={scales[level]}/>
 
@@ -63,15 +63,18 @@ class Bar extends React.Component {
     }
 
     render() {
-        let width = app.theme().gbd.plugin.scale.barWidth;
         let res = this.props.mapResolution;
+
+        if (!res)
+            return null;
+
+
+        let width = app.theme().gbd.plugin.scale.barWidth;
         let m = this.round(res * width);
-        let label = (m > 1000) ? Math.floor(m / 1000) + 'km' : m + 'm';
+        let label = (m >= 1000) ? Math.floor(m / 1000) + 'km' : m + 'm';
 
         let s = this.style();
         s.width = Math.round(m / res);
-
-        console.log(s.width)
 
         return (
             <sb.Group>

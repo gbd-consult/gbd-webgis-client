@@ -171,7 +171,7 @@ class Sidebar extends React.Component {
             case LARGE:
             default:
                 w = th.largeWidth;
-        };
+        }
 
         let s = {
             position: 'absolute',

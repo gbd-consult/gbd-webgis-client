@@ -38,7 +38,7 @@ class Control extends React.Component {
                 <sb.Label
                     value='X' />
                 <sb.Input
-                    width={70}
+                    width={60}
                     onChange={() => 0}
                     value={xy[0].toFixed(0)} />
                 <sb.Label

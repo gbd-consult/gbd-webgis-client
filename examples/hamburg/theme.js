@@ -23,7 +23,7 @@ module.exports = {
 
             statusbar: {
                 height: 30,
-                padding: 4,
+                padding: 8,
                 background: COLOR.blueGrey900,
 
                 input: {
@@ -94,7 +94,7 @@ module.exports = {
         plugin: {
             scale: {
                 sliderWidth: 200,
-                barWidth: 150
+                barWidth: 100
             },
 
             marker: {
