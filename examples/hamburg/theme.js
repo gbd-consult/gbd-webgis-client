@@ -6,13 +6,15 @@ let pal = {
     primary2Color: COLOR.lightBlue600,
     primary3Color: COLOR.blueGrey500,
 
-    accent1Color: COLOR.deepPurpleA100,
+    accent1Color: COLOR.pink500,
     accent2Color: COLOR.deepOrangeA200,
     accent3Color: COLOR.grey500,
 
-    textColor: COLOR.blueGrey500,
+    textColor: COLOR.blueGrey400,
     secondaryTextColor: COLOR.grey200,
     alternateTextColor: COLOR.white,
+
+    borderColor: '#f5f5f5'
 };
 
 module.exports = {
@@ -92,6 +94,47 @@ module.exports = {
         },
 
         plugin: {
+            layers: {
+                dimDesktop: {
+                    button: {
+                        size: 36,
+                        fontSize: 20
+                    },
+                    link: {
+                        indent: 16,
+                        fontSize: 14
+                    }
+                },
+                dimMobile: {
+                    button: {
+                        size: 44,
+                        fontSize: 24
+                    },
+                    link: {
+                        indent: 16,
+                        fontSize: 18
+                    }
+                },
+                color: {
+                    link: {
+                        normal: pal.textColor,
+                        hidden: COLOR.grey300,
+                        disabled: COLOR.grey300,
+                        active: COLOR.white
+                    },
+                    button: {
+                        normal: pal.accent2Color,
+                        hidden: pal.accent2Color,
+                        disabled: COLOR.grey300,
+                        active: COLOR.pink500
+                    },
+                    background: {
+                        active: COLOR.pink500
+                    }
+                },
+                underlineWidth: 1,
+                underlineColor: pal.borderColor,
+            },
             scale: {
                 sliderWidth: 200,
                 barWidth: 100
@@ -124,14 +167,8 @@ module.exports = {
                         color: COLOR.white,
                         background: COLOR.green700
                     }
-
                 }
-
-
             }
-
-
         }
-
     }
 }

@@ -1,9 +1,7 @@
 import React from 'react';
 
-import {List, ListItem} from 'material-ui/List';
-import Subheader from 'material-ui/Subheader';
-import Checkbox from 'material-ui/Checkbox';
-
+import FontIcon from 'material-ui/FontIcon';
+import IconButton from 'material-ui/IconButton';
 
 import app from 'app';
 import ol from 'ol-all';
@@ -14,8 +12,7 @@ function checkEnabled(layer, res) {
     return min <= res && res <= max;
 }
 
-
-function buildLayerTree() {
+function layerDef() {
 
     function _tree(layer) {
 
@@ -42,14 +39,28 @@ function buildLayerTree() {
     return _tree(app.map().getLayerGroup());
 }
 
+function activeLayer() {
+    return app.map().getLayerById(app.get('layerActiveUid'));
+}
+
+function setVisibleRec(layer, visible) {
+    layer.setVisible(visible);
+    if (layer.getLayers)
+        layer.getLayers().forEach(la => setVisibleRec(la, visible));
+}
+
+
 function setVisible(uid, visible) {
     let layer = app.map().getLayerById(uid);
     if (layer)
-        layer.setVisible(visible);
+        setVisibleRec(layer, visible);
+    let active = activeLayer();
+    if (!active || !active.getVisible())
+        app.set({layerActiveUid: 0});
 }
 
 function update() {
-    app.set({layerRoot: buildLayerTree()});
+    app.set({layerDef: layerDef()});
 }
 
 
@@ -66,70 +77,178 @@ class Plugin extends app.Plugin {
     }
 }
 
-class Tree extends React.Component {
-    itemStyle(active, visible, enabled) {
-        let s = {
-            color: app.theme().palette.textColor
-        };
+class Icon extends React.Component {
+    render() {
+        let css = this.props.css;
+        return (
+            <IconButton
+                style={{
+                    boxSizing: 'border-box',
+                    margin: 0,
+                    padding: 0,
+                    width: css.dim.button.size,
+                    height: css.dim.button.size,
+                    transform: this.props.rotated ?
+                        'rotate(90deg)' : 'rotate(0deg)',
+                    transition: 'transform 0.5s ease'
+                }}
+                iconStyle={{
+                    fontSize: css.dim.button.fontSize,
+                    margin: 0,
+                    padding: 0,
+                    color: css.color.button[this.props.status]
+                }}
+                onClick={this.props.onClick}
+            >
+                <FontIcon className='material-icons'>{this.props.icon}</FontIcon>
+            </IconButton>
+        );
+    }
+}
 
-        if (active)
-            s.backgroundColor = app.theme().palette.accent2Color;
-        if (!enabled)
-            s.color = app.theme().palette.disabledColor;
-
-        return s;
+class Layer extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {open: true}
     }
 
-    drawLayer(la, level) {
-        let active = la.uid === this.props.layerActiveUid;
-
-        return <ListItem
-            key={la.uid}
-            initiallyOpen={level < 2}
-            style={this.itemStyle(active, la.isVisible, la.isEnabled)}
-            primaryText={
-                <a
-                    onClick={evt => {
-                        if (la.isEnabled)
-                            app.perform('layerSetActive', {uid: la.uid});
-                        evt.preventDefault();
-                    }
-                    }
-                >{la.name}</a>
-            }
-            leftCheckbox={
-                <Checkbox
-                    disabled={!la.isEnabled}
-                    checked={la.isEnabled && la.isVisible}
-                    onCheck={(e, checked) => la.isEnabled ?
-                        app.perform('layerSetVisible', {uid: la.uid, visible: checked})
-                        : null
-                    }
-                />
-            }
-            nestedItems={la.children ? la.children.map(la => this.drawLayer(la, level + 1)) : []}
-        />
+    groupClick() {
+        this.setState({open: !this.state.open});
     }
 
-    drawProject(root) {
-        for (let g of root.children) {
-            if (g.kind === '_PROJECT') {
-                return <List>
-                    {g.children.map(la => this.drawLayer(la, 0))}
-                </List>;
-            }
-        }
-        return null;
+    linkClick() {
+        app.perform('layerSetActive', {uid: this.props.def.uid});
+    }
+
+    visibilityClick() {
+        app.perform('layerSetVisible', {
+            uid: this.props.def.uid,
+            visible: !this.props.def.isVisible
+        });
     }
 
     render() {
-        if (!this.props.layerRoot)
-            return null;
+        let def = this.props.def,
+            css = this.props.css,
+            status;
 
-        let project = this.drawProject(this.props.layerRoot);
+        if (!def.isEnabled)
+            status = 'disabled';
+        else if (!def.isVisible)
+            status = 'hidden';
+        else if (def.uid === this.props.layerActiveUid)
+            status = 'active';
+        else
+            status = 'normal';
+
         return (
             <div>
-                {project}
+                <div style={{display: 'flex', alignItems: 'center'}}>
+                    <div style={{width: css.dim.button.size}}>
+                        {def.isGroup && <Icon
+                            icon='keyboard_arrow_right'
+                            css={css}
+                            status={status}
+                            rotated={this.state.open}
+                            onClick={() => this.groupClick()}
+                        />}
+                    </div>
+                    <div style={{
+                        flex: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        borderBottomWidth: css.underlineWidth,
+                        borderBottomStyle: 'solid',
+                        borderBottomColor: css.underlineColor
+                    }}>
+                        <div style={{
+                            flex: 1,
+                            fontSize: css.dim.link.fontSize,
+                            cursor: 'pointer',
+                            lineHeight: '120%',
+                            padding: '4px 8px',
+                            borderRadius: 10,
+                            backgroundColor: css.color.background[status] || 'transparent',
+                            color: css.color.link[status]
+                        }}
+                             onClick={() => this.linkClick()}
+                        >
+                            {def.name}
+                        </div>
+                        <div style={{height: css.dim.button.size}}>
+
+                            {status !== 'disabled' && <div>
+                                <Icon
+                                    icon={status === 'hidden' ? 'visibility_off' : 'visibility'}
+                                    css={css}
+                                    status={status}
+                                    onClick={() => this.visibilityClick()}
+                                />
+                            </div>}
+                        </div>
+                    </div>
+                </div>
+
+                {
+                    def.isGroup && this.state.open && <div style={{
+                        marginLeft: css.dim.link.indent,
+                    }}>
+                        {def.children.map(d => <Layer
+                            key={d.uid}
+                            def={d}
+                            css={css}
+                            layerActiveUid={this.props.layerActiveUid}
+                        />)}
+                    </div>
+                }
+
+            </div>
+        )
+    }
+
+
+}
+
+
+class LayerTree extends React.Component {
+
+    css() {
+        let th = app.theme().gbd.plugin.layers;
+        return {...th, dim: th['dim' + (this.props.appIsMobile ? 'Mobile' : 'Desktop')]}
+    }
+
+    render() {
+        if (!this.props.layerDef)
+            return null;
+
+        let projectDef = this.props.layerDef.children.filter(d => d.kind === '_PROJECT');
+
+        if (!projectDef.length || !projectDef[0].children)
+            return null;
+
+        let css = this.css();
+
+        return (
+            <div>
+                {projectDef[0].children.map(d => <Layer
+                    key={d.uid}
+                    def={d}
+                    css={css}
+                    layerActiveUid={this.props.layerActiveUid}
+                />)}
+            </div>
+        );
+    }
+}
+
+class LayerInfo  extends React.Component {
+    render() {
+        let data = this.props.data;
+        return (
+            <div>
+                { data.wmsLegendURL && <img
+                    src={data.wmsLegendURL}
+                /> }
             </div>
         );
     }
@@ -137,13 +256,45 @@ class Tree extends React.Component {
 
 class Panel extends React.Component {
     render() {
+        let active = activeLayer();
+
         return (
-            <Tree {...this.props} />
+            <div style={{
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                right: 0,
+                bottom: 0,
+                display: 'flex',
+                flexDirection: 'column'
+
+            }}>
+                <div style={{
+                    padding: 8,
+                    overflow: 'auto',
+                    flex: 1
+                }}>
+                    <LayerTree {...this.props} />
+                </div>
+                {active && <div style={{
+                    height: 200,
+                    padding: 8,
+                    textAlign: 'center',
+                    overflow: 'auto',
+                    borderTopWidth: 2,
+                    borderTopStyle: 'solid',
+                    borderTopColor: app.theme().palette.accent1Color,
+                    backgroundColor: app.theme().palette.borderColor,
+
+                }}>
+                    <LayerInfo data={active.getProperties()}/>
+                </div>}
+            </div>
         );
     }
 }
 
 export default {
     Plugin,
-    Panel: app.connect(Panel, ['layerRoot', 'layerActiveUid'])
+    Panel: app.connect(Panel, ['appIsMobile', 'layerDef', 'layerActiveUid'])
 };
