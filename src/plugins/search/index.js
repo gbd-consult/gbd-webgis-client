@@ -227,6 +227,7 @@ class Header extends React.Component {
                 width: '100%',
                 display: 'flex',
                 padding: '0 0 0 16px',
+                height: app.theme().gbd.ui.sidebar.header.height,
             }
         }
     }

@@ -52,7 +52,14 @@ module.exports = {
                 mediumWidth: 400,
                 background: COLOR.white,
                 shadow: '0 0 5px rgba(0, 0, 0, 0.3)',
+                toggle: {
+                    background: pal.primary1Color,
+                    color: COLOR.white,
+                    borderColor: COLOR.white
+                },
+
                 header: {
+                    height: 48,
                     background: pal.primary1Color,
                     color: COLOR.white,
                     activeBackground: cm.darken(pal.primary1Color, 0.2),

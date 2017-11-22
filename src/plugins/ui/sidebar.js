@@ -26,32 +26,38 @@ class Plugin extends app.Plugin {
     }
 }
 
-class HeaderButton extends React.Component {
-    style() {
-        let th = app.theme().gbd.ui.sidebar.header;
-
-        let s = {
-            padding: 0,
-            marginTop: 8,
-            marginRight: 16,
-            borderRadius: '50%',
-            width: 36,
-            height: 36,
-        };
-
-        if (this.props.active) {
-            s.backgroundColor = th.activeBackground;
-            s.color = th.activeColor;
-        }
-
-        return s;
+class OpenButton extends React.Component {
+    render() {
+        return (
+            <IconButton
+                style={this.props.css.openButton}
+                onClick={() => app.perform('sidebarToggle')}
+            >
+                <MaterialIcon icon='menu' color={this.props.css.openButton.color}/>
+            </IconButton>
+        )
     }
+}
 
+class CloseButton extends React.Component {
+    render() {
+        return (
+            <IconButton
+                style={this.props.css.closeButton}
+                onClick={() => app.perform('sidebarToggle')}
+            >
+                <MaterialIcon icon='keyboard_arrow_left' color={this.props.css.openButton.color}/>
+            </IconButton>
+        )
+    }
+}
+
+class HeaderButton extends React.Component {
     render() {
         return (
             <IconButton
                 tooltip={this.props.tooltip}
-                style={this.style()}
+                style={this.props.active ? this.props.css.headerButtonActive : this.props.css.headerButton}
                 onClick={this.props.onClick}
             >
                 <MaterialIcon
@@ -63,36 +69,20 @@ class HeaderButton extends React.Component {
 }
 
 class Header extends React.Component {
-    style() {
-        let th = app.theme().gbd.ui.sidebar.header;
-
-        return {
-            position: 'absolute',
-            left: 0,
-            top: 0,
-            right: 0,
-            paddingLeft: 8,
-            display: 'flex',
-            height: app.theme().toolbar.height,
-            background: th.background,
-            color: th.color
-        }
-    }
-
     render() {
         return (
-            <div style={this.style()}>
-                <HeaderButton
-                    onClick={() => app.perform('sidebarToggle')}
-                    icon="close"/>
-
+            <div style={this.props.css.header}>
+                <CloseButton css={this.props.css}/>
+                <div style={{flex: 1}}/>
                 {
                     React.Children.map(this.props.children, c => helpers.deviceCheck(this, c) &&
                         <HeaderButton
+                            css={this.props.css}
                             onClick={() => app.perform('sidebarShow', {panel: c.key})}
                             active={c.key === this.props.sidebarActivePanel}
                             tooltip={c.props.title}
-                            icon={c.props.icon}/>
+                            icon={c.props.icon}
+                        />
                     )
                 }
             </div>
@@ -101,21 +91,9 @@ class Header extends React.Component {
 }
 
 class Body extends React.Component {
-    style() {
-        return {
-            position: 'absolute',
-            left: 0,
-            right: 0,
-            top: app.theme().toolbar.height,
-            bottom:
-                this.props.appIsMobile ? 0 : app.theme().gbd.ui.statusbar.height,
-            overflow: 'auto',
-        };
-    }
-
     render() {
         return (
-            <div style={this.style()}>
+            <div style={this.props.css.body}>
                 {
                     React.Children.map(this.props.children, c =>
                         (c.key === this.props.sidebarActivePanel) ? c : null
@@ -126,39 +104,10 @@ class Body extends React.Component {
     }
 }
 
-class OpenButton extends React.Component {
-    style() {
-        let th = app.theme().gbd.ui.sidebar.header;
-
-        return {
-            padding: 0,
-            position: 'absolute',
-            left: app.theme().gbd.ui.gutter,
-            top: app.theme().gbd.ui.gutter,
-            borderRadius: 0,
-            width: 36,
-            height: 36,
-            background: th.background,
-            color: th.color
-        }
-    }
-
-    render() {
-        return (
-            <IconButton
-                style={this.style()}
-                onClick={() => app.perform('sidebarToggle')}
-            >
-                <MaterialIcon icon='menu' color={app.theme().palette.secondaryTextColor}/>
-            </IconButton>
-
-        )
-    }
-}
-
 class Sidebar extends React.Component {
-    style() {
+    css() {
         let th = app.theme().gbd.ui.sidebar;
+        let gutter = app.theme().gbd.ui.gutter;
         let w;
 
         switch (this.props.appWidth) {
@@ -173,7 +122,7 @@ class Sidebar extends React.Component {
                 w = th.largeWidth;
         }
 
-        let s = {
+        let container = {
             position: 'absolute',
             left: 0,
             top: 0,
@@ -189,19 +138,94 @@ class Sidebar extends React.Component {
         if (!this.props.sidebarVisible) {
             if (typeof w === 'number')
                 w += 'px';
-            s.transform = `translate(-${w},0)`
+            container.transform = `translate(-${w},0)`
         }
 
-        return s;
+        let toggle = {
+            borderRadius: '0 8px 8px 0',
+            width: 38,
+            height: th.header.height,
+
+            background: th.toggle.background,
+            color: th.toggle.color,
+
+            borderWidth: 2,
+            borderStyle: 'solid',
+            borderColor: th.toggle.borderColor,
+            borderLeftStyle: 'none',
+        };
+
+        let openButton = {
+            ...toggle,
+            padding: 0,
+            position: 'absolute',
+            left: 0,
+            top: gutter,
+            boxShadow: th.shadow,
+        };
+
+        let closeButton = {
+        };
+
+        let body = {
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            top: th.header.height + gutter * 2,
+            bottom:
+                this.props.appIsMobile ? 0 : app.theme().gbd.ui.statusbar.height,
+            overflow: 'auto',
+        };
+
+        let header = {
+            boxSizing: 'border-box',
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            right: 0,
+            paddingTop: gutter,
+            paddingBottom: gutter,
+            display: 'flex',
+            height: th.header.height + gutter * 2,
+            background: th.header.background,
+            color: th.header.color
+        };
+
+        let headerButton = {
+            padding: 0,
+            marginTop: 8,
+            marginRight: 16,
+            borderRadius: '50%',
+            width: 36,
+            height: 36,
+        };
+
+        let headerButtonActive = {
+            ...headerButton,
+            backgroundColor: th.header.activeBackground,
+            color: th.header.activeColor
+        };
+
+
+        return {
+            container,
+            openButton,
+            closeButton,
+            body,
+            header,
+            headerButton,
+            headerButtonActive
+        }
     }
 
     render() {
+        let css = this.css();
         return (
             <div>
-                <OpenButton/>
-                <Paper style={this.style()}>
-                    <Header {...this.props} />
-                    <Body {...this.props} />
+                <OpenButton css={css}/>
+                <Paper style={css.container}>
+                    <Header css={css} {...this.props} />
+                    <Body css={css} {...this.props} />
                 </Paper>
             </div>
         )
