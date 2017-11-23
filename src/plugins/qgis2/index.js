@@ -84,11 +84,9 @@ class Plugin extends app.Plugin {
 class PrintButton extends React.Component {
 
     render() {
-        let active = this.props.mapMode === 'print';
-
-        if (active) {
-            return (
-                <ToolbarGroup>
+        return (
+            <div>
+                <ToolbarGroup visible={this.props.mapMode === 'print'}>
                     <ToolbarButton
                         secondary
                         onClick={() => app.perform('printOpenPDF', {quality: 0})}
@@ -114,11 +112,6 @@ class PrintButton extends React.Component {
                         icon='close'
                     />
                 </ToolbarGroup>
-            );
-        }
-
-        return (
-            <div>
                 <ToolbarButton
                     {...this.props}
                     onClick={() => app.perform('printModeToggle')}
@@ -126,7 +119,6 @@ class PrintButton extends React.Component {
                     tooltip={__("printTooltip")}
                 />
             </div>
-
         );
     }
 }

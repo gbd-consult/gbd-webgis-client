@@ -11,11 +11,10 @@ class Toolbar extends React.Component {
     style() {
         return {
             position: 'absolute',
-            display: 'flex',
             flexDirection: 'column',
             alignItems: 'flex-end',
             bottom: app.theme().gbd.ui.statusbar.height + app.theme().gbd.ui.gutter,
-            right: app.theme().gbd.ui.gutter,
+            right: 0,
             zIndex: helpers.zIndex.toolbar
         }
     }
@@ -23,7 +22,14 @@ class Toolbar extends React.Component {
     render() {
         return (
             <div style={this.style()}>
-                {React.Children.map(this.props.children, c => helpers.deviceCheck(this, c) && c)}
+                {React.Children.map(this.props.children, c => helpers.deviceCheck(this, c) && <div style={{
+                    boxSizing: 'border-box',
+                    position: 'relative',
+                    paddingTop: app.theme().gbd.ui.gutter/2,
+                    height:  app.theme().gbd.ui.toolbar.button.size + app.theme().gbd.ui.gutter,
+                }}>
+                    {c}
+                </div>)}
             </div>
         );
     }

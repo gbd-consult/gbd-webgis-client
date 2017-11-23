@@ -261,36 +261,29 @@ class Plugin extends app.Plugin {
 
 class Button extends React.Component {
     render() {
-        let active = this.props.mapMode === 'measure';
-
-        if (active) {
-            return (
-                <ToolbarGroup>
-                    <ToolbarButton
-                        secondary
-                        active={this.props.measureMode === 'distance'}
-                        tooltip={__("distanceTooltip")}
-                        onClick={() => app.perform('measureMode', {mode: 'distance'})}
-                        icon='linear_scale'
-                    />
-                    <ToolbarButton
-                        secondary
-                        active={this.props.measureMode === 'area'}
-                        tooltip={__("areaTooltip")}
-                        onClick={() => app.perform('measureMode', {mode: 'area'})}
-                        icon='texture'
-                    />
-                    <ToolbarButton
-                        secondary
-                        tooltip={__("cancelTooltip")}
-                        onClick={() => app.perform('measureModeToggle')}
-                        icon='close'
-                    />
-                </ToolbarGroup>
-            );
-        }
-
-        return (
+        return (<div>
+            <ToolbarGroup visible={this.props.mapMode === 'measure'}>
+                <ToolbarButton
+                    secondary
+                    active={this.props.measureMode === 'distance'}
+                    tooltip={__("distanceTooltip")}
+                    onClick={() => app.perform('measureMode', {mode: 'distance'})}
+                    icon='linear_scale'
+                />
+                <ToolbarButton
+                    secondary
+                    active={this.props.measureMode === 'area'}
+                    tooltip={__("areaTooltip")}
+                    onClick={() => app.perform('measureMode', {mode: 'area'})}
+                    icon='texture'
+                />
+                <ToolbarButton
+                    secondary
+                    tooltip={__("cancelTooltip")}
+                    onClick={() => app.perform('measureModeToggle')}
+                    icon='close'
+                />
+            </ToolbarGroup>
             <ToolbarButton
                 {...this.props}
                 active={false}
@@ -298,7 +291,7 @@ class Button extends React.Component {
                 onClick={() => app.perform('measureModeToggle')}
                 icon='straighten'
             />
-        );
+        </div>);
     }
 }
 
