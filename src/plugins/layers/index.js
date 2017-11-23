@@ -1,10 +1,9 @@
 import React from 'react';
 
-import FontIcon from 'material-ui/FontIcon';
-import IconButton from 'material-ui/IconButton';
-
 import app from 'app';
 import ol from 'ol-all';
+
+import Section from 'components/Section';
 
 function checkEnabled(layer, res) {
     let min = layer.getMinResolution() || 0;
@@ -77,43 +76,10 @@ class Plugin extends app.Plugin {
     }
 }
 
-class Icon extends React.Component {
-    render() {
-        let css = this.props.css;
-        return (
-            <IconButton
-                style={{
-                    boxSizing: 'border-box',
-                    margin: 0,
-                    padding: 0,
-                    width: css.dim.button.size,
-                    height: css.dim.button.size,
-                    transform: this.props.rotated ?
-                        'rotate(90deg)' : 'rotate(0deg)',
-                    transition: 'transform 0.5s ease'
-                }}
-                iconStyle={{
-                    fontSize: css.dim.button.fontSize,
-                    margin: 0,
-                    padding: 0,
-                    color: css.color.button[this.props.status]
-                }}
-                onClick={this.props.onClick}
-            >
-                <FontIcon className='material-icons'>{this.props.icon}</FontIcon>
-            </IconButton>
-        );
-    }
-}
-
 class Layer extends React.Component {
     constructor(props) {
         super(props);
         this.state = {open: true}
-    }
-
-    groupClick() {
-        this.setState({open: !this.state.open});
     }
 
     linkClick() {
@@ -127,94 +93,78 @@ class Layer extends React.Component {
         });
     }
 
-    render() {
-        let def = this.props.def,
-            css = this.props.css,
-            status;
+    status() {
+        let d = this.props.def;
 
-        if (!def.isEnabled)
-            status = 'disabled';
-        else if (!def.isVisible)
-            status = 'hidden';
-        else if (def.uid === this.props.layerActiveUid)
-            status = 'active';
-        else
-            status = 'normal';
-
-        return (
-            <div>
-                <div style={{display: 'flex', alignItems: 'center'}}>
-                    <div style={{width: css.dim.button.size}}>
-                        {def.isGroup && <Icon
-                            icon='keyboard_arrow_right'
-                            css={css}
-                            status={status}
-                            rotated={this.state.open}
-                            onClick={() => this.groupClick()}
-                        />}
-                    </div>
-                    <div style={{
-                        flex: 1,
-                        display: 'flex',
-                        alignItems: 'center',
-                        borderBottomWidth: css.underlineWidth,
-                        borderBottomStyle: 'solid',
-                        borderBottomColor: css.underlineColor
-                    }}>
-                        <div style={{
-                            flex: 1,
-                            fontSize: css.dim.link.fontSize,
-                            cursor: 'pointer',
-                            lineHeight: '120%',
-                            padding: '4px 8px',
-                            borderRadius: 10,
-                            backgroundColor: css.color.background[status] || 'transparent',
-                            color: css.color.link[status]
-                        }}
-                             onClick={() => this.linkClick()}
-                        >
-                            {def.name}
-                        </div>
-                        <div style={{height: css.dim.button.size}}>
-
-                            {status !== 'disabled' && <div>
-                                <Icon
-                                    icon={status === 'hidden' ? 'visibility_off' : 'visibility'}
-                                    css={css}
-                                    status={status}
-                                    onClick={() => this.visibilityClick()}
-                                />
-                            </div>}
-                        </div>
-                    </div>
-                </div>
-
-                {
-                    def.isGroup && this.state.open && <div style={{
-                        marginLeft: css.dim.link.indent,
-                    }}>
-                        {def.children.map(d => <Layer
-                            key={d.uid}
-                            def={d}
-                            css={css}
-                            layerActiveUid={this.props.layerActiveUid}
-                        />)}
-                    </div>
-                }
-
-            </div>
-        )
+        if (!d.isEnabled)
+            return 'disabled';
+        if (!d.isVisible)
+            return 'hidden';
+        if (d.uid === this.props.layerActiveUid)
+            return 'active';
+        return 'normal';
     }
 
+    visibilityIcon(status) {
+        if(status === 'disabled')
+            return null;
+        return (status === 'hidden') ? 'visibility_off' : 'visibility';
+    }
 
+    header(status) {
+        return (
+            <div style={{
+                cursor: 'pointer',
+                lineHeight: '120%',
+                padding: '4px 8px',
+                borderRadius: 10,
+                backgroundColor: this.props.theme.background[status] || 'transparent',
+            }}
+                 onClick={() => this.linkClick()}
+            >
+                {this.props.def.name}
+            </div>
+        );
+    }
+
+    render() {
+        let def = this.props.def,
+            status = this.status(),
+            th = {
+                ...this.props.theme,
+                textColor: this.props.theme.linkColor[status],
+                buttonColor: this.props.theme.buttonColor[status]
+            };
+
+        return (
+            <Section
+                theme={th}
+                header={this.header(status)}
+                icon={this.visibilityIcon(status)}
+                iconClick={() => this.visibilityClick()}
+            >
+                {def.isGroup && def.children.map(d => <Layer
+                    key={d.uid}
+                    def={d}
+                    theme={this.props.theme}
+                    layerActiveUid={this.props.layerActiveUid}
+                />)}
+            </Section>
+        );
+    }
 }
 
 
 class LayerTree extends React.Component {
 
-    css() {
-        let th = app.theme().gbd.plugin.layers;
-        return {...th, dim: th['dim' + (this.props.appIsMobile ? 'Mobile' : 'Desktop')]}
+    theme() {
+        let th = app.theme().gbd.ui.section;
+
+        return {
+            ...th,
+            ...th[(this.props.appIsMobile ? 'mobile' : 'desktop')],
+            ...app.theme().gbd.plugin.layers
+        };
     }
 
     render() {
@@ -226,14 +176,12 @@ class LayerTree extends React.Component {
         if (!projectDef.length || !projectDef[0].children)
             return null;
 
-        let css = this.css();
-
         return (
             <div>
                 {projectDef[0].children.map(d => <Layer
                     key={d.uid}
                     def={d}
-                    css={css}
+                    theme={this.theme()}
                     layerActiveUid={this.props.layerActiveUid}
                 />)}
             </div>
@@ -241,14 +189,14 @@ class LayerTree extends React.Component {
     }
 }
 
-class LayerInfo  extends React.Component {
+class LayerInfo extends React.Component {
     render() {
         let data = this.props.data;
         return (
             <div>
-                { data.wmsLegendURL && <img
+                {data.wmsLegendURL && <img
                     src={data.wmsLegendURL}
-                /> }
+                />}
             </div>
         );
     }

@@ -17,7 +17,11 @@ async function load() {
     _rootLayer = await mapUtil.wms.enumLayers(app.config.str('qgis2.server'));
 }
 
-function get(root, what) {
+function getRoot() {
+    return _rootLayer;
+}
+
+function get(what) {
     let start;
 
     if (what === 'active')
@@ -42,14 +46,15 @@ function get(root, what) {
     return found;
 }
 
-function getNames(root, what) {
-    return get(root, what).map(r => r.wmsName);
+function getNames(what) {
+    return get(what).map(r => r.wmsName);
 
 }
 
 
 export default {
     load,
+    getRoot,
     get,
     getNames
 };

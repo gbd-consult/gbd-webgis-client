@@ -2,15 +2,70 @@
 
 import React from 'react';
 
-import FeatureInfo from './FeatureInfo';
+import {
+    Table,
+    TableBody,
+    TableRow,
+    TableRowColumn,
+} from 'material-ui/Table';
+
+import _ from 'lodash';
+
+import app from 'app';
+import Section from 'components/Section';
 
 
 export default class FeatureList extends React.Component {
 
-    render() {
+    header(feature) {
+        return feature.get('layerName') + ': ' + feature.getId();
+    }
+
+    content(feature) {
         return (
-            <div>
-                {this.props.features.map((f, n) => <FeatureInfo key={n} feature={f}/>)}
+            <div style={{margin: '0 0 12px 28px'}}>
+            <Table>
+                <TableBody
+                    displayRowCheckbox={false}
+                >
+                    {
+                        _.sortBy(_.toPairs(feature.getProperties())).map(([key, val]) =>
+                            val && key !== 'geometry' && (
+                                <TableRow height={32} key={key} displayBorder={true}>
+                                    <TableRowColumn style={{height: 'auto'}}><b>{key}</b></TableRowColumn>
+                                    <TableRowColumn style={{height: 'auto'}}>{val}</TableRowColumn>
+                                </TableRow>)
+                        )
+                    }
+                </TableBody>
+            </Table>
+            </div>
+        )
+    }
+
+    click(feature) {
+        app.perform('markerMark', {
+            features: [feature],
+            pan: true
+        });
+
+    }
+
+    render() {
+        let features = _.sortBy(this.props.features, f => f.get('layerName'));
+        let th = app.theme().gbd.ui.section;
+
+        return (
+            <div style={{padding: 8}}>
+                {features.map((f, n) => <Section
+                        key={f.getId()}
+                        open={n === 0}
+                        theme={th}
+                        header={this.header(f)}
+                        icon={'center_focus_weak'}
+                        iconClick={() => this.click(f)}
+                    >{this.content(f)}</Section>
+                )}
             </div>
         )
     }

@@ -97,50 +97,47 @@ module.exports = {
             overlay: {
                 borderWidth: 2,
                 borderColor: COLOR.pink400
+            },
+
+            section: {
+                mobile: {
+                    buttonSize: 44,
+                    buttonIconSize: 24,
+                },
+                desktop: {
+                    buttonSize: 36,
+                    buttonIconSize: 20,
+                },
+
+                buttonSize: 44,
+                buttonIconSize: 24,
+                fontSize: 15,
+                indent: 16,
+
+                buttonColor: pal.primary1Color,
+                textColor: pal.textColor,
+                underlineWidth: 1,
+                underlineColor: pal.borderColor
             }
         },
 
         plugin: {
             layers: {
-                dimDesktop: {
-                    button: {
-                        size: 36,
-                        fontSize: 20
-                    },
-                    link: {
-                        indent: 16,
-                        fontSize: 14
-                    }
+                linkColor: {
+                    normal: pal.textColor,
+                    hidden: COLOR.grey300,
+                    disabled: COLOR.grey300,
+                    active: COLOR.white
                 },
-                dimMobile: {
-                    button: {
-                        size: 44,
-                        fontSize: 24
-                    },
-                    link: {
-                        indent: 16,
-                        fontSize: 18
-                    }
+                buttonColor: {
+                    normal: pal.primary1Color,
+                    hidden: pal.primary1Color,
+                    disabled: COLOR.grey300,
+                    active: COLOR.pink500
                 },
-                color: {
-                    link: {
-                        normal: pal.textColor,
-                        hidden: COLOR.grey300,
-                        disabled: COLOR.grey300,
-                        active: COLOR.white
-                    },
-                    button: {
-                        normal: pal.accent2Color,
-                        hidden: pal.accent2Color,
-                        disabled: COLOR.grey300,
-                        active: COLOR.pink500
-                    },
-                    background: {
-                        active: COLOR.pink500
-                    }
-                },
-                underlineWidth: 1,
-                underlineColor: pal.borderColor,
+                background: {
+                    active: COLOR.pink500
+                }
             },
             scale: {
                 sliderWidth: 200,

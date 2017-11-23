@@ -17,10 +17,10 @@ class Plugin extends app.Plugin {
     }
 
     show(content) {
-            app.perform('sidebarShow', {panel: 'details'});
-            app.set({
-                detailsContent: content
-            });
+        app.perform('sidebarShow', {panel: 'details'});
+        app.set({
+            detailsContent: content
+        });
 
     }
 }
@@ -30,13 +30,13 @@ class Panel extends React.Component {
     content() {
         let c = this.props.detailsContent;
 
-        if(!c)
+        if (!c)
             return null;
 
-        if(typeof c === 'string')
+        if (typeof c === 'string')
             return c;
 
-        if(typeof c === 'function')
+        if (typeof c === 'function')
             return c();
 
         return c;

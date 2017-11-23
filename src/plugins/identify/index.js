@@ -54,14 +54,6 @@ class Plugin extends app.Plugin {
                 }
             });
         });
-
-        this.action('identifyReturn', ({uid, features}) => {
-            if (uid !== this.uid) {
-                return;
-            }
-            this.features = [].concat(features, this.features);
-            this.update();
-        });
     }
 
     update(features) {

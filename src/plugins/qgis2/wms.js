@@ -2,6 +2,8 @@ import app from 'app';
 import ol from 'ol-all';
 import mapUtil from 'map-util';
 
+import layers from './layers';
+
 async function request(verb, params) {
     let res = await app.http.get(app.config.str('qgis2.server'), {
         service: 'WMS',
@@ -10,113 +12,6 @@ async function request(verb, params) {
         ...params
     });
     return ol.xml.parse(res);
-}
-
-function children(el, tag) {
-    return [...el.childNodes].filter(e => e.nodeName === tag);
-}
-
-function child(el, tag) {
-    let cn = children(el, tag);
-    if (cn.length !== 1)
-        return null;
-    return cn[0];
-}
-
-function get(el, tags) {
-    for (let tag of tags.match(/\w+/g)) {
-        if (!el)
-            return null;
-        el = child(el, tag);
-    }
-
-    return el;
-}
-
-
-function getText(el, path) {
-    el = get(el, path);
-    return el && el.firstChild ? el.firstChild.nodeValue : '';
-}
-
-
-function imgLoad(image, src) {
-    //let u = new URL(src), s = u.searchParams;
-    //console.log('loading', `${s.get('LAYERS')} -- ${s.get('WIDTH')}x${s.get('HEIGHT')} -- ${s.get('BBOX')}`)
-    image.getImage().src = src;
-}
-
-function parseLayer(el) {
-    let opts = {
-        name: getText(el, 'Title'),
-        wmsName: getText(el, 'Name'),
-        wmsLegendURL: getText(el, 'Style LegendURL OnlineResource')
-    };
-
-    let minScale = getText(el, 'MinScaleDenominator');
-    let maxScale = getText(el, 'MaxScaleDenominator');
-
-    if (minScale)
-        opts.minResolution = mapUtil.scaleToResolution(Number(minScale));
-
-    if (maxScale)
-        opts.maxResolution = mapUtil.scaleToResolution(Number(maxScale));
-
-    let sub = children(el, 'Layer');
-
-    if (sub.length) {
-        return new ol.layer.Group({
-            ...opts,
-            kind: 'Qgis2Group',
-            layers: sub.reverse().map(parseLayer)
-        });
-    }
-
-    opts.source = new ol.source.ImageWMS({
-        url: app.config.str('qgis2.server'),
-        params: {
-            LAYERS: opts.wmsName
-        },
-        ratio: 1,
-        preload: 0,
-        imageLoadFunction: imgLoad
-    });
-
-    return new ol.layer.Image({
-        ...opts,
-        kind: 'Qgis2Image'
-    });
-}
-
-function parseLayers(doc) {
-    let root,
-        layers = children(child(doc, 'Capability'), 'Layer').map(parseLayer);
-
-
-    if (!layers.length) {
-        return null;
-    }
-
-    if (layers.length === 1) {
-        root = layers[0];
-    } else {
-        root = new ol.layer.Group({
-            layers
-        });
-    }
-
-    root.set('kind', 'Qgis2Root');
-    return root;
-}
-
-
-async function loadLayers() {
-    let descDoc = await request('GetCapabilities');
-
-    let root = parseLayers(descDoc.firstChild);
-    if (root) {
-        app.map().attachLayer('project', root);
-    }
 }
 
 function readFeature(node) {
@@ -139,6 +34,8 @@ function readFeature(node) {
     return feature;
 }
 
+let _layerTitles;
+
 async function query(coordinate, layerNames, limit = 100) {
 
     let bbox = ol.proj.transformExtent(
@@ -150,8 +47,18 @@ async function query(coordinate, layerNames, limit = 100) {
     let pixel = app.map().getPixelFromCoordinate(coordinate);
     let size = app.map().getSize();
 
+    function _walk(ql) {
+        _layerTitles[ql.wmsName] = ql.name;
+        if (ql.layers)
+            ql.layers.forEach(ql2 => _walk(ql2));
+    }
 
-    let featuresDoc = await request('GetFeatureInfo', {
+    if(!_layerTitles) {
+        _layerTitles = {};
+        _walk(layers.getRoot());
+    }
+
+    let doc = await request('GetFeatureInfo', {
         feature_count: limit,
         info_format: 'text/xml',
         crs: app.config.str('map.crs.server'),
@@ -168,9 +75,16 @@ async function query(coordinate, layerNames, limit = 100) {
 
     let fmap = {};
 
-    [...featuresDoc.querySelectorAll('Feature')]
-        .map(readFeature)
-        .forEach(feature => fmap[feature.getId()] = feature);
+    [...doc.querySelectorAll('Layer')].forEach(layer => {
+        let name = layer.getAttribute('name');
+        name = _layerTitles[name] || name;
+
+        [...layer.querySelectorAll('Feature')].forEach(feature => {
+            let f = readFeature(feature);
+            f.set('layerName', name);
+            fmap[f.getId()] = f;
+        });
+    });
 
     return Object.values(fmap);
 }
@@ -225,7 +139,6 @@ function printURL({layerNames, extent, rotation, scale, dpi}) {
 
 
 export default {
-    loadLayers,
     query,
     printTemplates,
     printURL
