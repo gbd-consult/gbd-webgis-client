@@ -12,9 +12,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import ToolbarButton from 'components/ToolbarButton';
-import ToolbarGroup from 'components/ToolbarGroup';
-
+import * as toolbar from 'components/Toolbar';
 
 import app from 'app';
 import ol from 'ol-all';
@@ -257,36 +255,38 @@ class Tooltip extends React.Component {
 
 class Button extends React.Component {
     render() {
+        let active = this.props.mapMode === 'measure';
+
         return (<div>
-            <ToolbarGroup visible={this.props.mapMode === 'measure'}>
-                <ToolbarButton
+            <toolbar.Popover visible={active}>
+                <toolbar.Button
                     secondary
                     active={this.props.measureMode === 'distance'}
                     tooltip={__("distanceTooltip")}
                     onClick={() => app.perform('measureMode', {mode: 'distance'})}
                     icon='linear_scale'
                 />
-                <ToolbarButton
+                <toolbar.Button
                     secondary
                     active={this.props.measureMode === 'area'}
                     tooltip={__("areaTooltip")}
                     onClick={() => app.perform('measureMode', {mode: 'area'})}
                     icon='texture'
                 />
-                <ToolbarButton
+                <toolbar.Button
                     secondary
                     tooltip={__("cancelTooltip")}
                     onClick={() => app.perform('measureModeToggle')}
                     icon='close'
                 />
-            </ToolbarGroup>
-            <ToolbarButton
+            </toolbar.Popover>
+            {!active && <toolbar.Button
                 {...this.props}
                 active={false}
                 tooltip={__("buttonTooltip")}
                 onClick={() => app.perform('measureModeToggle')}
                 icon='straighten'
-            />
+            />}
         </div>);
     }
 }

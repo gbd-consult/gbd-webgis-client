@@ -9,13 +9,12 @@
 
 
 import React from 'react';
-
-import ToolbarButton from 'components/ToolbarButton';
-
 import _ from 'lodash';
 
 import app from 'app';
 import ol from 'ol-all';
+
+import * as toolbar from 'components/Toolbar';
 
 class Plugin extends app.Plugin {
 
@@ -71,7 +70,7 @@ class Button extends React.Component {
 
     render() {
         return (
-            <ToolbarButton
+            <toolbar.Button
                 {...this.props}
                 active={this.props.mapMode === 'identify'}
                 tooltip={__("buttonTooltip")}

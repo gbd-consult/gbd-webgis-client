@@ -13,11 +13,11 @@ import Menu from 'material-ui/Menu';
 import MenuItem from 'material-ui/MenuItem';
 import Divider from 'material-ui/Divider';
 
-import ToolbarButton from 'components/ToolbarButton';
 import app from 'app';
 import mapUtil from 'map-util';
 import ol from 'ol-all';
 
+import * as toolbar from 'components/Toolbar';
 
 export class Plugin extends app.Plugin {
     init() {
@@ -189,7 +189,7 @@ class QueryButton extends React.Component {
     render() {
         return (
             <div>
-                <ToolbarButton
+                <toolbar.Button
                     {...this.props}
                     tooltip={__("queryTooltip")}
                     onClick={() => app.perform('selectionQuery')}

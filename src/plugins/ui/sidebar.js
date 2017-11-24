@@ -12,17 +12,25 @@ import helpers from './helpers';
 class Plugin extends app.Plugin {
     init() {
 
-        this.action('sidebarShow', ({panel}) =>
+        this.action('sidebarShowPanel', ({panel}) =>
             app.set({
                 sidebarVisible: true,
                 sidebarActivePanel: panel
             })
         );
+
         this.action('sidebarToggle', () =>
             app.set({
                 sidebarVisible: !app.get('sidebarVisible'),
             })
         );
+
+        this.action('sidebarHide', () =>
+            app.set({sidebarVisible: false}));
+
+        this.action('sidebarShow', () =>
+            app.set({sidebarVisible: true}));
+
     }
 }
 
@@ -85,7 +93,7 @@ class Header extends React.Component {
                 {
                     React.Children.map(this.props.children, c => helpers.deviceCheck(this, c) &&
                         <HeaderButton
-                            onClick={() => app.perform('sidebarShow', {panel: c.key})}
+                            onClick={() => app.perform('sidebarShowPanel', {panel: c.key})}
                             active={c.key === this.props.sidebarActivePanel}
                             tooltip={c.props.title}
                             icon={c.props.icon}

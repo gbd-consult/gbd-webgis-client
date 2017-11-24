@@ -17,7 +17,7 @@ class Plugin extends app.Plugin {
     }
 
     show(content) {
-        app.perform('sidebarShow', {panel: 'details'});
+        app.perform('sidebarShowPanel', {panel: 'details'});
         app.set({
             detailsContent: content
         });

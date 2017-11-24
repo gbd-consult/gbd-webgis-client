@@ -17,18 +17,18 @@ let palette = {
     dark: COLOR.blueGrey700,
     darker: COLOR.blueGrey800,
     darkest: COLOR.blueGrey900,
-    darkText: COLOR.blueGrey400,
-    darkAccent: COLOR.cyan500,
+    textOnDark: COLOR.blueGrey400,
+    accentOnDark: COLOR.cyan500,
 
     light: '#f5f5f5',
 
-    selectedBackground: 'white',
+    selectedBackground: COLOR.white,
     selectedColor: COLOR.pinkA200,
 
     toolbarColor: COLOR.white,
     toolbarBackground: COLOR.pinkA200,
 
-    alternateBorderColor: COLOR.white
+    alternateBorderColor: COLOR.pink50,
 };
 
 module.exports = {
@@ -100,7 +100,7 @@ module.exports = {
 
                 openButton: {
                     backgroundColor: '{../header/backgroundColor}',
-                    borderColor: '{/palette/alternateBorderColor}',
+                    borderColor: '{../header/color}',
                     borderRadius: '0 8px 8px 0',
                     borderStyle: 'solid',
                     borderLeftStyle: 'none',
@@ -209,10 +209,10 @@ module.exports = {
                     borderRadius: '50%',
                     boxShadow: '{../../shadow}',
                     display: 'inline',
-                    height: 45,
-                    marginRight: '{../../gutter} / 2',
+                    height: 44,
+                    marginRight: '{../../gutter}',
                     padding: 0,
-                    width: 45,
+                    width: 44,
                 },
 
                 buttonPrimary: {
@@ -224,18 +224,27 @@ module.exports = {
                 buttonPrimaryActive: {
                     extend: '{../buttonPrimary}',
                     backgroundColor: '{/palette/selectedBackground}',
+                    borderColor: '{/palette/toolbarBackground}',
                     color: '{/palette/selectedColor}',
                 },
 
                 buttonSecondary: {
                     extend: '{../buttonPrimary}',
+                    borderWidth: 0,
+                    height: 38,
+                    width: 38,
+
                 },
 
                 buttonSecondaryActive: {
-                    extend: '{../buttonPrimaryActive}',
+                    extend: '{../buttonSecondary}',
+                    backgroundColor: '{/palette/selectedBackground}',
+                    color: '{/palette/selectedColor}',
+
                 },
 
-                group: {
+                popover: {
+                    alignItems: 'center',
                     backgroundColor: 'rgba(0, 0, 0, 0.4)',
                     borderRadius: '24px 0 0 24px',
                     boxSizing: 'border-box',
@@ -243,8 +252,8 @@ module.exports = {
                     flexDirection: 'row',
                     height: '{../button/height} + {../../gutter}',
                     paddingBottom: '{../../gutter} / 2',
-                    paddingLeft: '{../../gutter} / 2',
-                    paddingRight: 0,
+                    paddingLeft: '{../../gutter}',
+                    paddingRight: '({../button/width}-{../buttonSecondary/width}) / 2',
                     paddingTop: '{../../gutter} / 2',
                     position: 'absolute',
                     right: 0,
@@ -254,8 +263,8 @@ module.exports = {
                     zIndex: zIndex.toolbar + 1,
                 },
 
-                groupVisible: {
-                    extend: '{../group}',
+                popoverVisible: {
+                    extend: '{../popover}',
                     transform: 'translate(0, 0)'
                 }
             },
@@ -264,7 +273,7 @@ module.exports = {
                 height: 30,
                 lineHeight: '18px',
                 fontSize: '{/fontSize/smaller}',
-                color: '{/palette/darkText}',
+                color: '{/palette/textOnDark}',
 
                 container: {
                     backgroundColor: '{/palette/darker}',
@@ -294,7 +303,7 @@ module.exports = {
                     border: 'none',
                     borderRadius: 6,
                     boxSizing: 'border-box',
-                    color: '{/palette/darkAccent}',
+                    color: '{/palette/accentOnDark}',
                     cursor: 'default',
                     fontFamily: '{/fontFamily}',
                     fontSize: '{../fontSize}',
@@ -318,14 +327,14 @@ module.exports = {
                 },
 
                 link: {
-                    color: '{/palette/darkAccent}',
+                    color: '{/palette/accentOnDark}',
                     cursor: 'pointer',
                     fontFamily: '{/fontFamily}',
                     fontSize: '{../fontSize}',
                 },
 
                 separator: {
-                    color: '{/palette/darkText}',
+                    color: '{/palette/textOnDark}',
                     display: 'inline-flex',
                     lineHeight: '{../lineHeight}',
                     padding: '0 8px',

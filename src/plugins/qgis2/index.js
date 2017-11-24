@@ -1,10 +1,12 @@
 import React from 'react';
+import {RadioButton, RadioButtonGroup} from 'material-ui/RadioButton';
+import SelectField from 'material-ui/SelectField';
+import MenuItem from 'material-ui/MenuItem';
 
 import app from 'app';
 import ol from 'ol-all';
 
-import ToolbarButton from 'components/ToolbarButton';
-import ToolbarGroup from 'components/ToolbarGroup';
+import * as toolbar from 'components/Toolbar';
 
 import wms from './wms';
 import wfs from './wfs';
@@ -18,6 +20,8 @@ class Plugin extends app.Plugin {
 
     async init() {
         await layers.load();
+
+        app.set({printQuality: 72});
 
         this.action('search', async ({coordinate, geometry, done}) => {
             if (coordinate) {
@@ -34,15 +38,19 @@ class Plugin extends app.Plugin {
 
         this.action('printModeToggle', async () => {
             if (app.get('mapMode') === 'print') {
-                return app.perform('mapDefaultMode');
+                app.perform('mapDefaultMode');
+                if (this.sidebarWasVisible)
+                    app.perform('sidebarShow');
+                return;
             }
+            this.sidebarWasVisible = app.get('sidebarVisible');
+            app.perform('sidebarHide');
             await this.startPrint();
         });
 
         this.action('printOpenPDF', (opts) => {
             window.open(this.printURL(opts))
         });
-
     }
 
     async startPrint() {
@@ -60,21 +68,17 @@ class Plugin extends app.Plugin {
             ],
             overlay: {width: window.innerWidth / 2, ratio: w / h}
         });
-
-        app.set({printQuality: app.get('printQuality') || 0});
-
     }
 
     printURL(opts) {
         let map = app.map(),
-            params = {},
-            dpis = [72, 150, 300];
+            params = {};
 
         params.extent = app.get('overlayExtent');
         params.scale = map.getScale();
         params.rotation = rad2deg(map.getView().getRotation());
         params.layerNames = layers.getNames('visible');
-        params.dpi = dpis[opts.quality || 0];
+        params.dpi = opts.quality;
 
         return wms.printURL(params);
     }
@@ -84,40 +88,49 @@ class Plugin extends app.Plugin {
 class PrintButton extends React.Component {
 
     render() {
+        let active = this.props.mapMode === 'print';
+
         return (
             <div>
-                <ToolbarGroup visible={this.props.mapMode === 'print'}>
-                    <ToolbarButton
-                        secondary
-                        onClick={() => app.perform('printOpenPDF', {quality: 0})}
-                        icon='filter_1'
-                        tooltip={__("quality0")}
-                    />
-                    <ToolbarButton
-                        secondary
-                        onClick={() => app.perform('printOpenPDF', {quality: 1})}
-                        icon='filter_2'
-                        tooltip={__("quality1")}
-                    />
-                    <ToolbarButton
-                        secondary
-                        onClick={() => app.perform('printOpenPDF', {quality: 3})}
-                        icon='filter_3'
-                        tooltip={__("quality2")}
-                    />
-                    <ToolbarButton
-                        secondary
-                        tooltip={__("cancelTooltip")}
-                        onClick={() => app.perform('printModeToggle')}
-                        icon='close'
-                    />
-                </ToolbarGroup>
-                <ToolbarButton
+                <toolbar.Popover visible={active}>
+                    <toolbar.PopoverGroup>
+                        <SelectField
+                            value={this.props.printQuality}
+                            style={{width: 120, marginRight: 16, marginLeft: 8}}
+                            labelStyle={{color: app.theme('palette.accentOnDark')}}
+                            onChange={(event, index, value) => app.set({printQuality: value})}
+                        >
+                            <MenuItem value={72} primaryText="72dpi"/>
+                            <MenuItem value={150} primaryText="150dpi"/>
+                            <MenuItem value={300} primaryText="300dpi"/>
+                        </SelectField>
+                    </toolbar.PopoverGroup>
+
+                    <toolbar.PopoverGroup>
+                        <toolbar.Button
+                            secondary
+                            onClick={() => app.perform('printOpenPDF', {quality: this.props.printQuality})}
+                            icon='print'
+                            tooltip={__("printTooltip")}
+                        />
+                    </toolbar.PopoverGroup>
+                    <toolbar.PopoverGroup>
+
+                        <toolbar.Button
+                            secondary
+                            tooltip={__("cancelTooltip")}
+                            onClick={() => app.perform('printModeToggle')}
+                            icon='close'
+                        />
+                    </toolbar.PopoverGroup>
+                </toolbar.Popover>
+
+                {!active && <toolbar.Button
                     {...this.props}
                     onClick={() => app.perform('printModeToggle')}
                     icon='print'
                     tooltip={__("printTooltip")}
-                />
+                />}
             </div>
         );
     }

@@ -13,7 +13,7 @@ import _ from 'lodash';
 import app from 'app';
 import ol from 'ol-all';
 
-import ToolbarButton from 'components/ToolbarButton';
+import * as toolbar from 'components/Toolbar';
 
 class Plugin extends app.Plugin {
     init() {
@@ -64,7 +64,7 @@ class PlusButton extends React.Component {
 
     render() {
         return (
-            <ToolbarButton
+            <toolbar.Button
                 {...this.props}
                 tooltip={__("plusTooltip")}
                 onClick={() => app.perform('zoom', {delta: +1})}
@@ -79,7 +79,7 @@ class MinusButton extends React.Component {
 
     render() {
         return (
-            <ToolbarButton
+            <toolbar.Button
                 {...this.props}
                 tooltip={__("minusTooltip")}
                 onClick={() => app.perform('zoom', {delta: -1})}
@@ -94,7 +94,7 @@ class FullButton extends React.Component {
 
     render() {
         return (
-            <ToolbarButton
+            <toolbar.Button
                 {...this.props}
                 tooltip={__("fullTooltip")}
                 onClick={() => app.perform('zoomFull')}
@@ -109,7 +109,7 @@ class BoxButton extends React.Component {
 
     render() {
         return (
-            <ToolbarButton
+            <toolbar.Button
                 {...this.props}
                 tooltip={__("boxTooltip")}
                 onClick={() => app.perform('zoomBoxStart')}
