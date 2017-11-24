@@ -53,14 +53,12 @@ export default class FeatureList extends React.Component {
 
     render() {
         let features = _.sortBy(this.props.features, f => f.get('layerName'));
-        let th = app.theme().gbd.ui.section;
 
         return (
             <div style={{padding: 8}}>
                 {features.map((f, n) => <Section
                         key={f.getId()}
                         open={n === 0}
-                        theme={th}
                         header={this.header(f)}
                         icon={'center_focus_weak'}
                         iconClick={() => this.click(f)}

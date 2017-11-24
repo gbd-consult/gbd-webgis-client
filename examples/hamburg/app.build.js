@@ -46,7 +46,7 @@ module.exports = {
         </ui.Toolbar>
         <ui.Sidebar>
             <layers.Panel key="layers" title="Layers" icon="layers" />
-            <details.Panel key="details" title="Info" icon="list" />
+            <details.Panel key="details" title="Info" icon="toc" />
             <search.Panel key="search" title="Suche" icon="search" mobileOnly />
         </ui.Sidebar>
         <ui.Statusbar>
@@ -70,8 +70,3 @@ module.exports = {
         </ui.Altbar>
     `
 };
-
-
-/*
-
- */

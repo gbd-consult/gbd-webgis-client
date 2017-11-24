@@ -5,6 +5,8 @@ import app from 'app';
 import 'ol/ol.css';
 import './index.sass';
 
+import theme from './theme';
+
 /*=
     config.plugins
         .map(name => `import ${name} from './plugins/${name}'`)
@@ -18,12 +20,7 @@ window.gbdWebgisClient = {
     async main(config, container) {
 
         let App = <Application
-            theme={{
-                /*=
-                    JSON.stringify(config.theme)
-                        .slice(1, -1)
-                */
-            }}
+            theme={theme}
 
             initState={{
                 /*=
@@ -45,7 +42,7 @@ window.gbdWebgisClient = {
             </div>}
         />;
 
-        if(typeof(config) === 'string') {
+        if (typeof(config) === 'string') {
             config = await app.http.get(config);
         }
 

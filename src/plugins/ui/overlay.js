@@ -58,56 +58,32 @@ class Overlay extends React.Component {
         document.addEventListener('mouseup', mouseUp);
     }
 
-    css() {
-        let th = app.theme().gbd.ui.overlay;
+    render() {
+        if (!this.props.overlayVisible)
+            return null;
 
         let w = this.props.overlayWidth;
         let h = this.props.overlayRatio ?
             w / this.props.overlayRatio :
             this.props.overlayHeight;
 
-        return {
-            container: {
-                position: 'absolute',
-                left: '50%',
-                top: '50%',
-                marginLeft: -(w / 2),
-                marginTop: -(h / 2),
-                width: w,
-                height: h,
-                boxShadow: '0 0 0 4000px rgba(0,0,0,0.7)',
-                pointerEvents: 'none',
-                transition: 'all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms',
-                borderWidth: th.borderWidth,
-                borderColor: th.borderColor,
-                borderStyle: 'solid',
-            },
-            handle: {
-                position: 'absolute',
-                width: 16,
-                height: 16,
-                pointerEvents: 'auto',
-                cursor: 'pointer',
-                borderRadius: '50%',
-                backgroundColor: th.borderColor,
-                zIndex: helpers.zIndex.overlayHandles
-            }
-        }
-    }
+        let style = {
+            ...app.theme('gwc.ui.overlay.box'),
+            marginLeft: -(w / 2),
+            marginTop: -(h / 2),
+            width: w,
+            height: h
+        };
 
-    render() {
-        if (!this.props.overlayVisible)
-            return null;
-
-        let css = this.css(),
-            p = css.handle.width >> 1;
+        let hstyle = app.theme('gwc.ui.overlay.handle');
+        let p = hstyle.width >> 1;
 
         return (
-            <div style={css.container} ref={el => this.updateExtent(el)}>
-                <div onMouseDown={e => this.startDrag()} style={{left: -p, top: -p, ...css.handle}}/>
-                <div onMouseDown={e => this.startDrag()} style={{right: -p, top: -p, ...css.handle}}/>
-                <div onMouseDown={e => this.startDrag()} style={{left: -p, bottom: -p, ...css.handle}}/>
-                <div onMouseDown={e => this.startDrag()} style={{right: -p, bottom: -p, ...css.handle}}/>
+            <div style={style} ref={el => this.updateExtent(el)}>
+                <div onMouseDown={e => this.startDrag()} style={{left: -p, top: -p, ...hstyle}}/>
+                <div onMouseDown={e => this.startDrag()} style={{right: -p, top: -p, ...hstyle}}/>
+                <div onMouseDown={e => this.startDrag()} style={{left: -p, bottom: -p, ...hstyle}}/>
+                <div onMouseDown={e => this.startDrag()} style={{right: -p, bottom: -p, ...hstyle}}/>
             </div>
         )
     }

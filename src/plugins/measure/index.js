@@ -10,6 +10,7 @@
 // roughly based on https://openlayers.org/en/latest/examples/measure.html
 
 import React from 'react';
+import ReactDOM from 'react-dom';
 
 import ToolbarButton from 'components/ToolbarButton';
 import ToolbarGroup from 'components/ToolbarGroup';
@@ -24,39 +25,20 @@ const LAYER_KIND = 'measure';
 class Plugin extends app.Plugin {
     init() {
 
-        let th = app.theme().gbd.plugin.measure;
-
         this.listeners = {};
         this.overlays = {};
         this.interactions = {};
 
-        this.style = mapUtil.makeStyle({
-            fill: {
-                color: 'rgba(255,255,255,0.5)'
-            },
-            stroke: {
-                color: th.strokeColor,
-                lineDash: [th.strokeDash, th.strokeDash],
-                width: th.strokeWidth
-            }
-        });
+        let fs = app.theme('gwc.plugin.measure.feature');
+
+        this.featureStyle = mapUtil.makeStyle(fs);
 
         this.handleImage = new ol.style.Circle({
             radius: 6,
             fill: new ol.style.Fill({
-                color: th.strokeColor
+                color: fs.stroke.color
             }),
         });
-
-        this.tooltipStyle = {
-            'position': 'relative',
-            'font-family': 'Roboto, sans-serif',
-            'font-size': '11px',
-            'padding': '5px',
-            'background': th.tooltip.background,
-            'color': th.tooltip.color,
-        };
-
 
         this.subscribe('mapMode', (newMode) => {
             if (newMode !== 'measure') {
@@ -142,14 +124,14 @@ class Plugin extends app.Plugin {
             bounds = geom;
 
         if (!bounds)
-            return this.style;
+            return this.featureStyle;
 
         return [
             new ol.style.Style({
                 image: this.handleImage,
                 geometry: new ol.geom.MultiPoint(bounds.getCoordinates())
             }),
-            this.style
+            this.featureStyle
         ];
     }
 
@@ -196,20 +178,20 @@ class Plugin extends app.Plugin {
 
     updateTooltip(feature) {
         let geom = feature.getGeometry(),
-            content,
+            projection = app.config.str('map.crs.client'),
+            type,
+            value,
             coord;
 
         if (geom instanceof ol.geom.Polygon) {
-            content = this.formatArea(ol.Sphere.getArea(geom, {
-                projection: app.config.str('map.crs.client')
-            }));
+            type = 'area';
+            value = ol.Sphere.getArea(geom, {projection});
             coord = geom.getInteriorPoint().getCoordinates();
         }
 
         if (geom instanceof ol.geom.LineString) {
-            content = this.formatDistance(ol.Sphere.getLength(geom, {
-                projection: app.config.str('map.crs.client')
-            }));
+            type = 'distance';
+            value = ol.Sphere.getLength(geom, {projection});
             coord = geom.getLastCoordinate();
         }
 
@@ -217,14 +199,15 @@ class Plugin extends app.Plugin {
         let overlay = this.overlays[uid] || (
             this.overlays[uid] = this.createTooltipOverlay());
 
-        overlay.getElement().style.display = content ? 'block' : 'none';
-        overlay.getElement().innerHTML = content;
+        ReactDOM.render(
+            <Tooltip type={type} value={value}/>,
+            overlay.getElement());
+
         overlay.setPosition(coord);
     }
 
     createTooltipOverlay() {
         let elem = document.createElement('div');
-        Object.keys(this.tooltipStyle).forEach(s => elem.style[s] = this.tooltipStyle[s]);
         let overlay = new ol.Overlay({
             element: elem,
             offset: [0, -15],
@@ -240,24 +223,37 @@ class Plugin extends app.Plugin {
             elem.parentNode.removeChild(elem);
         app.map().removeOverlay(overlay);
     }
-
-    formatDistance(n) {
-        if (n >= 1e3)
-            return (n / 1e3).toFixed(2) + '&nbsp;km';
-        if (n > 1)
-            return (n).toFixed(0) + '&nbsp;m';
-        return '';
-    }
-
-    formatArea(n) {
-        if (n >= 1e5)
-            return (n / 1e6).toFixed(2) + '&nbsp;km<sup>2</sup>';
-        if (n > 1)
-            return (n).toFixed(0) + '&nbsp;m<sup>2</sup>';
-        return '';
-    }
 }
 
+
+class Tooltip extends React.Component {
+    content(type, value) {
+        if (type === 'distance') {
+            if (value >= 1e3)
+                return <span>{(value / 1e3).toFixed(2)}&nbsp;km</span>;
+            if (value > 1)
+                return <span>{(value).toFixed(0)}&nbsp;m</span>;
+        }
+
+        if (type === 'area') {
+            if (value >= 1e5)
+                return <span>{(value / 1e6).toFixed(2)}&nbsp;km<sup>2</sup></span>;
+            if (value > 1)
+                return <span>{(value).toFixed(0)}&nbsp;m<sup>2</sup></span>;
+        }
+    }
+
+    render() {
+        let s = this.content(this.props.type, this.props.value);
+
+        if(!s)
+            return null;
+
+        return (
+            <div style={app.theme('gwc.plugin.measure.tooltip')}>{s}</div>
+        );
+    }
+}
 
 class Button extends React.Component {
     render() {

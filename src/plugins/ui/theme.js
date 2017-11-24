@@ -1,0 +1,408 @@
+let zIndex = {
+    statusbar: 100,
+    sidebar: 90,
+    overlayHandle: 80,
+    toolbar: 60,
+    altbar: 70
+};
+
+let muiDefaults = require('material-ui/styles/baseThemes/lightBaseTheme').default;
+let COLOR = require('material-ui/styles/colors');
+
+let palette = {
+    ...muiDefaults.palette,
+
+    textColor: COLOR.grey700,
+
+    dark: COLOR.blueGrey700,
+    darker: COLOR.blueGrey800,
+    darkest: COLOR.blueGrey900,
+    darkText: COLOR.blueGrey400,
+    darkAccent: COLOR.cyan500,
+
+    light: '#f5f5f5',
+
+    selectedBackground: 'white',
+    selectedColor: COLOR.pinkA200,
+
+    toolbarColor: COLOR.white,
+    toolbarBackground: COLOR.pinkA200,
+
+    alternateBorderColor: COLOR.white
+};
+
+module.exports = {
+    fontFamily: muiDefaults.fontFamily,
+    palette,
+
+    fontSize: {
+        normal: 16,
+        small: 14,
+        smaller: 11,
+        smallest: 10,
+    },
+
+    gwc: {
+        ui: {
+
+            gutter: 12,
+            shadow: '0 0 5px rgba(0, 0, 0, 0.3)',
+            transition: 'all 0.5s cubic-bezier(0.23, 1, 0.32, 1)',
+
+            altbar: {
+                position: 'absolute',
+                right: '{../gutter}',
+                top: '{../gutter}',
+                zIndex: zIndex.altbar,
+            },
+
+            sidebar: {
+
+                headerInnerHeight: 48,
+
+                container: {
+                    backgroundColor: '{/palette/canvasColor}',
+                    bottom: 0,
+                    boxShadow: '{../../shadow}',
+                    left: 0,
+                    position: 'absolute',
+                    top: 0,
+                    transform: 'translate(-100%, 0)',
+                    transition: '{../../transition}',
+                    width: '100%',
+                    zIndex: zIndex.sidebar
+                },
+
+                containerMedium: {
+                    extend: '{../container}',
+                    width: 400
+                },
+
+                containerLarge: {
+                    extend: '{../container}',
+                    width: 400
+                },
+
+                containerVisible: {
+                    extend: '{../container}',
+                    transform: 'translate(0, 0)',
+                },
+
+                containerMediumVisible: {
+                    extend: '{../containerMedium}',
+                    transform: 'translate(0, 0)',
+                },
+
+                containerLargeVisible: {
+                    extend: '{../containerLarge}',
+                    transform: 'translate(0, 0)',
+                },
+
+                openButton: {
+                    backgroundColor: '{../header/backgroundColor}',
+                    borderColor: '{/palette/alternateBorderColor}',
+                    borderRadius: '0 8px 8px 0',
+                    borderStyle: 'solid',
+                    borderLeftStyle: 'none',
+                    borderWidth: 2,
+                    boxShadow: '{../../shadow}',
+                    color: '{../header/color}',
+                    height: '{../headerInnerHeight}',
+                    left: 0,
+                    padding: 0,
+                    position: 'absolute',
+                    top: '{../../gutter}',
+                    width: 38,
+                },
+
+                header: {
+                    backgroundColor: '{/palette/primary1Color}',
+                    boxSizing: 'border-box',
+                    color: '{/palette/alternateTextColor}',
+                    display: 'flex',
+                    height: '{../headerInnerHeight} + {../../gutter} * 2',
+                    left: 0,
+                    paddingBottom: '{../../gutter}',
+                    paddingTop: '{../../gutter}',
+                    position: 'absolute',
+                    right: 0,
+                    top: 0,
+                },
+
+                headerButton: {
+                    borderRadius: '50%',
+                    color: '{../header/color}',
+                    height: 36,
+                    marginRight: 16,
+                    marginTop: 8,
+                    padding: 0,
+                    width: 36,
+                },
+
+                headerButtonActive: {
+                    extend: '{../headerButton}',
+                    backgroundColor: '{/palette/selectedBackground}',
+                    color: '{/palette/selectedColor}',
+                },
+
+                body: {
+                    bottom: 0,
+                    left: 0,
+                    overflow: 'auto',
+                    position: 'absolute',
+                    right: 0,
+                    top: '{../header/height}',
+                },
+
+                bodyDesktop: {
+                    extend: '{../body}',
+                    bottom: '{../../statusbar/height}'
+                },
+            },
+
+            overlay: {
+                box: {
+                    borderColor: '{/palette/accent1Color}',
+                    borderStyle: 'solid',
+                    borderWidth: 2,
+                    boxShadow: '0 0 0 4000px rgba(0,0,0,0.3)',
+                    left: '50%',
+                    pointerEvents: 'none',
+                    position: 'absolute',
+                    top: '50%',
+                    transition: '{../../transition}',
+                },
+
+                handle: {
+                    backgroundColor: '{../box/borderColor}',
+                    borderRadius: '50%',
+                    cursor: 'pointer',
+                    height: 16,
+                    pointerEvents: 'auto',
+                    position: 'absolute',
+                    width: 16,
+                    zIndex: zIndex.overlayHandle
+                }
+            },
+
+            toolbar: {
+                container: {
+                    alignItems: 'flex-end',
+                    bottom: '{../../statusbar/height} + {../../gutter}',
+                    flexDirection: 'column',
+                    position: 'absolute',
+                    right: 0,
+                    zIndex: zIndex.toolbar,
+                },
+
+                wrapper: {
+                    boxSizing: 'border-box',
+                    height: '{../button/height} + {../../gutter}',
+                    paddingTop: '{../../gutter} / 2',
+                    position: 'relative',
+                },
+
+                button: {
+                    borderWidth: 2,
+                    borderStyle: 'solid',
+                    borderColor: '{/palette/alternateBorderColor}',
+                    borderRadius: '50%',
+                    boxShadow: '{../../shadow}',
+                    display: 'inline',
+                    height: 45,
+                    marginRight: '{../../gutter} / 2',
+                    padding: 0,
+                    width: 45,
+                },
+
+                buttonPrimary: {
+                    extend: '{../button}',
+                    backgroundColor: '{/palette/toolbarBackground}',
+                    color: '{/palette/toolbarColor}'
+                },
+
+                buttonPrimaryActive: {
+                    extend: '{../buttonPrimary}',
+                    backgroundColor: '{/palette/selectedBackground}',
+                    color: '{/palette/selectedColor}',
+                },
+
+                buttonSecondary: {
+                    extend: '{../buttonPrimary}',
+                },
+
+                buttonSecondaryActive: {
+                    extend: '{../buttonPrimaryActive}',
+                },
+
+                group: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+                    borderRadius: '24px 0 0 24px',
+                    boxSizing: 'border-box',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    height: '{../button/height} + {../../gutter}',
+                    paddingBottom: '{../../gutter} / 2',
+                    paddingLeft: '{../../gutter} / 2',
+                    paddingRight: 0,
+                    paddingTop: '{../../gutter} / 2',
+                    position: 'absolute',
+                    right: 0,
+                    top: 0,
+                    transform: 'translate(100%, 0)',
+                    transition: '{../../transition}',
+                    zIndex: zIndex.toolbar + 1,
+                },
+
+                groupVisible: {
+                    extend: '{../group}',
+                    transform: 'translate(0, 0)'
+                }
+            },
+
+            statusbar: {
+                height: 30,
+                lineHeight: '18px',
+                fontSize: '{/fontSize/smaller}',
+                color: '{/palette/darkText}',
+
+                container: {
+                    backgroundColor: '{/palette/darker}',
+                    alignItems: 'center',
+                    bottom: 0,
+                    boxSizing: 'border-box',
+                    color: '{../color}',
+                    display: 'flex',
+                    height: '{../height}',
+                    left: 0,
+                    paddingLeft: 8,
+                    paddingRight: 8,
+                    position: 'absolute',
+                    right: 0,
+                    zIndex: zIndex.statusbar,
+                },
+
+                group: {
+                    alignItems: 'center',
+                    boxSizing: 'border-box',
+                    display: 'inline-flex',
+                    height: '100%',
+                },
+
+                input: {
+                    backgroundColor: '{/palette/darkest}',
+                    border: 'none',
+                    borderRadius: 6,
+                    boxSizing: 'border-box',
+                    color: '{/palette/darkAccent}',
+                    cursor: 'default',
+                    fontFamily: '{/fontFamily}',
+                    fontSize: '{../fontSize}',
+                    lineHeight: '{../lineHeight}',
+                    outline: 'none',
+                    paddingLeft: 6,
+                    textAlign: 'left',
+                    width: 150,
+                },
+
+                label: {
+                    alignItems: 'center',
+                    border: 'none',
+                    boxSizing: 'border-box',
+                    display: 'inline-flex',
+                    fontFamily: '{/fontFamily}',
+                    fontSize: '{../fontSize}',
+                    fontWeight: 'bold',
+                    lineHeight: '{../lineHeight}',
+                    padding: '0 6px',
+                },
+
+                link: {
+                    color: '{/palette/darkAccent}',
+                    cursor: 'pointer',
+                    fontFamily: '{/fontFamily}',
+                    fontSize: '{../fontSize}',
+                },
+
+                separator: {
+                    color: '{/palette/darkText}',
+                    display: 'inline-flex',
+                    lineHeight: '{../lineHeight}',
+                    padding: '0 8px',
+                },
+                sliderContainer: {
+                    display: 'inline-flex',
+                    margin: '0 8px',
+                    padding: 0
+                },
+                sliderStyle: {},
+                sliderSliderStyle: {
+                    width: 150,
+                    margin: 0
+                }
+            },
+
+            section: {
+                indent: 12,
+                buttonSize: 36,
+
+                rowBox: {
+                    alignItems: 'center',
+                    display: 'flex',
+                },
+
+                buttonBox: {
+                    height: '{../buttonSize}',
+                    width: '{../buttonSize}',
+                },
+
+                contentBox: {
+                    alignItems: 'center',
+                    borderBottomColor: '{/palette/light}',
+                    borderBottomStyle: 'solid',
+                    borderBottomWidth: 1,
+                    display: 'flex',
+                    flex: 1,
+                    fontSize: '{/fontSize/normal}',
+                    minHeight: '{../buttonSize}',
+                },
+
+                toggle: {
+                    height: '{../buttonSize}',
+                    margin: 0,
+                    padding: 0,
+                    transform: 'rotate(0deg)',
+                    transition: '{/gwc/ui/transition}',
+                    width: '{../buttonSize}',
+                },
+
+                toggleOpen: {
+                    extend: '{../button}',
+                    transform: 'rotate(90deg)',
+                },
+
+                toggleIcon: {
+                    color: '{/palette/textColor}',
+                    fontSize: 18,
+                    margin: 0,
+                    padding: 0,
+                },
+
+                button: {
+                    height: '{../buttonSize}',
+                    margin: 0,
+                    padding: 0,
+                    width: '{../buttonSize}',
+                },
+
+                buttonIcon: {
+                    color: '{/palette/primary1Color}',
+                    fontSize: 18,
+                    margin: 0,
+                    padding: 0,
+                }
+            }
+        }
+    }
+};
+

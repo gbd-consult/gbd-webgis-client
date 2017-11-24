@@ -54,48 +54,24 @@ class Plugin extends app.Plugin {
 }
 
 class ResultChip extends React.Component {
-    style() {
-        let th = app.theme().gbd.plugin.search.sources[this.props.feature.get('source')];
-        return {
-            float: 'right',
-            marginRight: 6,
-            padding: '2px',
-            fontSize: 10,
-            color: th.color,
-            borderRadius: 6,
-            background: th.background
-        }
-    }
-
     render() {
+        let style = app.theme('gwc.plugin.search.chip' + this.props.feature.get('source'));
         return (
-            <div style={this.style()}>{this.props.feature.get('source')}</div>
+            <div style={style}>{this.props.feature.get('source')}</div>
         );
     }
 }
 
 class Result extends React.Component {
 
-    style() {
-        let s = {
-            padding: 16,
-            cursor: 'pointer',
-        }
-
-        if (!this.props.odd) {
-            s.backgroundColor = '#f9f9f9';
-        }
-
-        return s;
-
-    }
-
     render() {
         let feature = this.props.feature;
+        let style = app.theme('gwc.plugin.search.result' +
+            (this.props.even ? 'Even' : ''));
 
         return (
             <div
-                style={this.style()}
+                style={style}
                 onClick={() => app.perform('searchHighlight', {feature})}
             >
                 <ResultChip feature={feature}/>
@@ -106,35 +82,17 @@ class Result extends React.Component {
 }
 
 class Results extends React.Component {
-    style() {
-        return {
-            panel: {
-                position: 'absolute',
-                left: 0,
-                right: 0,
-                bottom: 0,
-                top: app.theme().toolbar.height,
-                overflow: 'auto',
-            },
-            box: {
-                overflow: 'auto',
-                maxHeight: 300,
-                borderTopWidth: 1,
-                borderTopStyle: 'solid',
-                borderTopColor: app.theme().palette.borderColor
-            }
-        }
-    }
-
     render() {
         let res = this.props.searchResults;
 
         if (_.isEmpty(res))
             return null;
 
+        let style = app.theme('gwc.plugin.search.results' + this.props.mode);
+
         return (
-            <div style={this.style()[this.props.mode]}>
-                {res.map((f, i) => <Result key={ol.getUid(f)} feature={f} odd={i % 2}/>)}
+            <div style={style}>
+                {res.map((f, i) => <Result key={ol.getUid(f)} feature={f} even={i % 2 === 0}/>)}
             </div>
         );
     }
@@ -167,16 +125,10 @@ class Input extends React.Component {
         });
     }
 
-    style() {
-        return {
-            flex: 1,
-        }
-    }
-
     render() {
         return (
             <TextField
-                style={this.style()}
+                style={app.theme('gwc.plugin.search.textField')}
                 underlineShow={false}
                 hintText={__("searchHint")}
                 value={this.state.value}
@@ -188,21 +140,18 @@ class Input extends React.Component {
 
 class ClearButton extends React.Component {
     render() {
-        let color =
-            (_.isEmpty(this.props.searchResults) && _.isEmpty(this.props.searchInput))
-                ? app.theme().palette.borderColor
-                : app.theme().palette.primary1Color;
+        let disabled = _.isEmpty(this.props.searchResults) && _.isEmpty(this.props.searchInput);
 
         return (
             <IconButton
                 tooltip={__("searchClearTooltip")}
                 tooltipPosition='bottom-left'
                 onClick={() => app.perform('searchClear')}
+                disabled={disabled}
             >
                 <MaterialIcon
-                    color={color}
                     icon='cancel'
-
+                    color={app.theme('gwc.plugin.search.buttonColor' + (disabled ? 'Disabled' : ''))}
                 />
             </IconButton>
         );
@@ -210,31 +159,11 @@ class ClearButton extends React.Component {
 }
 
 class Header extends React.Component {
-    style() {
-        return {
-            panel: {
-                boxSizing: 'border-box',
-                width: '100%',
-                display: 'flex',
-                padding: '4px 0 0 16px',
-                height: app.theme().toolbar.height,
-                borderBottomWidth: 1,
-                borderBottomStyle: 'solid',
-                borderBottomColor: app.theme().palette.borderColor
-            },
-            box: {
-                boxSizing: 'border-box',
-                width: '100%',
-                display: 'flex',
-                padding: '0 0 0 16px',
-                height: app.theme().gbd.ui.sidebar.header.height,
-            }
-        }
-    }
-
     render() {
+        let style = app.theme('gwc.plugin.search.header' + this.props.mode);
+
         return (
-            <div style={this.style()[this.props.mode]}>
+            <div style={style}>
                 <Input {...this.props} />
                 <ClearButton {...this.props} />
             </div>
@@ -246,30 +175,19 @@ class Panel extends React.Component {
     render() {
         return (
             <div>
-                <Header {...this.props} mode="panel"/>
-                <Results {...this.props} mode="panel"/>
+                <Header {...this.props} mode="Panel"/>
+                <Results {...this.props} mode="Panel"/>
             </div>
         );
     }
 }
 
 class Box extends React.Component {
-    style() {
-        let th = app.theme().gbd.ui.altbar;
-
-        return {
-            position: 'relative',
-            width: th.width,
-            background: th.background,
-            shadow: th.shadow
-        }
-    }
-
     render() {
         return (
-            <Paper style={this.style()}>
-                <Header {...this.props} mode="box"/>
-                <Results {...this.props} mode="box"/>
+            <Paper style={app.theme('gwc.plugin.search.boxAlt')}>
+                <Header {...this.props} mode="Alt"/>
+                <Results {...this.props} mode="Alt"/>
             </Paper>
         );
     }

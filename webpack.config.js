@@ -34,18 +34,27 @@ let defaults = {
     resolveLoader: {
         alias: {
             'template-loader': './tools/template-loader.js',
-            'lang-loader': './tools/lang-loader.js'
+            'lang-loader': './tools/lang-loader.js',
+            'theme-loader': './tools/theme-loader.js'
         }
     },
 
     module: {
         loaders: [
+            // {
+            //     test: here(SRC, 'index'),
+            //     enforce: 'pre',
+            //     loader: 'template-loader',
+            //     options: {
+            //         buildConfig: () => _buildConfig
+            //     }
+            // },
             {
-                test: here(SRC, 'index'),
-                enforce: 'pre',
-                loader: 'template-loader',
+                test: here(SRC, 'theme.js'),
+                loader: 'theme-loader',
                 options: {
-                    buildConfig: () => _buildConfig
+                    baseDir: here(SRC),
+                    buildConfig: () => _buildConfig,
                 }
             },
             {
@@ -58,13 +67,13 @@ let defaults = {
                             presets: [
                                 [
                                     'env', {
-                                        targets: {
-                                            browsers: [
-                                                'ios > 5',
-                                                'last 2 versions'
-                                            ]
-                                        }
+                                    targets: {
+                                        browsers: [
+                                            'ios > 5',
+                                            'last 2 versions'
+                                        ]
                                     }
+                                }
                                 ],
                                 'react'],
                             cacheDirectory: here('.cache'),
@@ -86,7 +95,12 @@ let defaults = {
                             buildConfig: () => _buildConfig
                         }
                     },
-
+                    {
+                        loader: 'template-loader',
+                        options: {
+                            buildConfig: () => _buildConfig
+                        }
+                    }
                 ]
             },
             {

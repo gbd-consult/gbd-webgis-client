@@ -40,18 +40,6 @@ class Control extends React.Component {
 
 class Bar extends React.Component {
 
-    style() {
-        return {
-            height: 5,
-            borderStyle: 'solid',
-            borderColor: app.theme().gbd.ui.statusbar.label.color,
-            borderLeftWidth: 1,
-            borderRightWidth: 1,
-            borderBottomWidth: 1,
-            borderTopWidth: 0,
-        }
-    }
-
     round(m) {
         let s = Math.pow(10, Math.floor(Math.log10(m))),
             t = Math.floor(m / s);
@@ -69,18 +57,20 @@ class Bar extends React.Component {
             return null;
 
 
-        let width = app.theme().gbd.plugin.scale.barWidth;
+        let width = this.props.width || 200;
         let m = this.round(res * width);
         let label = (m >= 1000) ? Math.floor(m / 1000) + 'km' : m + 'm';
 
-        let s = this.style();
-        s.width = Math.round(m / res);
+        let style = {
+            ...app.theme('gwc.plugin.scale.bar'),
+            width: Math.round(m / res)
+        };
 
         return (
             <sb.Group>
                 <sb.Label
                     value={label}/>
-                <div style={s}/>
+                <div style={style}/>
             </sb.Group>
         );
     }

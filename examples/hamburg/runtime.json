@@ -13,7 +13,8 @@
         "layers": [
             {
                 "type": "wmsGroup",
-                "url": "http://qwc.gbd-consult.de:9090/wms",
+                "xurl": "http://qwc.gbd-consult.de:9090/wms",
+                "url": "http://qwc.gbd-consult.de/cgi-bin/qgis_mapserv.fcgi?map=/var/www/qwc1/projekte/alkishh2.qgs",
                 "name": "ALKIS/Hamburg"
             },
             {

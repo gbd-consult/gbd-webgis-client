@@ -4,25 +4,10 @@ import mapUtil from 'map-util';
 
 const LAYER_KIND = 'markerLayer';
 
-function getGeometry(feature) {
-}
-
-
 class Plugin extends app.Plugin {
 
     init() {
-        let th = app.theme().gbd.plugin.marker;
-
-        this.style = {
-            fill: {
-                color: th.fill
-            },
-            stroke: {
-                color: th.strokeColor,
-                lineDash: [th.strokeDash, th.strokeDash],
-                width: th.strokeWidth
-            },
-        };
+        this.style = mapUtil.makeStyle(app.theme('gwc.plugin.marker.feature'));
 
         this.action('markerMark', ({features, pan}) => {
             this.clear();
@@ -43,7 +28,7 @@ class Plugin extends app.Plugin {
         if (geoms.length) {
             let la = app.map().serviceLayer(LAYER_KIND, () => new ol.layer.Vector({
                 source: new ol.source.Vector(),
-                style: mapUtil.makeStyle(this.style)
+                style: this.style
             }));
             la.getSource().addFeatures(geoms.map(g => new ol.Feature(g)));
         }

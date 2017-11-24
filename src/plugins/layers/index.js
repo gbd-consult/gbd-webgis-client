@@ -1,4 +1,5 @@
 import React from 'react';
+import Paper from 'material-ui/Paper';
 
 import app from 'app';
 import ol from 'ol-all';
@@ -53,9 +54,6 @@ function setVisible(uid, visible) {
     let layer = app.map().getLayerById(uid);
     if (layer)
         setVisibleRec(layer, visible);
-    let active = activeLayer();
-    if (!active || !active.getVisible())
-        app.set({layerActiveUid: 0});
 }
 
 function update() {
@@ -71,6 +69,13 @@ class Plugin extends app.Plugin {
         this.action('layerSetActive', ({uid}) =>
             app.set({layerActiveUid: uid}));
 
+        this.action('layerToggleActive', ({uid}) => {
+            let a = app.get('layerActiveUid');
+            app.set({
+                layerActiveUid: uid === a ? 0 : uid
+            });
+        });
+
         app.map().getLayerGroup().on('change', update);
         app.map().getView().on('change:resolution', update);
     }
@@ -83,7 +88,7 @@ class Layer extends React.Component {
     }
 
     linkClick() {
-        app.perform('layerSetActive', {uid: this.props.def.uid});
+        app.perform('layerToggleActive', {uid: this.props.def.uid});
     }
 
     visibilityClick() {
@@ -96,32 +101,26 @@ class Layer extends React.Component {
     status() {
         let d = this.props.def;
 
-        if (!d.isEnabled)
-            return 'disabled';
-        if (!d.isVisible)
-            return 'hidden';
         if (d.uid === this.props.layerActiveUid)
-            return 'active';
-        return 'normal';
+            return 'Active';
+        if (!d.isEnabled)
+            return 'Disabled';
+        if (!d.isVisible)
+            return 'Hidden';
+        return '';
     }
 
     visibilityIcon(status) {
-        if(status === 'disabled')
+        if (status === 'Disabled')
             return null;
-        return (status === 'hidden') ? 'visibility_off' : 'visibility';
+        return (status === 'Hidden') ? 'visibility_off' : 'visibility';
     }
 
     header(status) {
+        let style = app.theme('gwc.plugin.layers.title' + status);
+
         return (
-            <div style={{
-                cursor: 'pointer',
-                lineHeight: '120%',
-                padding: '4px 8px',
-                borderRadius: 10,
-                backgroundColor: this.props.theme.background[status] || 'transparent',
-            }}
-                 onClick={() => this.linkClick()}
-            >
+            <div style={style} onClick={() => this.linkClick()}>
                 {this.props.def.name}
             </div>
         );
@@ -129,24 +128,18 @@ class Layer extends React.Component {
 
     render() {
         let def = this.props.def,
-            status = this.status(),
-            th = {
-                ...this.props.theme,
-                textColor: this.props.theme.linkColor[status],
-                buttonColor: this.props.theme.buttonColor[status]
-            };
+            status = this.status();
 
         return (
             <Section
-                theme={th}
                 header={this.header(status)}
                 icon={this.visibilityIcon(status)}
                 iconClick={() => this.visibilityClick()}
+                indent={true}
             >
                 {def.isGroup && def.children.map(d => <Layer
                     key={d.uid}
                     def={d}
-                    theme={this.props.theme}
                     layerActiveUid={this.props.layerActiveUid}
                 />)}
             </Section>
@@ -156,16 +149,6 @@ class Layer extends React.Component {
 
 
 class LayerTree extends React.Component {
-
-    theme() {
-        let th = app.theme().gbd.ui.section;
-
-        return {
-            ...th,
-            ...th[(this.props.appIsMobile ? 'mobile' : 'desktop')],
-            ...app.theme().gbd.plugin.layers
-        };
-    }
 
     render() {
         if (!this.props.layerDef)
@@ -181,7 +164,6 @@ class LayerTree extends React.Component {
                 {projectDef[0].children.map(d => <Layer
                     key={d.uid}
                     def={d}
-                    theme={this.theme()}
                     layerActiveUid={this.props.layerActiveUid}
                 />)}
             </div>
@@ -207,37 +189,14 @@ class Panel extends React.Component {
         let active = activeLayer();
 
         return (
-            <div style={{
-                position: 'absolute',
-                left: 0,
-                top: 0,
-                right: 0,
-                bottom: 0,
-                display: 'flex',
-                flexDirection: 'column'
-
-            }}>
-                <div style={{
-                    padding: 8,
-                    overflow: 'auto',
-                    flex: 1
-                }}>
+            <Paper style={app.theme('gwc.plugin.layers.panel')}>
+                <Paper style={app.theme('gwc.plugin.layers.treeContainer')}>
                     <LayerTree {...this.props} />
-                </div>
-                {active && <div style={{
-                    height: 200,
-                    padding: 8,
-                    textAlign: 'center',
-                    overflow: 'auto',
-                    borderTopWidth: 2,
-                    borderTopStyle: 'solid',
-                    borderTopColor: app.theme().palette.accent1Color,
-                    backgroundColor: app.theme().palette.borderColor,
-
-                }}>
+                </Paper>
+                {active && <Paper style={app.theme('gwc.plugin.layers.infoContainer')}>
                     <LayerInfo data={active.getProperties()}/>
-                </div>}
-            </div>
+                </Paper>}
+            </Paper>
         );
     }
 }
