@@ -6,6 +6,8 @@ const categoryNames = {
     "alkis_gemeinde": "Gemeinde"
 };
 
+let limit = 50;
+
 function convert(rec) {
     return new ol.Feature({
         source: 'ALKIS',
@@ -31,7 +33,10 @@ class Plugin extends app.Plugin {
                 query: text
             });
 
-            done((res || []).map(convert));
+            done((res || [])
+                .filter(r => r.wkt_geometry)
+                .slice(0, limit)
+                .map(convert));
 
         });
     }
