@@ -58,7 +58,7 @@ export default class FeatureList extends React.Component {
             <div style={{padding: 8}}>
                 {features.map((f, n) => <Section
                         key={f.getId()}
-                        open={n === 0}
+                        open={features.length === 1}
                         header={this.header(f)}
                         icon={'center_focus_weak'}
                         iconClick={() => this.click(f)}

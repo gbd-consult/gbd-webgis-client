@@ -8,7 +8,7 @@ module.exports = {
                     },
                     stroke: {
                         color: 'black',
-                        lineDash: [6, 6],
+                        lineDash: [4, 4],
                         width: 2
                     }
                 },

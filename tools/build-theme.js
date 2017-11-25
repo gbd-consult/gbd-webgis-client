@@ -26,7 +26,7 @@ function expandVars(obj, vpath) {
         }
 
         if (_.isArray(val)) {
-            return val.map((v, i) => expandVars(v, vpath + '/' + key + '/' + i));
+            return val;
         }
 
         if (_.isObject(val)) {
@@ -90,7 +90,7 @@ function evalVars(root, obj) {
         }
 
         if (_.isArray(val)) {
-            return val.map(v => evalVars(root, v));
+            return val;
         }
 
         if (_.isObject(val)) {

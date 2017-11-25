@@ -36,8 +36,8 @@ module.exports = {
     palette,
 
     fontSize: {
-        normal: 16,
-        small: 14,
+        normal: 14,
+        small: 13,
         smaller: 11,
         smallest: 10,
     },
