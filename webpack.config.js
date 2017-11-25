@@ -104,6 +104,10 @@ let defaults = {
                 ]
             },
             {
+                test: /\.font\.js/,
+                loader: ['style-loader', 'css-loader', 'webfonts-loader']
+            },
+            {
                 test: /\.css$/,
                 loader: ['style-loader', 'css-loader']
             },

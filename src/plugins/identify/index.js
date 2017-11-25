@@ -15,6 +15,7 @@ import app from 'app';
 import ol from 'ol-all';
 
 import * as toolbar from 'components/Toolbar';
+import GbdIcon from 'components/GbdIcon';
 
 class Plugin extends app.Plugin {
 
@@ -75,8 +76,9 @@ class Button extends React.Component {
                 active={this.props.mapMode === 'identify'}
                 tooltip={__("buttonTooltip")}
                 onClick={() => app.perform('identifyModeToggle')}
-                icon='gps_fixed'
-            />
+            >
+                <GbdIcon icon='identify'/>
+            </toolbar.Button>
         );
     }
 }
