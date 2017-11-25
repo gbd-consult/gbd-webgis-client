@@ -35,7 +35,7 @@ module.exports = {
                     borderRadius: 10,
                     cursor: 'pointer',
                     lineHeight: '120%',
-                    padding: '4px 8px',
+                    padding: '4px 0',
                 },
 
                 titleDisabled: {
@@ -50,8 +50,7 @@ module.exports = {
 
                 titleActive: {
                     extend: '{../title}',
-                    backgroundColor: '{/palette/accent1Color}',
-                    color: '{/palette/alternateTextColor}'
+                    color: '{/palette/accent1Color}'
                 }
 
             }

@@ -111,7 +111,9 @@ class Layer extends React.Component {
     }
 
     visibilityIcon(status) {
-        if (status === 'Disabled')
+        let d = this.props.def;
+
+        if (!d.isEnabled)
             return null;
         return (status === 'Hidden') ? 'visibility_off' : 'visibility';
     }

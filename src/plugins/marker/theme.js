@@ -4,7 +4,7 @@ module.exports = {
             marker: {
                 feature: {
                     fill: {
-                        color: 'red'
+                        color: 'rgba(255, 0, 0, 0.5)'
                     },
                     stroke: {
                         color: 'yellow',
