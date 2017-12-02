@@ -1,16 +1,26 @@
 let zIndex = {
     statusbar: 100,
     sidebar: 90,
-    overlayHandle: 80,
+    altbar: 80,
+    overlayHandle: 70,
     toolbar: 60,
-    altbar: 70
 };
 
 let muiDefaults = require('material-ui/styles/baseThemes/lightBaseTheme').default;
+let cm = require('material-ui/utils/colorManipulator');
+
 let COLOR = require('material-ui/styles/colors');
+
+let GBD_BLUE = 'rgb(0, 125, 190)';
+let GBD_GREEN = 'rgb(145, 185, 40)';
+
+let PRIMARY = cm.lighten(GBD_BLUE, 0.3);
+
 
 let palette = {
     ...muiDefaults.palette,
+
+    primary1Color: PRIMARY,
 
     textColor: COLOR.grey700,
 
@@ -18,17 +28,17 @@ let palette = {
     darker: COLOR.blueGrey800,
     darkest: COLOR.blueGrey900,
     textOnDark: COLOR.blueGrey400,
-    accentOnDark: COLOR.cyan500,
+    accentOnDark: PRIMARY,
 
     light: '#f5f5f5',
 
     selectedBackground: COLOR.white,
-    selectedColor: COLOR.pinkA200,
+    selectedColor: GBD_GREEN,
 
     toolbarColor: COLOR.white,
-    toolbarBackground: COLOR.pinkA200,
+    toolbarBackground: GBD_GREEN,
 
-    alternateBorderColor: COLOR.pink50,
+    alternateBorderColor: COLOR.blueGrey50,
 };
 
 module.exports = {
@@ -39,7 +49,7 @@ module.exports = {
         normal: 14,
         small: 13,
         smaller: 11,
-        smallest: 10,
+        smallest: 9,
     },
 
     gwc: {
@@ -141,8 +151,8 @@ module.exports = {
 
                 headerButtonActive: {
                     extend: '{../headerButton}',
-                    backgroundColor: '{/palette/selectedBackground}',
-                    color: '{/palette/selectedColor}',
+                    backgroundColor: '{/palette/alternateTextColor}',
+                    color: '{/palette/primary1Color}',
                 },
 
                 body: {
@@ -284,8 +294,8 @@ module.exports = {
                     display: 'flex',
                     height: '{../height}',
                     left: 0,
-                    paddingLeft: 8,
-                    paddingRight: 8,
+                    paddingLeft: '{../../gutter} / 2',
+                    paddingRight: '{../../gutter} / 2',
                     position: 'absolute',
                     right: 0,
                     zIndex: zIndex.statusbar,

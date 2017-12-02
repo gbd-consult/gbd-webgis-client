@@ -49,10 +49,10 @@ module.exports = {
             <details.Panel key="details" title="Info" icon="toc" />
             <search.Panel key="search" title="Suche" icon="search" mobileOnly />
         </ui.Sidebar>
+        <scale.Indicator />
         <ui.Statusbar>
             <position.Control desktopOnly/>
             <scale.Control desktopOnly/>
-            <scale.Bar />
             <ui.Statusbar.Widget.Flex />
             <ui.Statusbar.Widget.Link href="help.html" mode="popup" text="Hilfe" />
             <ui.Statusbar.Widget.Separator />
@@ -61,7 +61,7 @@ module.exports = {
             <ui.Statusbar.Widget.Link href="about.html" mode="popup"  
                 text={<img 
                     src="http://gbdclient.gbd-consult.de/gbd-logo.png" 
-                    style={{width: 12, height: 12, marginRight: 8, verticalAlign: 'middle'}} 
+                    style={{width: 12, height: 12, marginRight: 6, verticalAlign: 'middle'}} 
                     />}
             />
         </ui.Statusbar>

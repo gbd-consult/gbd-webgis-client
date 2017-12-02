@@ -38,7 +38,7 @@ class Control extends React.Component {
     }
 }
 
-class Bar extends React.Component {
+class Indicator extends React.Component {
 
     round(m) {
         let s = Math.pow(10, Math.floor(Math.log10(m))),
@@ -50,35 +50,57 @@ class Bar extends React.Component {
         return t * s;
     }
 
+    compRender(width, label) {
+        let barStyle = {
+            ...app.theme('gwc.plugin.scale.indicator.bar'),
+            width
+        };
+
+        return (
+            <div style={app.theme('gwc.plugin.scale.indicator.container')}>
+                <div style={app.theme('gwc.plugin.scale.indicator.label')}>{label}</div>
+                <div style={barStyle}/>
+            </div>
+        );
+    }
+
     render() {
         let res = this.props.mapResolution;
 
         if (!res)
             return null;
 
+        let w = this.props.width || 200,
+            m = this.round(res * w),
+            width = Math.round(m / res),
+            label = (m >= 1000) ? Math.floor(m / 1000) + 'km' : m + 'm';
 
-        let width = this.props.width || 200;
-        let m = this.round(res * width);
-        let label = (m >= 1000) ? Math.floor(m / 1000) + 'km' : m + 'm';
+        return this.compRender(width, label);
+    }
+}
 
-        let style = {
-            ...app.theme('gwc.plugin.scale.bar'),
-            width: Math.round(m / res)
+class StatusbarIndicator extends Indicator {
+
+    compRender(width, label) {
+        let barStyle = {
+            ...app.theme('gwc.plugin.scale.statusBarIndicator.bar'),
+            width
         };
 
         return (
             <sb.Group>
-                <sb.Label
-                    value={label}/>
-                <div style={style}/>
+                <sb.Label value={label}/>
+                <div style={barStyle}/>
             </sb.Group>
         );
     }
 }
 
+
 export default {
     Plugin,
     Control: app.connect(Control, ['mapResolution']),
-    Bar: app.connect(Bar, ['mapResolution']),
+    Indicator: app.connect(Indicator, ['mapResolution']),
+    StatusbarIndicator: app.connect(StatusbarIndicator, ['mapResolution']),
 };
 

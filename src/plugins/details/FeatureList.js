@@ -23,22 +23,22 @@ export default class FeatureList extends React.Component {
 
     content(feature) {
         return (
-            <div style={{margin: '0 0 12px 28px'}}>
-            <Table>
-                <TableBody
-                    displayRowCheckbox={false}
-                >
-                    {
-                        _.sortBy(_.toPairs(feature.getProperties())).map(([key, val]) =>
-                            val && key !== 'geometry' && (
-                                <TableRow height={32} key={key} displayBorder={true}>
-                                    <TableRowColumn style={{height: 'auto'}}><b>{key}</b></TableRowColumn>
-                                    <TableRowColumn style={{height: 'auto'}}>{val}</TableRowColumn>
-                                </TableRow>)
-                        )
-                    }
-                </TableBody>
-            </Table>
+            <div style={app.theme('gwc.plugin.details.featureList.more')}>
+                <Table>
+                    <TableBody
+                        displayRowCheckbox={false}
+                    >
+                        {
+                            _.sortBy(_.toPairs(feature.getProperties())).map(([key, val]) =>
+                                val && key !== 'geometry' && (
+                                    <TableRow height={32} key={key} displayBorder={true}>
+                                        <TableRowColumn style={{height: 'auto'}}><b>{key}</b></TableRowColumn>
+                                        <TableRowColumn style={{height: 'auto'}}>{val}</TableRowColumn>
+                                    </TableRow>)
+                            )
+                        }
+                    </TableBody>
+                </Table>
             </div>
         )
     }
@@ -55,7 +55,7 @@ export default class FeatureList extends React.Component {
         let features = _.sortBy(this.props.features, f => f.get('layerName'));
 
         return (
-            <div style={{padding: 8}}>
+            <div style={app.theme('gwc.plugin.details.featureList.container')}>
                 {features.map((f, n) => <Section
                         key={f.getId()}
                         open={features.length === 1}
