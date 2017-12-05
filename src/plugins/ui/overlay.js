@@ -30,14 +30,7 @@ class Overlay extends React.Component {
         if (!el)
             return;
 
-        let map = app.map(),
-            bounds = el.getBoundingClientRect(),
-            extent = [].concat(
-                map.getCoordinateFromPixel([bounds.left, bounds.top]),
-                map.getCoordinateFromPixel([bounds.right, bounds.bottom])
-            );
-
-        app.set({overlayExtent: extent});
+        app.set({overlayBounds: el.getBoundingClientRect()});
     }
 
     startDrag() {

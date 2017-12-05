@@ -18,7 +18,7 @@ import Section from 'components/Section';
 export default class FeatureList extends React.Component {
 
     header(feature) {
-        return feature.get('layerName') + ': ' + feature.getId();
+        return feature.get('_layerTitle') + ': ' + feature.getId();
     }
 
     content(feature) {
@@ -30,7 +30,7 @@ export default class FeatureList extends React.Component {
                     >
                         {
                             _.sortBy(_.toPairs(feature.getProperties())).map(([key, val]) =>
-                                val && key !== 'geometry' && (
+                                val && key !== 'geometry' && key[0] !== '_' && (
                                     <TableRow height={32} key={key} displayBorder={true}>
                                         <TableRowColumn style={{height: 'auto'}}><b>{key}</b></TableRowColumn>
                                         <TableRowColumn style={{height: 'auto'}}>{val}</TableRowColumn>
@@ -52,7 +52,7 @@ export default class FeatureList extends React.Component {
     }
 
     render() {
-        let features = _.sortBy(this.props.features, f => f.get('layerName'));
+        let features = _.sortBy(this.props.features, f => f.get('_layerTitle'));
 
         return (
             <div style={app.theme('gwc.plugin.details.featureList.container')}>

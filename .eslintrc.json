@@ -12,7 +12,8 @@
         "node": true
     },
     "globals": {
-        "__": false
+        "__": false,
+        "Promise": false
     },
     "extends": "eslint:recommended",
     "rules": {

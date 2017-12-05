@@ -1,17 +1,13 @@
 import React from 'react';
-import {RadioButton, RadioButtonGroup} from 'material-ui/RadioButton';
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
+
+import _ from 'lodash';
 
 import app from 'app';
 import ol from 'ol-all';
 
 import * as toolbar from 'components/Toolbar';
-
-import wms from './wms';
-import wfs from './wfs';
-import printer from './printer';
-import layers from './layers';
 
 let rad2deg = a => Math.floor(a / (Math.PI / 180));
 
@@ -19,21 +15,25 @@ let rad2deg = a => Math.floor(a / (Math.PI / 180));
 class Plugin extends app.Plugin {
 
     async init() {
-        await layers.load();
-
         app.set({printQuality: 72});
 
         this.action('search', async ({coordinate, geometry, done}) => {
+            let startLayer = app.map().getSelectedLayer() || app.map().getLayerRoot();
+
             if (coordinate) {
-                return done(await wms.query(
-                    coordinate,
-                    layers.getNames('active')));
+                let reqs = startLayer.collect(la =>
+                    (la.wmsQuery) ? la.wmsQuery(coordinate) : null);
+
+                return done(_.uniqBy(
+                    _.flatMap(await Promise.all(reqs)),
+                    feature => feature.getId()));
             }
-            if (geometry) {
-                return done(await wfs.query(
-                    geometry,
-                    layers.getNames('active')));
-            }
+
+            // if (geometry) {
+            //     return done(await wfs.query(
+            //         geometry,
+            //         layers.getNames('active')));
+            // }
         });
 
         this.action('printModeToggle', async () => {
@@ -45,7 +45,7 @@ class Plugin extends app.Plugin {
             }
             this.sidebarWasVisible = app.get('sidebarVisible');
             app.perform('sidebarHide');
-            await this.startPrint();
+            this.startPrint();
         });
 
         this.action('printOpenPDF', (opts) => {
@@ -54,10 +54,9 @@ class Plugin extends app.Plugin {
     }
 
     async startPrint() {
-        let templates = await wms.printTemplates();
 
-        let w = templates[0].maps[0].width;
-        let h = templates[0].maps[0].height;
+        let w = app.config.number('qgis2.print.width');
+        let h = app.config.number('qgis2.print.height');
 
         app.perform('mapSetMode', {
             name: 'print',
@@ -72,15 +71,42 @@ class Plugin extends app.Plugin {
 
     printURL(opts) {
         let map = app.map(),
-            params = {};
+            bounds = app.get('overlayBounds'),
+            extent = [].concat(
+                map.getCoordinateFromPixel([bounds.left, bounds.top]),
+                map.getCoordinateFromPixel([bounds.right, bounds.bottom])
+            );
 
-        params.extent = app.get('overlayExtent');
-        params.scale = map.getScale();
-        params.rotation = rad2deg(map.getView().getRotation());
-        params.layerNames = layers.getNames('visible');
-        params.dpi = opts.quality;
+        extent = ol.proj.transformExtent(
+            extent,
+            app.config.str('map.crs.client'),
+            app.config.str('map.crs.server')
+        );
 
-        return wms.printURL(params);
+        let names = app.map().getLayerRoot().collect(la =>
+            (la.isVisible() && la.wmsName) ? la.wmsName() : null);
+
+        let p = {
+            service: 'WMS',
+            version: '1.3',
+            request: 'GetPrint',
+            format: 'pdf',
+            EXCEPTIONS: 'application/vnd.ogc.se_inimage',
+            transparent: 'true',
+            srs: app.config.str('map.crs.server'),
+            dpi: opts.quality,
+            template: app.config.str('qgis2.print.template'),
+            layers: encodeURIComponent(names.reverse().join(',')),
+            opacities: encodeURIComponent(names.map(() => 255).join(',')),
+            'map0:extent': extent.join(','),
+            'map0:rotation': rad2deg(map.getView().getRotation()),
+            //'map0:scale': map.getScale(),
+            'map0:grid_interval_x': 2000,
+            'map0:grid_interval_y': 2000,
+        };
+
+        let qs = Object.keys(p).map(k => k + '=' + p[k]).join('&');
+        return app.config.str('qgis2.server') + '&' + qs;
     }
 }
 

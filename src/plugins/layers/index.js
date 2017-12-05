@@ -6,78 +6,20 @@ import ol from 'ol-all';
 
 import Section from 'components/Section';
 
-function checkEnabled(layer, res) {
-    let min = layer.getMinResolution() || 0;
-    let max = layer.getMaxResolution() || Infinity;
-    return min <= res && res <= max;
-}
-
-function layerDef() {
-
-    function _tree(layer) {
-
-        let r = {
-            name: layer.get('name'),
-            uid: ol.getUid(layer),
-            kind: layer.get('kind'),
-            isVisible: layer.getVisible(),
-            isGroup: layer instanceof ol.layer.Group
-        };
-
-        if (layer.getLayers) {
-            r.children = [];
-            layer.getLayers().forEach(sub => r.children.unshift(_tree(sub)))
-            r.isEnabled = r.children.some(c => c.isEnabled);
-        } else {
-            r.isEnabled = checkEnabled(layer, res);
-        }
-
-        return r;
-    }
-
-    let res = app.map().getView().getResolution();
-    return _tree(app.map().getLayerGroup());
-}
-
-function activeLayer() {
-    return app.map().getLayerById(app.get('layerActiveUid'));
-}
-
-function setVisibleRec(layer, visible) {
-    layer.setVisible(visible);
-    if (layer.getLayers)
-        layer.getLayers().forEach(la => setVisibleRec(la, visible));
-}
-
-
-function setVisible(uid, visible) {
-    let layer = app.map().getLayerById(uid);
-    if (layer)
-        setVisibleRec(layer, visible);
-}
-
-function update() {
-    app.set({layerDef: layerDef()});
-}
-
-
 class Plugin extends app.Plugin {
     init() {
-        this.action('layerSetVisible', ({uid, visible}) =>
-            setVisible(uid, visible));
+        this.action('layerToggleVisible', ({layer}) =>
+            layer.setVisible(!layer.isVisible(), true));
 
-        this.action('layerSetActive', ({uid}) =>
-            app.set({layerActiveUid: uid}));
+        this.action('layerToggleSelected', ({layer}) =>
+            app.map().setSelectedLayer(
+                layer === app.map().getSelectedLayer() ? null : layer));
 
-        this.action('layerToggleActive', ({uid}) => {
-            let a = app.get('layerActiveUid');
-            app.set({
-                layerActiveUid: uid === a ? 0 : uid
-            });
-        });
+        this.rc = 0;
 
-        app.map().getLayerGroup().on('change', update);
-        app.map().getView().on('change:resolution', update);
+        app.map().on('layerTreeChanged', () => app.set({
+            'layerTreeVersion': ++this.rc
+        }));
     }
 }
 
@@ -88,61 +30,48 @@ class Layer extends React.Component {
     }
 
     linkClick() {
-        app.perform('layerToggleActive', {uid: this.props.def.uid});
+        app.perform('layerToggleSelected', {layer: this.props.layer});
     }
 
     visibilityClick() {
-        app.perform('layerSetVisible', {
-            uid: this.props.def.uid,
-            visible: !this.props.def.isVisible
-        });
+        app.perform('layerToggleVisible', {layer: this.props.layer});
     }
 
-    status() {
-        let d = this.props.def;
-
-        if (d.uid === this.props.layerActiveUid)
-            return 'Active';
-        if (!d.isEnabled)
+    status(layer) {
+        if (layer === this.props.selected)
+            return 'Selected';
+        if (!layer.isEnabled())
             return 'Disabled';
-        if (!d.isVisible)
+        if (!layer.isVisible())
             return 'Hidden';
         return '';
     }
 
-    visibilityIcon(status) {
-        let d = this.props.def;
-
-        if (!d.isEnabled)
-            return null;
-        return (status === 'Hidden') ? 'visibility_off' : 'visibility';
-    }
-
-    header(status) {
-        let style = app.theme('gwc.plugin.layers.title' + status);
-
-        return (
-            <div style={style} onClick={() => this.linkClick()}>
-                {this.props.def.name}
-            </div>
-        );
-    }
-
     render() {
-        let def = this.props.def,
-            status = this.status();
+
+        let layer = this.props.layer,
+            status = this.status(layer),
+            headerStyle = app.theme('gwc.plugin.layers.title' + status),
+            visIcon = layer.isEnabled() ? ((status === 'Hidden') ? 'visibility_off' : 'visibility') : null;
+
+        if (!layer.isEnabled())
+            return null;
 
         return (
             <Section
-                header={this.header(status)}
-                icon={this.visibilityIcon(status)}
+                header={
+                    <div style={headerStyle} onClick={() => this.linkClick()}>
+                        {layer.getTitle()}
+                    </div>
+                }
+                icon={visIcon}
                 iconClick={() => this.visibilityClick()}
                 indent={true}
             >
-                {def.isGroup && def.children.map(d => <Layer
-                    key={d.uid}
-                    def={d}
-                    layerActiveUid={this.props.layerActiveUid}
+                {layer.isGroup() && layer.getLayers().map(n => <Layer
+                    key={n.uid}
+                    layer={n}
+                    selected={this.props.selected}
                 />)}
             </Section>
         );
@@ -153,20 +82,13 @@ class Layer extends React.Component {
 class LayerTree extends React.Component {
 
     render() {
-        if (!this.props.layerDef)
-            return null;
-
-        let projectDef = this.props.layerDef.children.filter(d => d.kind === '_PROJECT');
-
-        if (!projectDef.length || !projectDef[0].children)
-            return null;
-
         return (
             <div>
-                {projectDef[0].children.map(d => <Layer
-                    key={d.uid}
-                    def={d}
-                    layerActiveUid={this.props.layerActiveUid}
+                {this.props.root.getLayers().map(layer => <Layer
+                    key={layer.uid}
+                    layer={layer}
+                    selected={this.props.selected}
+
                 />)}
             </div>
         );
@@ -175,29 +97,31 @@ class LayerTree extends React.Component {
 
 class LayerInfo extends React.Component {
     render() {
-        let data = this.props.data;
+        let url = this.props.layer.wmsLegendURL && this.props.layer.wmsLegendURL();
+        if (!url)
+            return null;
         return (
-            <div>
-                {data.wmsLegendURL && <img
-                    src={data.wmsLegendURL}
-                />}
-            </div>
+            <Paper style={app.theme('gwc.plugin.layers.infoContainer')}>
+                <img src={url}/>
+            </Paper>
         );
     }
 }
 
 class Panel extends React.Component {
     render() {
-        let active = activeLayer();
+        let root = app.map().getLayerRoot(),
+            selected = app.map().getSelectedLayer();
+
+        if (!root)
+            return null;
 
         return (
             <Paper style={app.theme('gwc.plugin.layers.panel')}>
                 <Paper style={app.theme('gwc.plugin.layers.treeContainer')}>
-                    <LayerTree {...this.props} />
+                    <LayerTree root={root} selected={selected}/>
                 </Paper>
-                {active && <Paper style={app.theme('gwc.plugin.layers.infoContainer')}>
-                    <LayerInfo data={active.getProperties()}/>
-                </Paper>}
+                {selected && <LayerInfo layer={selected}/>}
             </Paper>
         );
     }
@@ -205,5 +129,5 @@ class Panel extends React.Component {
 
 export default {
     Plugin,
-    Panel: app.connect(Panel, ['appIsMobile', 'layerDef', 'layerActiveUid'])
+    Panel: app.connect(Panel, ['appIsMobile', 'layerTreeVersion'])
 };

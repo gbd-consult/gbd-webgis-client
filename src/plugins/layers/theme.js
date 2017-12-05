@@ -21,11 +21,11 @@ module.exports = {
                 },
 
                 infoContainer: {
-                    backgroundColor: '{/palette/borderColor}',
-                    borderTopColor: '{/palette/accent1Color}',
+                    backgroundColor: 'white',
+                    borderTopColor: '{/palette/borderColor}',
                     borderTopStyle: 'solid',
                     borderTopWidth: 2,
-                    height: 200,
+                    height: 'auto',
                     overflow: 'auto',
                     padding: 8,
                     textAlign: 'center',
@@ -48,7 +48,7 @@ module.exports = {
                     color: '{/palette/disabledColor}'
                 },
 
-                titleActive: {
+                titleSelected: {
                     extend: '{../title}',
                     color: '{/palette/accent1Color}'
                 }
