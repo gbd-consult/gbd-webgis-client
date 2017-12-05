@@ -294,14 +294,14 @@ module.exports = {
                     display: 'flex',
                     height: '{../height}',
                     left: 0,
-                    paddingLeft: '{../../gutter} / 2',
-                    paddingRight: '{../../gutter} / 2',
                     position: 'absolute',
                     right: 0,
                     zIndex: zIndex.statusbar,
                 },
 
                 group: {
+                    paddingLeft: '{../../gutter} / 2',
+                    paddingRight: '{../../gutter} / 2',
                     alignItems: 'center',
                     boxSizing: 'border-box',
                     display: 'inline-flex',
@@ -333,7 +333,7 @@ module.exports = {
                     fontSize: '{../fontSize}',
                     fontWeight: 'bold',
                     lineHeight: '{../lineHeight}',
-                    padding: '0 6px',
+                    padding: '0 3px',
                 },
 
                 link: {

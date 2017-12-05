@@ -18,15 +18,16 @@ class Control extends React.Component {
 
         return (
             <sb.Group>
-                <sb
-                    label='Rotation'
-                    value={deg + '°'}
+                <sb.Input
                     width={40}
-                />
-                <StatusbarSlider
-                    width={80}
-                    min={0}
-                    max={360}
+                    onChange={() => 0}
+                    value={deg}/>
+                <sb.Label
+                    value='&deg;'/>
+
+                <sb.SmallSlider
+                    min={-180}
+                    max={180}
                     step={1}
                     value={deg}
                     onChange={(evt, value) => app.perform('mapSetRotation', {angle: deg2rad(value)})}
