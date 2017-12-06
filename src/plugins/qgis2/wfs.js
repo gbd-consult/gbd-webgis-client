@@ -64,7 +64,8 @@ async function query(geometry, layerNames = null, limit = 1000) {
         featureProjection: app.config.str('map.crs.client')
     });
 
-    return mapUtil.intersectingFeatures(fs, geometry);
+    //return mapUtil.intersectingFeatures(fs, geometry);
+    return fs;
 
 
 }
