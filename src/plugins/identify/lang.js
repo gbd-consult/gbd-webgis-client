@@ -1,10 +1,12 @@
 module.exports = {
 
     en: {
-        buttonTooltip: 'Identify'
+        buttonTooltip: 'identify',
+        buttonHoverTooltip: 'identify on mouseover',
     },
     de: {
-        buttonTooltip: 'Objektidentifikation'
+        buttonTooltip: 'Objektidentifikation',
+        buttonHoverTooltip: 'Objektidentifikation mit Mouseover'
     },
 };
 

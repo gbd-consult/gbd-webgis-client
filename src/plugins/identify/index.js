@@ -9,81 +9,183 @@
 
 
 import React from 'react';
+import Paper from 'material-ui/Paper';
+
 import _ from 'lodash';
+import htmlToReact from 'html-to-react';
 
 import app from 'app';
 import ol from 'ol-all';
 
 import * as toolbar from 'components/Toolbar';
 
+const hoverDelay = 100;
+
 class Plugin extends app.Plugin {
 
     init() {
 
-        let run = evt => app.perform('identifyCoordinate', {coordinate: evt.coordinate});
+        this.action('identifyModeToggle', ({hover, topOnly, popup}) => {
+            let modeName = 'identify' + (hover ? 'Hover' : '');
 
-        this.action('identifyModeToggle', () => {
-            if (app.get('mapMode') === 'identify')
-                return app.perform('mapDefaultMode');
+            if (app.get('mapMode') === modeName) {
+                this.reset();
+                app.perform('mapDefaultMode');
+                return;
+            }
 
             app.perform('mapSetMode', {
-                name: 'identify',
+                name: modeName,
                 cursor: 'help',
                 interactions: [
-                    new ol.interaction.Pointer({
-                        handleDownEvent: run,
-                        handleMoveEvent: _.debounce(evt => (evt.originalEvent.shiftKey) ? run(evt) : '', 500)
-                    }),
+                    this.interaction(hover, topOnly, popup),
                     'DragPan',
                     'MouseWheelZoom',
                     'PinchZoom',
-                ]
+                ],
+                onLeave: () => this.reset()
             });
         });
 
-        this.action('identifyCoordinate', ({coordinate}) => {
+
+        this.action('identifyCoordinate', ({coordinate, topOnly, popup}) => {
             let features = [];
 
-            app.perform('markerClear');
             app.perform('search', {
                 coordinate,
                 done: found => {
-                    features = [].concat(features, found);
-                    this.update(features);
+                    if (!topOnly)
+                        features = [].concat(features, found);
+                    else if (found.length)
+                        features = [found[0]]
+                    this.update(features, popup);
                 }
             });
         });
+
+        this.action('identifyPopupShow', ({features}) =>
+            app.set({identifyPopupContent: features}));
+
+        this.action('identifyPopupHide', () =>
+            app.set({identifyPopupContent: null}));
+
     }
 
-    update(features) {
+    interaction(hover, topOnly, popup) {
+        let run = evt => app.perform('identifyCoordinate', {
+            coordinate: evt.coordinate,
+            topOnly,
+            popup
+        });
+        let dragged = false;
+
+        let onDown = evt => {
+            dragged = false;
+            return true;
+        };
+
+        let onUp = evt => dragged ? '' : run(evt);
+        let onDrag = evt => dragged = true;
+        let onMove = evt => (hover || evt.originalEvent.shiftKey) ? run(evt) : '';
+
+        return new ol.interaction.Pointer({
+            handleDownEvent: onDown,
+            handleUpEvent: onUp,
+            handleDragEvent: onDrag,
+            handleMoveEvent: _.debounce(onMove, hoverDelay)
+        });
+    }
+
+    update(features, popup) {
+        if (!features.length)
+            return this.reset();
+
         app.perform('markerMark', {
             features,
             pan: false
         });
 
-        app.perform('detailsShowFeatures', {features});
+        if (popup)
+            app.perform('identifyPopupShow', {features});
+        else
+            app.perform('detailsShowFeatures', {features});
     }
+
+    reset() {
+        app.perform('identifyPopupHide');
+        app.perform('markerClear');
+        app.perform('detailsShow', {content: null});
+    }
+
 }
 
 
 class Button extends React.Component {
 
     render() {
+        let modeName = 'identify' + (this.props.hover ? 'Hover' : '');
+
         return (
             <toolbar.Button
                 {...this.props}
-                active={this.props.mapMode === 'identify'}
-                tooltip={__("buttonTooltip")}
-                onClick={() => app.perform('identifyModeToggle')}
-                icon='gps_fixed'
+                active={this.props.mapMode === modeName}
+                tooltip={
+                    this.props.hover
+                        ? __("buttonHoverTooltip")
+                        : __("buttonTooltip")
+                }
+                onClick={() => app.perform('identifyModeToggle', {
+                    hover: this.props.hover,
+                    topOnly: this.props.topOnly,
+                    popup: this.props.popup
+                })}
+                icon={this.props.icon}
             />
         );
     }
 }
 
+class Popup extends React.Component {
+    content() {
+        let feature = this.props.identifyPopupContent[0];
+
+        let maptip = feature.get('maptip');
+        if (maptip)
+            return (
+                <div>
+                    {new htmlToReact.Parser().parse(maptip)}
+                </div>
+            );
+
+        return (
+            <div>
+                <b>{feature.get('_layerTitle')}</b>: {feature.getId()}
+            </div>
+        );
+    }
+
+    render() {
+        if (!this.props.identifyPopupContent)
+            return null;
+
+        let style = {
+            ...app.theme('gwc.plugin.identify.popup')
+        };
+
+        if (this.props.sidebarVisible)
+            style.left += app.theme('gwc.ui.sidebar.containerLarge.width');
+
+        return (
+            <Paper zDepth={2} style={style}>
+                {this.content()}
+            </Paper>
+        );
+    }
+}
 
 export default {
     Plugin,
     /** Toolbar button that activates the mode */
-    Button: app.connect(Button, ['mapMode'])
+    Button: app.connect(Button, ['mapMode']),
+    Popup: app.connect(Popup, ['identifyPopupContent', 'sidebarVisible']),
 };
