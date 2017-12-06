@@ -10,6 +10,7 @@ import {
 } from 'material-ui/Table';
 
 import _ from 'lodash';
+import htmlToReact from 'html-to-react';
 
 import app from 'app';
 import Section from 'components/Section';
@@ -21,21 +22,44 @@ export default class FeatureList extends React.Component {
         return feature.get('_layerTitle') + ': ' + feature.getId();
     }
 
+    cleanup(src) {
+        let r = {};
+
+        _.keys(src).forEach(k => {
+            if (k === 'geometry' || k[0] === '_')
+                return;
+            let v = src[k];
+            if (_.isNil(v) || v === 'NULL')
+                return;
+            r[k] = v;
+        });
+
+        return r;
+    }
+
     content(feature) {
+        let props = this.cleanup(feature.getProperties());
+        let maptip = null;
+
+        if (props.maptip) {
+            maptip = new htmlToReact.Parser().parse(props.maptip);
+            delete props.maptip;
+        }
+
         return (
             <div style={app.theme('gwc.plugin.details.featureList.more')}>
+                {
+                    maptip &&
+                    <div style={app.theme('gwc.plugin.details.featureList.maptip')}>{maptip}</div>
+                }
                 <Table>
-                    <TableBody
-                        displayRowCheckbox={false}
-                    >
+                    <TableBody displayRowCheckbox={false}>
                         {
-                            _.sortBy(_.toPairs(feature.getProperties())).map(([key, val]) =>
-                                val && key !== 'geometry' && key[0] !== '_' && (
-                                    <TableRow height={32} key={key} displayBorder={true}>
-                                        <TableRowColumn style={{height: 'auto'}}><b>{key}</b></TableRowColumn>
-                                        <TableRowColumn style={{height: 'auto'}}>{val}</TableRowColumn>
-                                    </TableRow>)
-                            )
+                            _.keys(props).sort().map(key =>
+                                <TableRow height={32} key={key} displayBorder={true}>
+                                    <TableRowColumn style={{height: 'auto'}}><b>{key}</b></TableRowColumn>
+                                    <TableRowColumn style={{height: 'auto'}}>{props[key]}</TableRowColumn>
+                                </TableRow>)
                         }
                     </TableBody>
                 </Table>

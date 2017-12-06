@@ -9,6 +9,10 @@ module.exports = {
                     },
                     more: {
                         margin: '0 0 12px 28px'
+                    },
+                    maptip: {
+                        margin: '12px 0',
+                        padding: 6
                     }
                 },
             }
