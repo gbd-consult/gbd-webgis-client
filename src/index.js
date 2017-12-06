@@ -38,7 +38,7 @@ window.gbdWebgisClient = {
             ]}
 
             ui={<div>
-                /*= '<ui.Overlay/>' + config.ui */
+                /*= '<ui.Overlay/>' + config.ui + '<ui.Dialog/>' */
             </div>}
         />;
 

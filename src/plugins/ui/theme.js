@@ -1,4 +1,5 @@
 let zIndex = {
+    dialog: 200,
     statusbar: 100,
     sidebar: 90,
     altbar: 80,
@@ -419,6 +420,59 @@ module.exports = {
                     fontSize: 18,
                     margin: 0,
                     padding: 0,
+                }
+            },
+
+
+            dialog: {
+                padding: 24,
+
+                shadow: {
+                    position: 'absolute',
+                    left: 0,
+                    top: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: 'rgba(0, 0, 0, 0.7)',
+                    zIndex: zIndex.dialog
+                },
+                box: {
+                    boxSizing: 'border-box',
+                    position: 'absolute',
+                    left: 0,
+                    top: 0,
+                    right: 0,
+                    bottom: 0,
+                    margin: 0,
+                    paddingLeft: '{../padding}',
+                    paddingTop: '{../padding} * 2.5',
+                    paddingRight: 0,
+                    paddingBottom: '{../padding}',
+                },
+                boxDesktop: {
+                    position: 'absolute',
+                    left: '50%',
+                    top: '50%',
+                    paddingLeft: '{../padding} * 2',
+                    paddingTop: '{../padding} * 2.5',
+                    paddingRight: '{../padding}',
+                    paddingBottom: '{../padding} * 2',
+                },
+                closeButton: {
+                    position: 'absolute',
+                    top: 8,
+                    right: 8
+                },
+                container: {
+                    boxSizing: 'border-box',
+                    width: '100%',
+                    height: '100%',
+                    overflow: 'hidden'
+                },
+                content: {
+                    extend: '{../container}',
+                    overflow: 'auto',
+                    paddingRight: '{../padding}'
                 }
             }
         }

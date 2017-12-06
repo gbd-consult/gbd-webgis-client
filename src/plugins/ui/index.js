@@ -7,6 +7,7 @@ import sidebar from './sidebar';
 import statusbar from './statusbar';
 import altbar from './altbar';
 import overlay from './overlay';
+import dialog from './dialog';
 
 class Plugin extends app.Plugin {
     init() {
@@ -14,6 +15,7 @@ class Plugin extends app.Plugin {
             new toolbar.Plugin,
             new sidebar.Plugin,
             new statusbar.Plugin,
+            new dialog.Plugin,
         ];
         this.plugins.forEach(p => p.init());
     }
@@ -26,4 +28,5 @@ export default {
     Statusbar: statusbar.Statusbar,
     Altbar: altbar.Altbar,
     Overlay: overlay.Overlay,
+    Dialog: dialog.Dialog
 }
