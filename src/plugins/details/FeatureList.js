@@ -2,13 +2,6 @@
 
 import React from 'react';
 
-import {
-    Table,
-    TableBody,
-    TableRow,
-    TableRowColumn,
-} from 'material-ui/Table';
-
 import _ from 'lodash';
 import htmlToReact from 'html-to-react';
 
@@ -46,23 +39,32 @@ export default class FeatureList extends React.Component {
             delete props.maptip;
         }
 
+        let s = {
+            div: app.theme('gwc.plugin.details.featureList.more'),
+            maptip: app.theme('gwc.plugin.details.featureList.maptip'),
+            table: app.theme('gwc.plugin.details.featureList.table'),
+            tr: app.theme('gwc.plugin.details.featureList.tr'),
+            trEven: app.theme('gwc.plugin.details.featureList.trEven'),
+            th: app.theme('gwc.plugin.details.featureList.th'),
+            td: app.theme('gwc.plugin.details.featureList.td'),
+        };
+
+        let _breakWords = s => s.replace(/\S{30}/g, '$&\u00ad');
+
         return (
-            <div style={app.theme('gwc.plugin.details.featureList.more')}>
-                {
-                    maptip &&
-                    <div style={app.theme('gwc.plugin.details.featureList.maptip')}>{maptip}</div>
-                }
-                <Table>
-                    <TableBody displayRowCheckbox={false}>
-                        {
-                            _.keys(props).sort().map(key =>
-                                <TableRow height={32} key={key} displayBorder={true}>
-                                    <TableRowColumn style={{height: 'auto'}}><b>{key}</b></TableRowColumn>
-                                    <TableRowColumn style={{height: 'auto'}}>{props[key]}</TableRowColumn>
-                                </TableRow>)
-                        }
-                    </TableBody>
-                </Table>
+            <div style={s.div}>
+                { maptip && <div style={s.maptip}>{maptip}</div> }
+                <table style={s.table}>
+                    <tbody>
+                    {
+                        _.keys(props).sort().map((key, i) =>
+                            <tr key={key} style={i % 2 ? s.tr : s.trEven}>
+                                <th style={s.th}>{key}</th>
+                                <td style={s.td}>{_breakWords(props[key])}</td>
+                            </tr>)
+                    }
+                    </tbody>
+                </table>
             </div>
         )
     }
