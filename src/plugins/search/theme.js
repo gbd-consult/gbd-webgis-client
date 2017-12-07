@@ -67,7 +67,9 @@ module.exports = {
                     float: 'right',
                     fontSize: '{/fontSize/smallest}',
                     marginRight: 6,
-                    padding: '2px',
+                    padding: 2,
+                    background: '{/palette/primary1Color}',
+                    color: 'white'
                 }
             }
 

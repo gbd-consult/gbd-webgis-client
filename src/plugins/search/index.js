@@ -4,6 +4,7 @@ import TextField from 'material-ui/TextField';
 import Paper from 'material-ui/Paper';
 
 import _ from 'lodash';
+import htmlToReact from 'html-to-react';
 
 import app from 'app';
 import ol from 'ol-all';
@@ -20,7 +21,7 @@ class Plugin extends app.Plugin {
         let run = (input) => {
             let features = [];
 
-            if(!input.trim()) {
+            if (!input.trim()) {
                 app.set({searchResults: []});
                 return;
             }
@@ -40,12 +41,19 @@ class Plugin extends app.Plugin {
         this.subscribe('searchInput', _.debounce(run, 500));
 
         this.action('searchHighlight', ({feature}) => {
+            let popup = feature.get('popup');
+
+            if (popup)
+                popup = htmlToReact.Parser().parse(popup);
+            else
+                popup = textContent(feature);
+
             app.perform('sidebarBlur');
             app.perform('markerMark', {
                 features: [feature],
                 zoom: true,
                 animate: true,
-                popup: textContent(feature)
+                popup
             })
         });
 
@@ -63,7 +71,8 @@ class Plugin extends app.Plugin {
 
 class ResultChip extends React.Component {
     render() {
-        let style = app.theme('gwc.plugin.search.chip' + this.props.feature.get('source'));
+        let style = app.theme('gwc.plugin.search.chip' + this.props.feature.get('source')) ||
+            app.theme('gwc.plugin.search.chip');
         return (
             <div style={style}>{this.props.feature.get('source')}</div>
         );
