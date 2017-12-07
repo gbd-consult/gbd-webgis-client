@@ -44,7 +44,8 @@ class Plugin extends app.Plugin {
         this.action('searchHighlight', ({feature}) => {
             app.perform('markerMark', {
                 features: [feature],
-                pan: true
+                zoom: true,
+                animate: true
             })
         });
 

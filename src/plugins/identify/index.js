@@ -26,8 +26,8 @@ class Plugin extends app.Plugin {
 
     init() {
 
-        this.action('identifyModeToggle', ({hover, topOnly, popup}) => {
-            let modeName = 'identify' + (hover ? 'Hover' : '');
+        this.action('identifyModeToggle', (opts) => {
+            let modeName = 'identify' + (opts.hover ? 'Hover' : '');
 
             if (app.get('mapMode') === modeName) {
                 this.reset();
@@ -39,7 +39,7 @@ class Plugin extends app.Plugin {
                 name: modeName,
                 cursor: 'help',
                 interactions: [
-                    this.interaction(hover, topOnly, popup),
+                    this.interaction(opts),
                     'DragPan',
                     'MouseWheelZoom',
                     'PinchZoom',
@@ -49,17 +49,17 @@ class Plugin extends app.Plugin {
         });
 
 
-        this.action('identifyCoordinate', ({coordinate, topOnly, popup}) => {
+        this.action('identifyCoordinate', (opts) => {
             let features = [];
 
             app.perform('search', {
-                coordinate,
+                coordinate: opts.coordinate,
                 done: found => {
-                    if (!topOnly)
+                    if (!opts.topOnly)
                         features = [].concat(features, found);
                     else if (found.length)
-                        features = [found[0]]
-                    this.update(features, popup);
+                        features = [found[0]];
+                    this.update(features, opts);
                 }
             });
         });
@@ -67,16 +67,18 @@ class Plugin extends app.Plugin {
         this.action('identifyPopupShow', ({features}) =>
             app.set({identifyPopupContent: features}));
 
-        this.action('identifyPopupHide', () =>
-            app.set({identifyPopupContent: null}));
+        this.action('identifyPopupHide', () => {
+            app.perform('markerClear');
+            app.set({identifyPopupContent: null})
+        });
+
 
     }
 
-    interaction(hover, topOnly, popup) {
+    interaction(opts) {
         let run = evt => app.perform('identifyCoordinate', {
             coordinate: evt.coordinate,
-            topOnly,
-            popup
+            ...opts
         });
         let dragged = false;
 
@@ -87,7 +89,7 @@ class Plugin extends app.Plugin {
 
         let onUp = evt => dragged ? '' : run(evt);
         let onDrag = evt => dragged = true;
-        let onMove = evt => (hover || evt.originalEvent.shiftKey) ? run(evt) : '';
+        let onMove = evt => (opts.hover || evt.originalEvent.shiftKey) ? run(evt) : '';
 
         return new ol.interaction.Pointer({
             handleDownEvent: onDown,
@@ -97,16 +99,17 @@ class Plugin extends app.Plugin {
         });
     }
 
-    update(features, popup) {
+    update(features, opts) {
         if (!features.length)
             return this.reset();
 
         app.perform('markerMark', {
             features,
-            pan: false
+            pan: (opts.popup && !opts.hover) ? [0, 100] : false,
+            animate: true
         });
 
-        if (popup)
+        if (opts.popup)
             app.perform('identifyPopupShow', {features});
         else
             app.perform('detailsShowFeatures', {features});

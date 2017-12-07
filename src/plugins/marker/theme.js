@@ -1,16 +1,29 @@
+let cm = require('material-ui/utils/colorManipulator');
+let COLOR = require('material-ui/styles/colors');
+
 module.exports = {
     gwc: {
         plugin: {
             marker: {
                 feature: {
                     fill: {
-                        color: 'rgba(255, 0, 0, 0.5)'
+                        color: cm.fade(COLOR.purple500, 0.4),
                     },
                     stroke: {
-                        color: 'yellow',
-                        lineDash: [4, 4],
+                        color: COLOR.purple500,
                         width: 2
                     }
+                },
+                pin: {
+                    borderRadius: '50%',
+                    backgroundColor: COLOR.purple500,
+                    borderStyle: 'solid',
+                    borderWidth: 2,
+                    borderColor: COLOR.purple50,
+                    fontSize: 20,
+                    padding: 4,
+                    color: COLOR.purple50,
+                    boxShadow: '{/gwc/ui/shadow}',
                 }
             }
         }

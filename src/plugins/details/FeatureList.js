@@ -72,7 +72,8 @@ export default class FeatureList extends React.Component {
     click(feature) {
         app.perform('markerMark', {
             features: [feature],
-            pan: true
+            zoom: true,
+            animate: true
         });
 
     }
