@@ -6,11 +6,17 @@ module.exports = {
                     position: 'absolute',
                     bottom: '{/gwc/ui/statusbar/height} + {/gwc/ui/gutter}',
                     left: '{/gwc/ui/gutter}',
-                    width: 250,
-                    padding: 16,
+                    maxWidth: 232,
+                    padding: '30px 16px 16px 16px',
                     fontSize: '{/fontSize/small}'
-
                 },
+                popupCloseButton: {
+                    position: 'absolute',
+                    fontSize: 16,
+                    padding: 8,
+                    right: 0,
+                    top: 0,
+                }
             }
         }
     }

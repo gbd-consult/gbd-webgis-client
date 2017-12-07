@@ -17,6 +17,7 @@ import htmlToReact from 'html-to-react';
 import app from 'app';
 import ol from 'ol-all';
 
+import SimpleButton from 'components/SimpleButton';
 import * as toolbar from 'components/Toolbar';
 
 const hoverDelay = 100;
@@ -152,7 +153,7 @@ class Popup extends React.Component {
         let maptip = feature.get('maptip');
         if (maptip)
             return (
-                <div>
+                <div className="maptip">
                     {new htmlToReact.Parser().parse(maptip)}
                 </div>
             );
@@ -177,6 +178,11 @@ class Popup extends React.Component {
 
         return (
             <Paper zDepth={2} style={style}>
+                <SimpleButton
+                    style={app.theme('gwc.plugin.identify.popupCloseButton')}
+                    icon='close'
+                    onClick={() => app.perform('identifyPopupHide')}
+                />
                 {this.content()}
             </Paper>
         );
