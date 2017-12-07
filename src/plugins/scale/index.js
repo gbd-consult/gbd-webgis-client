@@ -8,11 +8,33 @@ class Plugin extends app.Plugin {
 
 class Control extends React.Component {
 
-    render() {
-        let scales = app.map().getScales(),
-            level = app.map().getScaleLevel();
+    prepare(value) {
+        let scales = app.map().getScales();
 
-        if (!scales || isNaN(level))
+        value = Math.floor(Number(value) || 0);
+        if(value > scales[0])
+            return scales[0];
+        if(value < scales[scales.length - 1])
+            return scales[scales.length - 1];
+        return value;
+    }
+
+    update(value) {
+        let scale = app.map().getScale(),
+            val = this.prepare(value);
+        if(val === scale)
+            this.forceUpdate();
+        else
+            app.perform('mapSetScale', {scale: val});
+    }
+
+    render() {
+        let map = app.map(),
+            scales = map.getScales(),
+            scale = map.getScale(),
+            level = map.getScaleLevel();
+
+        if (isNaN(level))
             return null;
 
         let len = scales.length - 1;
@@ -23,8 +45,10 @@ class Control extends React.Component {
                     value='1:'/>
                 <sb.Input
                     width={50}
-                    onChange={() => 0}
-                    value={scales[level]}/>
+                    onChange={(evt, value) => this.update(value)}
+                    changeOnEnter
+                    step={1}
+                    value={scale}/>
 
                 <sb.SmallSlider
                     min={0}

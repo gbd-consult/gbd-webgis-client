@@ -357,7 +357,7 @@ module.exports = {
                 },
                 sliderStyle: {},
                 sliderSliderStyle: {
-                    width: 150,
+                    width: 100,
                     margin: 0
                 }
             },

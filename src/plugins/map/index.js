@@ -31,9 +31,9 @@ export class Plugin extends app.Plugin {
             let s = {
                 mapMode: app.map().getModeName(),
                 overlayVisible: false
-            }
+            };
 
-            if(opts.overlay) {
+            if (opts.overlay) {
                 s.overlayVisible = true;
                 s.overlayWidth = opts.overlay.width;
                 s.overlayHeight = opts.overlay.height;
@@ -41,7 +41,7 @@ export class Plugin extends app.Plugin {
             }
 
             app.set(s);
-        }
+        };
 
         this.action('mapSetMode', (opts) => {
             app.map().setMode(opts);
@@ -64,6 +64,10 @@ export class Plugin extends app.Plugin {
 
         this.action('mapSetScaleLevel', ({level}) => {
             app.map().setScaleLevel(level)
+        });
+
+        this.action('mapSetScale', ({scale}) => {
+            app.map().setScale(scale)
         });
 
         this.action('mapSetRotation', ({angle}) => {

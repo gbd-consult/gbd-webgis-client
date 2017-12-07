@@ -19,24 +19,32 @@ class Plugin extends app.Plugin {
         this.style = mapUtil.makeStyle(app.theme('gwc.plugin.marker.feature'));
         this.pinOverlay = null;
 
-        this.action('markerMark', ({features, zoom, pan, animate, popup}) => {
-            this.clear();
+        this.action('markerMark', ({features, zoom, pan, animate, popup}) =>
+            this.mark(features, zoom, pan, animate, popup));
 
-            if (this.mark(features)) {
-                if (zoom)
-                    this.zoom(animate);
-                else if (pan)
-                    this.pan(pan, animate);
-            }
-
-            if (popup)
-                this.showPopup(popup);
+        this.action('markerMarkPoint', ({coord, pan, animate, popup}) => {
+            let feature = new ol.Feature(new ol.geom.Point(coord));
+            this.mark([feature], false, pan, animate, popup)
         });
 
         this.action('markerClear', () => this.clear());
     }
 
-    mark(features) {
+    mark(features, zoom, pan, animate, popup) {
+        this.clear();
+
+        if (this.highlight(features)) {
+            if (zoom)
+                this.zoom(animate);
+            else if (pan)
+                this.pan(pan, animate);
+        }
+
+        if (popup)
+            this.showPopup(popup);
+    }
+
+    highlight(features) {
         let geoms = features
             .filter(Boolean)
             .map(f => f.getGeometry())
