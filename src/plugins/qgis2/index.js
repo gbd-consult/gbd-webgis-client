@@ -119,7 +119,7 @@ class PrintButton extends React.Component {
         return (
             <div>
                 <toolbar.Popover visible={active}>
-                    <toolbar.PopoverGroup>
+                    <div style={{display: 'inline', minWidth: 130}}>
                         <SelectField
                             value={this.props.printQuality}
                             style={{width: 120, marginRight: 16, marginLeft: 8}}
@@ -130,25 +130,21 @@ class PrintButton extends React.Component {
                             <MenuItem value={150} primaryText="150dpi"/>
                             <MenuItem value={300} primaryText="300dpi"/>
                         </SelectField>
-                    </toolbar.PopoverGroup>
+                    </div>
 
-                    <toolbar.PopoverGroup>
-                        <toolbar.Button
-                            secondary
-                            onClick={() => app.perform('printOpenPDF', {quality: this.props.printQuality})}
-                            icon='print'
-                            tooltip={__("printTooltip")}
-                        />
-                    </toolbar.PopoverGroup>
-                    <toolbar.PopoverGroup>
+                    <toolbar.Button
+                        secondary
+                        onClick={() => app.perform('printOpenPDF', {quality: this.props.printQuality})}
+                        icon='print'
+                        tooltip={__("printTooltip")}
+                    />
 
-                        <toolbar.Button
-                            secondary
-                            tooltip={__("cancelTooltip")}
-                            onClick={() => app.perform('printModeToggle')}
-                            icon='close'
-                        />
-                    </toolbar.PopoverGroup>
+                    <toolbar.Button
+                        secondary
+                        tooltip={__("cancelTooltip")}
+                        onClick={() => app.perform('printModeToggle')}
+                        icon='close'
+                    />
                 </toolbar.Popover>
 
                 {!active && <toolbar.Button
@@ -167,3 +163,6 @@ export default {
     Plugin,
     PrintButton: app.connect(PrintButton, ['mapMode', 'printQuality']),
 };
+/*
+
+ */
