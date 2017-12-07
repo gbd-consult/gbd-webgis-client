@@ -1,15 +1,11 @@
 import React from 'react';
 
-import Paper from 'material-ui/Paper';
-import Drawer from 'material-ui/Drawer';
-import {Toolbar} from 'material-ui/Toolbar';
-import IconButton from 'material-ui/IconButton';
-import {SMALL, MEDIUM, LARGE} from 'material-ui/utils/withWidth';
-
 import app from 'app';
-import helpers from './helpers';
 
 const minSize = 50;
+
+class Plugin extends app.Plugin {
+}
 
 class Overlay extends React.Component {
 

@@ -14,6 +14,16 @@ let here = (...paths) => path.resolve(__dirname, ...paths);
 
 let _buildConfig;
 
+let supportedBrowsers = [
+    'iOS > 8',
+    'Safari > 8',
+    'IE > 10',
+    'Firefox > 50',
+    'Chrome > 50',
+    'Edge > 11',
+];
+
+
 let defaults = {
 
     entry: [
@@ -66,14 +76,12 @@ let defaults = {
                         options: {
                             presets: [
                                 [
-                                    'env', {
-                                    targets: {
-                                        browsers: [
-                                            'ios > 5',
-                                            'last 2 versions'
-                                        ]
+                                    'env',
+                                    {
+                                        targets: {
+                                            browsers: supportedBrowsers
+                                        }
                                     }
-                                }
                                 ],
                                 'react'],
                             cacheDirectory: here('.cache'),

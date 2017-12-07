@@ -224,6 +224,7 @@ module.exports = {
                     marginRight: '{../../gutter}',
                     padding: 0,
                     width: 44,
+                    minWidth: 44
                 },
 
                 buttonPrimary: {
@@ -244,7 +245,7 @@ module.exports = {
                     borderWidth: 0,
                     height: 38,
                     width: 38,
-
+                    minWidth: 38
                 },
 
                 buttonSecondaryActive: {
@@ -318,11 +319,11 @@ module.exports = {
                     cursor: 'default',
                     fontFamily: '{/fontFamily}',
                     fontSize: '{../fontSize}',
-                    lineHeight: '{../lineHeight}',
                     outline: 'none',
                     paddingLeft: 6,
                     textAlign: 'left',
                     width: 150,
+                    padding: '2px 4px',
                 },
 
                 label: {
@@ -333,8 +334,7 @@ module.exports = {
                     fontFamily: '{/fontFamily}',
                     fontSize: '{../fontSize}',
                     fontWeight: 'bold',
-                    lineHeight: '{../lineHeight}',
-                    padding: '0 3px',
+                    padding: '0 4px',
                 },
 
                 link: {
