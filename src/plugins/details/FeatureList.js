@@ -39,7 +39,7 @@ export default class FeatureList extends React.Component {
             delete props.maptip;
         }
 
-        let s = {
+        let style = {
             div: app.theme('gwc.plugin.details.featureList.more'),
             maptip: app.theme('gwc.plugin.details.featureList.maptip'),
             table: app.theme('gwc.plugin.details.featureList.table'),
@@ -47,20 +47,29 @@ export default class FeatureList extends React.Component {
             trEven: app.theme('gwc.plugin.details.featureList.trEven'),
             th: app.theme('gwc.plugin.details.featureList.th'),
             td: app.theme('gwc.plugin.details.featureList.td'),
+            a: app.theme('gwc.plugin.details.featureList.a'),
         };
 
-        let _breakWords = s => s.replace(/\S{30}/g, '$&\u00ad');
+        let breakWords = s => s.replace(/\S{30}/g, '$&\u00ad');
+
+        let format = s => {
+            if (s.match(/^https?:\/\//))
+                return <a style={style.a} href={s} target='_blank'>{s}</a>;
+            if (s.match(/^\S+@.+?\.[a-z]{2,5}$/))
+                return <a style={style.a} href={'mailto:' + s}>{s}</a>;
+            return breakWords(s);
+        };
 
         return (
-            <div style={s.div}>
-                { maptip && <div style={s.maptip}>{maptip}</div> }
-                <table style={s.table}>
+            <div style={style.div}>
+                {maptip && <div style={style.maptip}>{maptip}</div>}
+                <table style={style.table}>
                     <tbody>
                     {
                         _.keys(props).sort().map((key, i) =>
-                            <tr key={key} style={i % 2 ? s.tr : s.trEven}>
-                                <th style={s.th}>{key}</th>
-                                <td style={s.td}>{_breakWords(props[key])}</td>
+                            <tr key={key} style={i % 2 ? style.tr : style.trEven}>
+                                <th style={style.th}>{key}</th>
+                                <td style={style.td}>{format(props[key])}</td>
                             </tr>)
                     }
                     </tbody>

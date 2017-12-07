@@ -29,11 +29,17 @@ module.exports = {
                         fontSize: 14,
                         textAlign: 'left',
                         margin: 0,
-                        padding: 8
+                        padding: 8,
                     },
                     th: {
                         extend: '{../td}',
                         fontWeight: 800,
+                    },
+                    a: {
+                        display: 'inline-block',
+                        maxWidth: 200,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
                     }
                 },
             }
