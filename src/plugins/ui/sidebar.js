@@ -28,6 +28,11 @@ class Plugin extends app.Plugin {
         this.action('sidebarHide', () =>
             app.set({sidebarVisible: false}));
 
+        this.action('sidebarBlur', () => {
+            if (app.get('appIsMobile'))
+                app.set({sidebarVisible: false})
+        });
+
         this.action('sidebarShow', () =>
             app.set({sidebarVisible: true}));
 

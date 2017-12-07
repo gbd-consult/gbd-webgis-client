@@ -9,7 +9,6 @@
 
 
 import React from 'react';
-import Paper from 'material-ui/Paper';
 
 import _ from 'lodash';
 import htmlToReact from 'html-to-react';
@@ -17,10 +16,9 @@ import htmlToReact from 'html-to-react';
 import app from 'app';
 import ol from 'ol-all';
 
-import SimpleButton from 'components/SimpleButton';
 import * as toolbar from 'components/Toolbar';
 
-const hoverDelay = 100;
+const HOVER_DELAY = 100;
 
 class Plugin extends app.Plugin {
 
@@ -64,15 +62,6 @@ class Plugin extends app.Plugin {
             });
         });
 
-        this.action('identifyPopupShow', ({features}) =>
-            app.set({identifyPopupContent: features}));
-
-        this.action('identifyPopupHide', () => {
-            app.perform('markerClear');
-            app.set({identifyPopupContent: null})
-        });
-
-
     }
 
     interaction(opts) {
@@ -95,7 +84,7 @@ class Plugin extends app.Plugin {
             handleDownEvent: onDown,
             handleUpEvent: onUp,
             handleDragEvent: onDrag,
-            handleMoveEvent: _.debounce(onMove, hoverDelay)
+            handleMoveEvent: _.debounce(onMove, HOVER_DELAY)
         });
     }
 
@@ -103,24 +92,34 @@ class Plugin extends app.Plugin {
         if (!features.length)
             return this.reset();
 
+        features.forEach(f => f.set('popupContent', this.popupContent(f)));
+
         app.perform('markerMark', {
             features,
             pan: (opts.popup && !opts.hover) ? [0, 100] : false,
+            popup: opts.popup ? features.map(f => f.get('popupContent')) : null,
             animate: true
         });
 
-        if (opts.popup)
-            app.perform('identifyPopupShow', {features});
-        else
+        if (!opts.popup)
             app.perform('detailsShowFeatures', {features});
     }
 
     reset() {
-        app.perform('identifyPopupHide');
         app.perform('markerClear');
         app.perform('detailsShow', {content: null});
     }
 
+    popupContent(feature) {
+        let maptip = feature.get('maptip');
+        if (maptip)
+            return new htmlToReact.Parser().parse(maptip);
+        return (
+            <div>
+                <b>{feature.get('_layerTitle')}</b>: {feature.getId()}
+            </div>
+        );
+    }
 }
 
 
@@ -149,52 +148,8 @@ class Button extends React.Component {
     }
 }
 
-class Popup extends React.Component {
-    content() {
-        let feature = this.props.identifyPopupContent[0];
-
-        let maptip = feature.get('maptip');
-        if (maptip)
-            return (
-                <div className="maptip">
-                    {new htmlToReact.Parser().parse(maptip)}
-                </div>
-            );
-
-        return (
-            <div>
-                <b>{feature.get('_layerTitle')}</b>: {feature.getId()}
-            </div>
-        );
-    }
-
-    render() {
-        if (!this.props.identifyPopupContent)
-            return null;
-
-        let style = {
-            ...app.theme('gwc.plugin.identify.popup')
-        };
-
-        if (this.props.sidebarVisible)
-            style.left += app.theme('gwc.ui.sidebar.containerLarge.width');
-
-        return (
-            <Paper zDepth={2} style={style}>
-                <SimpleButton
-                    style={app.theme('gwc.plugin.identify.popupCloseButton')}
-                    icon='close'
-                    onClick={() => app.perform('identifyPopupHide')}
-                />
-                {this.content()}
-            </Paper>
-        );
-    }
-}
-
 export default {
     Plugin,
     /** Toolbar button that activates the mode */
     Button: app.connect(Button, ['mapMode']),
-    Popup: app.connect(Popup, ['identifyPopupContent', 'sidebarVisible']),
 };

@@ -1,11 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import Paper from 'material-ui/Paper';
 
 import _ from 'lodash';
 
 import app from 'app';
 import ol from 'ol-all';
 import mapUtil from 'map-util';
+
+import SimpleButton from 'components/SimpleButton';
 
 const LAYER_KIND = 'markerLayer';
 const ANIMATION_DURATION = 500;
@@ -16,14 +19,18 @@ class Plugin extends app.Plugin {
         this.style = mapUtil.makeStyle(app.theme('gwc.plugin.marker.feature'));
         this.pinOverlay = null;
 
-        this.action('markerMark', ({features, zoom, pan, animate}) => {
+        this.action('markerMark', ({features, zoom, pan, animate, popup}) => {
             this.clear();
+
             if (this.mark(features)) {
                 if (zoom)
                     this.zoom(animate);
                 else if (pan)
                     this.pan(pan, animate);
             }
+
+            if (popup)
+                this.showPopup(popup);
         });
 
         this.action('markerClear', () => this.clear());
@@ -46,6 +53,14 @@ class Plugin extends app.Plugin {
         la.getSource().addFeatures(geoms.map(g => new ol.Feature(g)));
         this.showPin();
         return true;
+    }
+
+    showPopup(popup) {
+        if (!_.isArray(popup))
+            popup = [popup];
+        else if (!popup.length)
+            return;
+        app.set({'markerPopupContent': popup});
     }
 
     zoom(animate) {
@@ -81,6 +96,7 @@ class Plugin extends app.Plugin {
     clear() {
         app.map().removeServiceLayer(LAYER_KIND);
         this.clearPin();
+        app.set({'markerPopupContent': null});
     }
 
     showPin() {
@@ -159,6 +175,35 @@ class Pin extends React.Component {
     }
 }
 
+class Popup extends React.Component {
+    render() {
+        if (!this.props.markerPopupContent)
+            return null;
+
+        let style = {
+            ...app.theme('gwc.plugin.marker.popup')
+        };
+
+        if (this.props.sidebarVisible)
+            style.left += app.theme('gwc.ui.sidebar.containerLarge.width');
+
+        return (
+            <Paper zDepth={2} style={style}>
+                <SimpleButton
+                    style={app.theme('gwc.plugin.marker.popupCloseButton')}
+                    icon='close'
+                    onClick={() => app.perform('markerClear')}
+                />
+                {
+                    this.props.markerPopupContent.map((f, i) => <div key={i}>{f}</div>)
+                }
+            </Paper>
+        );
+    }
+}
+
+
 export default {
-    Plugin
+    Plugin,
+    Popup: app.connect(Popup, ['markerPopupContent', 'sidebarVisible'])
 };

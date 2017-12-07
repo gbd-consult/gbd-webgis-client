@@ -22,7 +22,7 @@ export default class FeatureList extends React.Component {
             if (k === 'geometry' || k[0] === '_')
                 return;
             let v = src[k];
-            if (_.isNil(v) || v === 'NULL')
+            if (!_.isString(v) || v === 'NULL')
                 return;
             r[k] = v;
         });
@@ -79,10 +79,12 @@ export default class FeatureList extends React.Component {
     }
 
     click(feature) {
+        app.perform('sidebarBlur');
         app.perform('markerMark', {
             features: [feature],
             zoom: true,
-            animate: true
+            animate: true,
+            popup: feature.get('popupContent')
         });
 
     }

@@ -10,14 +10,13 @@ import ol from 'ol-all';
 
 import MaterialIcon from 'components/MaterialIcon';
 
+function textContent(feature) {
+    return feature.get('text').split('\n').map((line, i) => <div key={i}>{line}</div>);
+}
+
 class Plugin extends app.Plugin {
 
     init() {
-        let reset = () => app.set({
-            searchInput: '',
-            searchResults: []
-        });
-
         let run = (input) => {
             let features = [];
 
@@ -37,20 +36,28 @@ class Plugin extends app.Plugin {
             });
         };
 
-        reset();
-
+        this.reset();
         this.subscribe('searchInput', _.debounce(run, 500));
 
         this.action('searchHighlight', ({feature}) => {
+            app.perform('sidebarBlur');
             app.perform('markerMark', {
                 features: [feature],
                 zoom: true,
-                animate: true
+                animate: true,
+                popup: textContent(feature)
             })
         });
 
-        this.action('searchClear', reset);
+        this.action('searchClear', () => this.reset());
+    }
 
+    reset() {
+        app.set({
+            searchInput: '',
+            searchResults: []
+        });
+        app.perform('markerClear');
     }
 }
 
@@ -76,7 +83,7 @@ class Result extends React.Component {
                 onClick={() => app.perform('searchHighlight', {feature})}
             >
                 <ResultChip feature={feature}/>
-                {feature.get('text').split('\n').map((line, i) => <div key={i}>{line}</div>)}
+                {textContent(feature)}
             </div>
         );
     }
