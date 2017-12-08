@@ -199,7 +199,7 @@ module.exports = {
             toolbar: {
                 container: {
                     alignItems: 'flex-end',
-                    bottom: '{../../statusbar/height} + {../../gutter}',
+                    bottom: '{../../statusbar/height} + {../../gutter} * 2',
                     flexDirection: 'column',
                     position: 'absolute',
                     right: 0,
