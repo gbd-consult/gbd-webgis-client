@@ -9,7 +9,7 @@ import htmlToReact from 'html-to-react';
 import app from 'app';
 import ol from 'ol-all';
 
-import MaterialIcon from 'components/MaterialIcon';
+import SimpleButton from 'components/SimpleButton';
 
 function textContent(feature) {
     return feature.get('text').split('\n').map((line, i) => <div key={i}>{line}</div>);
@@ -159,18 +159,26 @@ class ClearButton extends React.Component {
     render() {
         let disabled = _.isEmpty(this.props.searchResults) && _.isEmpty(this.props.searchInput);
 
+        if (disabled)
+            return null;
+
         return (
-            <IconButton
-                tooltip={__("searchClearTooltip")}
-                tooltipPosition='bottom-left'
+            <SimpleButton
                 onClick={() => app.perform('searchClear')}
-                disabled={disabled}
-            >
-                <MaterialIcon
-                    icon='cancel'
-                    color={app.theme('gwc.plugin.search.buttonColor' + (disabled ? 'Disabled' : ''))}
-                />
-            </IconButton>
+                icon='backspace'
+                style={app.theme('gwc.plugin.search.clearButton')}
+            />
+        );
+    }
+}
+
+class SearchButton extends React.Component {
+    render() {
+        return (
+            <SimpleButton
+                icon='search'
+                style={app.theme('gwc.plugin.search.searchButton')}
+            />
         );
     }
 }
@@ -181,6 +189,7 @@ class Header extends React.Component {
 
         return (
             <div style={style}>
+                <SearchButton {...this.props} />
                 <Input {...this.props} />
                 <ClearButton {...this.props} />
             </div>

@@ -13,23 +13,35 @@ module.exports = {
                 },
 
                 headerPanel: {
+                    alignItems: 'center',
                     borderBottomColor: '{/palette/borderColor}',
                     borderBottomStyle: 'solid',
                     borderBottomWidth: 1,
                     boxSizing: 'border-box',
                     display: 'flex',
                     height: 56,
-                    padding: '4px 0 0 16px',
+                    padding: '4px 0 0 0',
                     width: '100%',
                 },
                 headerAlt: {
+                    alignItems: 'center',
                     boxSizing: 'border-box',
                     display: 'flex',
                     height: '{/gwc/ui/sidebar/headerInnerHeight}',
-                    padding: '0 0 0 16px',
+                    padding: 0,
                     width: '100%',
                 },
-
+                clearButton: {
+                    fontSize: 22,
+                    paddingLeft: 10,
+                    paddingRight: 10,
+                },
+                searchButton: {
+                    fontSize: 22,
+                    paddingLeft: 10,
+                    paddingRight: 10,
+                    color: '{/palette/disabledColor}'
+                },
                 textField: {
                     flex: 1,
                 },
