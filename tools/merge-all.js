@@ -1,6 +1,5 @@
 /* eslint-disable */
 
-const fs = require('fs');
 const path = require('path');
 const _ = require('lodash');
 
@@ -103,46 +102,25 @@ function evalVars(root, obj) {
 
 function load(rpath) {
     delete require.cache[rpath];
-    return require(rpath);
+    try {
+        return require(rpath);
+    } catch (e) {
+        throw new Error(e.message + ` in "${rpath}"`);
+    }
 }
 
-function main(config, sourceDir) {
-    let paths = [path.resolve(sourceDir, 'theme.js')],
-        errors = [];
+function main(paths, extra) {
+    let objs = paths.map(load);
 
-    config.plugins.forEach(name => {
-        let p = path.resolve(sourceDir, `plugins/${name}/theme.js`);
-        if (fs.existsSync(p))
-            paths.push(p);
-    });
+    if (extra)
+        objs.push(extra);
 
-    let themes = [];
+    let all = _.merge({}, ...objs);
 
-    paths.forEach(p => {
-        try {
-            themes.push(load(p));
-        } catch (e) {
-            errors.push(new Error(e.message + ' in ' + p));
-        }
-    });
+    all = expandVars(all, '');
+    all = evalVars(all, all);
 
-    themes.push(config.theme || {});
-
-    let theme = _.merge({}, ...themes);
-
-    theme = expandVars(theme, '');
-
-    try {
-        theme = evalVars(theme, theme);
-    } catch (e) {
-        errors.push(e);
-    }
-
-    return {
-        errors,
-        resources: paths,
-        out: theme
-    }
+    return all;
 }
 
 module.exports = main;

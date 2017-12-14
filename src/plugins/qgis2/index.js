@@ -136,12 +136,12 @@ class PrintButton extends React.Component {
                         secondary
                         onClick={() => app.perform('printOpenPDF', {quality: this.props.printQuality})}
                         icon='print'
-                        tooltip={__("printTooltip")}
+                        tooltip={__("gwc.plugin.qgis2.printTooltip")}
                     />
 
                     <toolbar.Button
                         secondary
-                        tooltip={__("cancelTooltip")}
+                        tooltip={__("gwc.plugin.qgis2.cancelTooltip")}
                         onClick={() => app.perform('printModeToggle')}
                         icon='close'
                     />
@@ -151,7 +151,7 @@ class PrintButton extends React.Component {
                     {...this.props}
                     onClick={() => app.perform('printModeToggle')}
                     icon='print'
-                    tooltip={__("printTooltip")}
+                    tooltip={__("gwc.plugin.qgis2.printTooltip")}
                 />}
             </div>
         );

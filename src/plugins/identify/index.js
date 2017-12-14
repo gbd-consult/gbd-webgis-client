@@ -134,8 +134,8 @@ class Button extends React.Component {
                 active={this.props.mapMode === modeName}
                 tooltip={
                     this.props.hover
-                        ? __("buttonHoverTooltip")
-                        : __("buttonTooltip")
+                        ? __("gwc.plugin.identify.buttonHoverTooltip")
+                        : __("gwc.plugin.identify.buttonTooltip")
                 }
                 onClick={() => app.perform('identifyModeToggle', {
                     hover: this.props.hover,

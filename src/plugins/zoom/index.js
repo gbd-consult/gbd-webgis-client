@@ -66,7 +66,7 @@ class PlusButton extends React.Component {
         return (
             <toolbar.Button
                 {...this.props}
-                tooltip={__("plusTooltip")}
+                tooltip={__("gwc.plugin.zoom.plusTooltip")}
                 onClick={() => app.perform('zoom', {delta: +1})}
                 icon='add_circle_outline'
             />
@@ -81,7 +81,7 @@ class MinusButton extends React.Component {
         return (
             <toolbar.Button
                 {...this.props}
-                tooltip={__("minusTooltip")}
+                tooltip={__("gwc.plugin.zoom.minusTooltip")}
                 onClick={() => app.perform('zoom', {delta: -1})}
                 icon='remove_circle_outline'
             />
@@ -96,7 +96,7 @@ class FullButton extends React.Component {
         return (
             <toolbar.Button
                 {...this.props}
-                tooltip={__("fullTooltip")}
+                tooltip={__("gwc.plugin.zoom.fullTooltip")}
                 onClick={() => app.perform('zoomFull')}
                 icon='zoom_out_map'
             />
@@ -111,7 +111,7 @@ class BoxButton extends React.Component {
         return (
             <toolbar.Button
                 {...this.props}
-                tooltip={__("boxTooltip")}
+                tooltip={__("gwc.plugin.zoom.boxTooltip")}
                 onClick={() => app.perform('zoomBoxStart')}
                 icon='zoom_in'
             />

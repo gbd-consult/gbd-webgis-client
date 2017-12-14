@@ -191,7 +191,7 @@ class QueryButton extends React.Component {
             <div>
                 <toolbar.Button
                     {...this.props}
-                    tooltip={__("queryTooltip")}
+                    tooltip={__("gwc.plugin.selection.queryTooltip")}
                     onClick={() => app.perform('selectionQuery')}
                     icon='search'
                 />

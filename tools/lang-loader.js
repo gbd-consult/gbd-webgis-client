@@ -1,35 +1,63 @@
 /// replace localisation placeholders (__id)
 
+const _ = require('lodash');
+const glob = require('glob');
+const path = require('path');
 const loaderUtils = require('loader-utils');
-const lang = require('./lang');
+const mergeAll = require('./merge-all');
+
+let db = null;
+
+const PLACEHOLDER_REGEX = /__\((["'])(.+?)\1\)/g;
+
+function replacePlaceholders(text, language) {
+    let missing = [];
+
+    text = text.replace(PLACEHOLDER_REGEX, (c, quote, ref) => {
+        let p = ref.replace(/[^.]+$/, language + '.$&'),
+            s = _.get(db, p);
+
+        if (!s) {
+            missing.push(ref);
+            s = ref;
+        }
+
+        return JSON.stringify(s);
+    });
+
+    return [text, missing];
+}
+
+function containsPlaceholders(text) {
+    return PLACEHOLDER_REGEX.test(text);
+}
 
 function loader(content) {
-    let options = loaderUtils.getOptions(this);
-    let res = lang.process(
-        content,
-        this.resource,
-        options.buildConfig().lang,
-        options.baseDir);
-
-    if (!res) {
+    if (!containsPlaceholders(content))
         return content;
+
+    let options = loaderUtils.getOptions(this);
+
+    if (!db) {
+        let paths = glob.sync(options.baseDir + '/**/lang.js');
+
+        try {
+            db = mergeAll(paths, options.buildConfig().lang);
+        } catch (e) {
+            this.emitError(e);
+        }
     }
 
-    if (res.errors) {
-        res.errors.forEach(err => this.emitWarning(new Error(err)));
+    this.addDependency(path.resolve(path.dirname(this.resource), 'lang.js'));
+
+    let language = options.buildConfig().language,
+        [out, missing] = replacePlaceholders(content, language);
+
+    if (missing) {
+        missing.forEach(ref => this.emitWarning(new Error(`no translation for ${language}:"${ref}"`)));
     }
 
-    if (res.resources) {
-        res.resources.forEach(rpath => {
-            this.addDependency(rpath)
-        });
-    }
-
-    if (res.text) {
-        return res.text;
-    }
-
-    return content;
+    return out;
 }
 
 module.exports = loader;

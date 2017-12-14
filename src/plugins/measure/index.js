@@ -262,20 +262,20 @@ class Button extends React.Component {
                 <toolbar.Button
                     secondary
                     active={this.props.measureMode === 'distance'}
-                    tooltip={__("distanceTooltip")}
+                    tooltip={__("gwc.plugin.measure.distanceTooltip")}
                     onClick={() => app.perform('measureMode', {mode: 'distance'})}
                     icon='linear_scale'
                 />
                 <toolbar.Button
                     secondary
                     active={this.props.measureMode === 'area'}
-                    tooltip={__("areaTooltip")}
+                    tooltip={__("gwc.plugin.measure.areaTooltip")}
                     onClick={() => app.perform('measureMode', {mode: 'area'})}
                     icon='texture'
                 />
                 <toolbar.Button
                     secondary
-                    tooltip={__("cancelTooltip")}
+                    tooltip={__("gwc.plugin.measure.cancelTooltip")}
                     onClick={() => app.perform('measureModeToggle')}
                     icon='close'
                 />
@@ -283,7 +283,7 @@ class Button extends React.Component {
             {!active && <toolbar.Button
                 {...this.props}
                 active={false}
-                tooltip={__("buttonTooltip")}
+                tooltip={__("gwc.plugin.measure.buttonTooltip")}
                 onClick={() => app.perform('measureModeToggle')}
                 icon='straighten'
             />}

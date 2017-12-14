@@ -1,34 +1,27 @@
 /// build a theme object from plugin themes
 
+const glob = require('glob');
 const loaderUtils = require('loader-utils');
-const buildTheme = require('./build-theme');
+const mergeAll = require('./merge-all');
 
 function loader(content) {
-    let options = loaderUtils.getOptions(this);
+    let options = loaderUtils.getOptions(this),
+        paths = glob.sync(options.baseDir + '/**/theme.js'),
+        res;
 
-    let res = buildTheme(
-        options.buildConfig(),
-        options.baseDir);
+    try {
+        res = mergeAll(paths, options.buildConfig().theme);
+    } catch (e) {
+        this.emitError(e);
+    }
 
     if (!res) {
         return content;
     }
 
-    if (res.errors) {
-        res.errors.forEach(err => this.emitError(new Error(err)));
-    }
+    paths.forEach(p => this.addDependency(p));
 
-    if (res.resources) {
-        res.resources.forEach(rpath => {
-            this.addDependency(rpath)
-        });
-    }
-
-    if (res.out) {
-        return 'export default ' + JSON.stringify(res.out);
-    }
-
-    return content;
+    return 'export default ' + JSON.stringify(res);
 }
 
 module.exports = loader;

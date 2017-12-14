@@ -147,7 +147,7 @@ class Input extends React.Component {
             <TextField
                 style={app.theme('gwc.plugin.search.textField')}
                 underlineShow={false}
-                hintText={__("searchHint")}
+                hintText={__("gwc.plugin.search.hint")}
                 value={this.state.value}
                 onChange={evt => this.onChange(evt)}
             />

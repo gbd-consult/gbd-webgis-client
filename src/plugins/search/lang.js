@@ -1,11 +1,16 @@
 module.exports = {
-
-    en: {
-        searchHint: 'search',
-        searchClearTooltip: 'clear'
-    },
-    de: {
-        searchHint: 'Suche',
-        searchClearTooltip: 'Löschen'
-    },
+    gwc: {
+        plugin: {
+            search: {
+                en: {
+                    hint: 'search',
+                    clearTooltip: 'clear'
+                },
+                de: {
+                    hint: 'Suche',
+                    clearTooltip: 'Löschen'
+                },
+            }
+        }
+    }
 };
