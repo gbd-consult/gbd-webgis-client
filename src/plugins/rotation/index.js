@@ -36,6 +36,8 @@ class Control extends React.Component {
 
         return (
             <sb.Group>
+                <sb.Label
+                    value={__("gwc.plugin.rotation.controlLabel")}/>
                 <sb.Input
                     width={40}
                     value={deg}
@@ -43,8 +45,6 @@ class Control extends React.Component {
                     changeOnEnter
                     step={1}
                 />
-                <sb.Label
-                    value='&deg;'/>
 
                 <sb.SmallSlider
                     min={-180}

@@ -42,7 +42,7 @@ class Control extends React.Component {
         return (
             <sb.Group>
                 <sb.Label
-                    value='1:'/>
+                    value={__("gwc.plugin.scale.controlLabel")}/>
                 <sb.Input
                     width={50}
                     onChange={(evt, value) => this.update(value)}

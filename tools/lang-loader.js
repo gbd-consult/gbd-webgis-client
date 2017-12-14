@@ -10,19 +10,26 @@ let db = null;
 
 const PLACEHOLDER_REGEX = /__\((["'])(.+?)\1\)/g;
 
+function getValue(ref, language) {
+    let p = ref.replace(/[^.]+$/, language + '.$&'),
+        s = _.get(db, p);
+
+    if (!s && language !== 'en')
+        return getValue(ref, 'en');
+
+    return s;
+}
+
 function replacePlaceholders(text, language) {
     let missing = [];
 
     text = text.replace(PLACEHOLDER_REGEX, (c, quote, ref) => {
-        let p = ref.replace(/[^.]+$/, language + '.$&'),
-            s = _.get(db, p);
-
-        if (!s) {
-            missing.push(ref);
-            s = ref;
+        let val = getValue(ref, language);
+        if (val) {
+            return JSON.stringify(val);
         }
-
-        return JSON.stringify(s);
+        missing.push(ref);
+        return JSON.stringify(ref);
     });
 
     return [text, missing];

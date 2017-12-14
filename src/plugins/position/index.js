@@ -66,7 +66,7 @@ class Control extends React.Component {
         return (
             <sb.Group>
                 <sb.Label
-                    value='XY'/>
+                    value={__("gwc.plugin.position.controlLabel")}/>
                 <sb.Input
                     width={100}
                     onChange={(evt, value) => this.update(value)}

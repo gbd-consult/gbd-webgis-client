@@ -333,7 +333,7 @@ module.exports = {
                     display: 'inline-flex',
                     fontFamily: '{/fontFamily}',
                     fontSize: '{../fontSize}',
-                    fontWeight: 'bold',
+                    fontWeight: 300,
                     padding: '0 4px',
                 },
 
