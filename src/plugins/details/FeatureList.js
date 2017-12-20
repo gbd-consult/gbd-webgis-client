@@ -12,7 +12,8 @@ import Section from 'components/Section';
 export default class FeatureList extends React.Component {
 
     header(feature) {
-        return feature.get('_layerTitle') + ': ' + feature.getId();
+        let name = feature.get('name') || feature.getId();
+        return feature.get('_layerTitle') + ': ' + name;
     }
 
     cleanup(src) {
