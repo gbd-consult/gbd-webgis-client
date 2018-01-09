@@ -1,5 +1,6 @@
 /// example application showing Hamburg ALKIS data
 
+
 module.exports = {
 
     // application language
@@ -13,11 +14,10 @@ module.exports = {
 
     // plugins to include
     plugins: [
+        'attribution',
         'map', 'ui', 'search',
         'details', 'layers', 'marker', 'qgis2',
-        'search_alkis',
-        'search_nominatim',
-        'identify', 'selection',
+        'identify',
         'position', 'scale', 'rotation',
         'zoom', 'measure'
     ],
@@ -25,7 +25,6 @@ module.exports = {
     // initial state of the app
     initState: {
         sidebarVisible: false,
-        sidebarActivePanel: 'layers',
         overlayVisible: false,
         appWaiting: false,
         toolbarVisible: true,
@@ -35,36 +34,50 @@ module.exports = {
 
     // application ui (must be valid JSX)
     ui: `
+        
+        <attribution.Bar/>
+
         <ui.Toolbar>
             <zoom.PlusButton/>
             <zoom.MinusButton/>
             <zoom.FullButton/>
             <zoom.BoxButton desktopOnly/>
-            <identify.Button/>
+            
+            <identify.Button icon="gps_fixed" desktopOnly />
+            <identify.Button icon="gps_not_fixed" desktopOnly hover topOnly popup/>
+
+            <identify.Button icon="gps_fixed" mobileOnly topOnly popup/>
+
             <measure.Button/>
             <qgis2.PrintButton desktopOnly/>
         </ui.Toolbar>
+        
         <ui.Sidebar>
             <layers.Panel key="layers" title="Layers" icon="layers" />
-            <details.Panel key="details" title="Info" icon="toc" />
+            <details.Panel key="details" title="Info" icon="toc" desktopOnly />
             <search.Panel key="search" title="Suche" icon="search" mobileOnly />
         </ui.Sidebar>
+
         <scale.Indicator />
+        <marker.Popup />
+        
         <ui.Statusbar>
             <position.Control desktopOnly/>
             <scale.Control desktopOnly/>
+            <rotation.Control desktopOnly/>
             <ui.Statusbar.Widget.Flex />
-            <ui.Statusbar.Widget.Link href="help.html" mode="popup" text="Hilfe" />
+            <ui.Statusbar.Widget.Link href="http://gbdclient.gbd-consult.de/lorem.html" target="popup" text="Hilfe" />
             <ui.Statusbar.Widget.Separator />
-            <ui.Statusbar.Widget.Link href="terms.html" mode="popup" text="Nutzungsbedingungen" />
+            <ui.Statusbar.Widget.Link href="http://gbdclient.gbd-consult.de/lorem.html" target="popup" text="AGB" />
             <ui.Statusbar.Widget.Separator />
-            <ui.Statusbar.Widget.Link href="about.html" mode="popup"  
+            <ui.Statusbar.Widget.Link href="http://gbd-consult.de" target="blank"  
                 text={<img 
-                    src="http://gbdclient.gbd-consult.de/gbd-logo.png" 
-                    style={{width: 12, height: 12, marginRight: 6, verticalAlign: 'middle'}} 
+                    src="http://gbdclient.gbd-consult.de/gbd-globe.svg" 
+                    style={{width: 14, height: 14, marginRight: 6, verticalAlign: 'middle'}} 
                     />}
             />
         </ui.Statusbar>
+        
         <ui.Altbar>
             <search.Box desktopOnly />
         </ui.Altbar>

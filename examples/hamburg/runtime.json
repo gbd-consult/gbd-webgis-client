@@ -1,4 +1,5 @@
 {
+    "attribution": "&copy; Data by <a href='http://openstreetmap.org'>OpenStreetMap</a>, under <a href='http://www.openstreetmap.org/copyright'>ODbL</a>.",
     "qgis2": {
         "server": "http://qwc.gbd-consult.de/cgi-bin/qgis_mapserv.fcgi?map=/var/www/qwc1/projekte/alkishh2.qgs",
         "print": {
@@ -12,26 +13,17 @@
     "map": {
         "layers": [
             {
-                "type": "wmsGroup",
-                "xurl": "http://qwc.gbd-consult.de:9090/wms",
-                "url": "http://qwc.gbd-consult.de/cgi-bin/qgis_mapserv.fcgi?map=/var/www/qwc1/projekte/alkishh2.qgs",
-                "name": "ALKIS/Hamburg"
+                "type": "wms",
+                "url": "http://qwc.gbd-consult.de/cgi-bin/qgis_mapserv.fcgi",
+                "params": {
+                    "map": "/var/www/qwc1/projekte/alkishh2.qgs"
+                },
+                "title": "ALKIS/Hamburg",
+                "compose": "^/[^/]+/[^/]+/[^/]+$"
             },
             {
                 "type": "osm",
                 "opacity": 0.3,
-                "background": true
-            },
-            {
-                "type": "wmsTile",
-                "name": "Webatlas-Grau",
-                "url": "http://sg.geodatenzentrum.de/wms_webatlasde.light_grau",
-                "params": {
-                    "LAYERS": "webatlasde.light_grau",
-                    "CRS": "EPSG:25832"
-                },
-                "opacity": 0.3,
-                "visible": false,
                 "background": true
             }
         ],
