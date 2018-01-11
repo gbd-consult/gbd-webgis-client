@@ -3,51 +3,60 @@
  *
  * @desc
  *
- * A tool for selecting areas and objects on the map.
+ * Selection tools.
  *
  */
+
 import React from 'react';
-
-import Popover from 'material-ui/Popover';
-import Menu from 'material-ui/Menu';
-import MenuItem from 'material-ui/MenuItem';
-import Divider from 'material-ui/Divider';
-
-import app from 'app';
-import mapUtil from 'map-util';
-import ol from 'ol-all';
 
 import * as toolbar from 'components/Toolbar';
 
-export class Plugin extends app.Plugin {
+import app from 'app';
+import ol from 'ol-all';
+import mapUtil from 'map-util';
+
+const LAYER_KIND = 'selection';
+
+class Plugin extends app.Plugin {
     init() {
-        this.source = null;
-        this.style = mapUtil.makeStyle({
-            fill: {
-                color: 'rgba(255,255,255,0.2)'
-            },
-            stroke: {
-                color: '#000000',
-                lineDash: [5, 5],
-                width: 1
-            }
+        app.set({selectionShape: 'Box'});
+
+        let fs = app.theme('gwc.plugin.selection.feature');
+        this.style = mapUtil.makeStyle(fs);
+
+        this.action('selectionStart', ({shape}) => {
+            app.set({selectionShape: shape});
+            this.start(shape);
         });
 
-        this.action('selectionStart', ({shape}) => this.start(shape));
-        this.action('selectionDrop', () => this.drop());
+        this.action('selectionDrop', () => {
+            this.drop();
+        });
+    }
 
-        this.action('selectionQuery', () => {
-            let features = [];
+    start(shape) {
+        this.source = this.source || new ol.source.Vector({
+            projection: app.config.str('map.crs.client')
+        });
 
-            app.perform('markerClear');
-            app.perform('search', {
-                geometry: this.getGeometry(),
-                done: found => {
-                    features = [].concat(features, found);
-                    app.perform('markerMark', {features});
-                    app.perform('detailsShowFeatures', {features});
-                }
-            });
+        app.map().serviceLayer(LAYER_KIND, () => new ol.layer.Vector({
+            source: this.source,
+            style: this.style
+        }));
+
+        let int = this.drawInteraction(shape);
+        int.on('drawstart', (evt) => this.drawStart(evt));
+        int.on('drawend', (evt) => this.drawEnd(evt));
+
+        app.perform('mapSetMode', {
+            name: 'selection',
+            cursor: 'crosshair',
+            interactions: [
+                'DragPan',
+                'MouseWheelZoom',
+                'PinchZoom',
+                int
+            ]
         });
     }
 
@@ -69,146 +78,70 @@ export class Plugin extends app.Plugin {
         }
     }
 
-    start(shape) {
-        this.source = new ol.source.Vector({
-            projection: app.config.str('map.crs.client')
-        });
-        app.map().removeServiceLayer('selection');
-        app.map().serviceLayer('selection', () => new ol.layer.Vector({
-            source: this.source,
-            style: this.style
-        }));
-
-        let draw = this.drawInteraction(shape);
-        draw.on('drawend', (evt) => this.end(evt));
-
-        app.perform('mapSetMode', {
-            name: 'selection',
-            cursor: 'crosshair',
-            interactions: [
-                draw,
-                new ol.interaction.DragPan(),
-                new ol.interaction.MouseWheelZoom()
-            ]
-        });
+    drawStart(evt) {
+        this.source.clear();
     }
 
-    end(evt) {
-        app.perform('mapDefaultMode');
+    drawEnd(evt) {
         app.set({selectionGeometry: evt.feature ? evt.feature.getGeometry() : null})
     }
 
-
     drop() {
-        app.map().removeServiceLayer('selection');
+        app.map().removeServiceLayer(LAYER_KIND);
         this.source = null;
         app.set({selectionGeometry: null});
-    }
+        app.perform('mapDefaultMode');
 
-    getGeometry() {
-        if (!this.source)
-            return null;
-
-        let fs = this.source.getFeatures();
-        if (!fs.length)
-            return null;
-        return fs[0].getGeometry();
     }
 }
 
-class AreaButton extends React.Component {
 
-
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            open: false,
-        };
-    }
-
-    close() {
-        this.setState({
-            open: false,
-        });
-    }
-
-    onClick(evt) {
-        evt.preventDefault();
-        this.setState({
-            open: true,
-            anchorEl: evt.currentTarget,
-        });
-    }
-
-    onClose() {
-        this.close();
-    }
-
-    onChange(evt, value) {
-        if (value === 'deselect')
-            app.perform('selectionDrop');
-        else
-            app.perform('selectionStart', {shape: value});
-        this.close();
-    }
-
+class Button extends React.Component {
     render() {
         let active = this.props.mapMode === 'selection';
-        return (
-            <div>
-                <ToolbarButton
-                    {...this.props}
-                    active={active}
-                    onClick={evt => this.onClick(evt)}
-                    icon='select_all'
-                />
-                <Popover
-                    open={this.state.open}
-                    anchorEl={this.state.anchorEl}
-                    anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
-                    targetOrigin={{horizontal: 'left', vertical: 'top'}}
-                    onRequestClose={evt => this.onClose(evt)}
-                >
-                    <Menu onChange={(evt, value) => this.onChange(evt, value)}>
-                        <MenuItem value="Box" primaryText="Box"/>
-                        <MenuItem value="Polygon" primaryText="Polygon"/>
-                        <MenuItem value="Circle" primaryText="Circle"/>
-                        <Divider/>
-                        <MenuItem value="deselect" primaryText="Deselect"/>
-                    </Menu>
-                </Popover>
-            </div>
-        );
-    }
 
-}
-
-class QueryButton extends React.Component {
-
-    render() {
-        return (
-            <div>
+        return (<div>
+            <toolbar.Popover visible={active}>
                 <toolbar.Button
-                    {...this.props}
-                    tooltip={__("gwc.plugin.selection.queryTooltip")}
-                    onClick={() => app.perform('selectionQuery')}
-                    icon='search'
+                    secondary
+                    active={this.props.selectionShape === 'Box'}
+                    tooltip={__("gwc.plugin.selection.selectBox")}
+                    onClick={() => app.perform('selectionStart', {shape: 'Box'})}
+                    icon='crop_din'
                 />
-            </div>
-
-        );
+                <toolbar.Button
+                    secondary
+                    active={this.props.selectionShape === 'Polygon'}
+                    tooltip={__("gwc.plugin.selection.selectPolygon")}
+                    onClick={() => app.perform('selectionStart', {shape: 'Polygon'})}
+                    icon='details'
+                />
+                <toolbar.Button
+                    secondary
+                    tooltip={__("gwc.plugin.selection.drop")}
+                    onClick={() => app.perform('selectionDrop')}
+                    icon='undo'
+                />
+                <toolbar.Button
+                    secondary
+                    tooltip={__("gwc.plugin.selection.cancel")}
+                    onClick={() => app.perform('mapDefaultMode')}
+                    icon='close'
+                />
+            </toolbar.Popover>
+            {!active && <toolbar.Button
+                {...this.props}
+                active={false}
+                tooltip={__("gwc.plugin.selection.select")}
+                onClick={() => app.perform('selectionStart', {shape: this.props.selectionShape})}
+                icon='crop_free'
+            />}
+        </div>);
     }
 }
 
 
 export default {
     Plugin,
-
-    /** Toolbar button to select areas */
-    AreaButton: app.connect(AreaButton, ['mapMode']),
-
-    /** Toolbar button to query selection */
-    QueryButton: app.connect(QueryButton),
-
+    Button: app.connect(Button, ['mapMode', 'selectionShape'])
 };

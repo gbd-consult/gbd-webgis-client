@@ -3,18 +3,20 @@ module.exports = {
         plugin: {
             selection: {
                 en: {
-                    queryTooltip: 'query',
+                    select: 'select',
                     selectBox: 'box',
                     selectPolygon: 'polygon',
                     selectCircle: 'circle',
-                    deselect: 'deselect',
+                    drop: 'deselect',
+                    cancel: 'cancel'
                 },
                 de: {
-                    queryTooltip: 'Abfrage',
+                    select: 'auswählen',
                     selectBox: 'Box',
                     selectPolygon: 'Polygon',
                     selectCircle: 'Kreis',
-                    deselect: 'deselect',
+                    drop: 'Auswahl entfernen',
+                    cancel: 'abbrechen'
                 },
             }
         }
