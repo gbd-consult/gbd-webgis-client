@@ -84,6 +84,12 @@ class Plugin extends app.Plugin {
                 allprops: true,
             };
 
+            let sel = app.get('selectionGeometry');
+            if(sel) {
+                let wkt = new ol.format.WKT();
+                data.bounds = wkt.writeGeometry(sel);
+            }
+
             app.perform('gbdServerPost', {
                 data, done: ({response, error}) => {
                     app.perform('detailsShowFeatures', {features: (response || []).map(convert)})
