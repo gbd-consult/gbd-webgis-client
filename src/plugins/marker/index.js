@@ -97,7 +97,7 @@ class Plugin extends app.Plugin {
             if (animate)
                 app.map().getView().animate({center, duration: ANIMATION_DURATION});
             else
-                app.map().getView().setCenter({center});
+                app.map().getView().setCenter(center);
         }
     }
 
