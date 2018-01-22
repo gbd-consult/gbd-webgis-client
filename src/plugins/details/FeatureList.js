@@ -85,7 +85,7 @@ export default class FeatureList extends React.Component {
             features: [feature],
             zoom: true,
             animate: true,
-            popup: feature.get('popupContent')
+            popup: feature.get('_popupContent')
         });
 
     }
