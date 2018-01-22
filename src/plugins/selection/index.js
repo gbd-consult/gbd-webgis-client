@@ -24,9 +24,13 @@ class Plugin extends app.Plugin {
         let fs = app.theme('gwc.plugin.selection.feature');
         this.style = mapUtil.makeStyle(fs);
 
-        this.action('selectionStart', ({shape}) => {
+        this.action('selectionDraw', ({shape}) => {
             app.set({selectionShape: shape});
-            this.start(shape);
+            this.drawMode(shape);
+        });
+
+        this.action('selectionObject', () => {
+            this.objectMode();
         });
 
         this.action('selectionDrop', () => {
@@ -34,7 +38,7 @@ class Plugin extends app.Plugin {
         });
     }
 
-    start(shape) {
+    initLayer() {
         this.source = this.source || new ol.source.Vector({
             projection: app.config.str('map.crs.client')
         });
@@ -43,13 +47,34 @@ class Plugin extends app.Plugin {
             source: this.source,
             style: this.style
         }));
+    }
+
+    drawMode(shape) {
+        this.initLayer();
 
         let int = this.drawInteraction(shape);
         int.on('drawstart', (evt) => this.drawStart(evt));
         int.on('drawend', (evt) => this.drawEnd(evt));
 
         app.perform('mapSetMode', {
-            name: 'selection',
+            name: 'selectionDraw' + shape,
+            cursor: 'crosshair',
+            interactions: [
+                'DragPan',
+                'MouseWheelZoom',
+                'PinchZoom',
+                int
+            ]
+        });
+    }
+
+    objectMode() {
+        this.initLayer();
+
+        let int = this.objectInteraction();
+
+        app.perform('mapSetMode', {
+            name: 'selectionObject',
             cursor: 'crosshair',
             interactions: [
                 'DragPan',
@@ -78,12 +103,45 @@ class Plugin extends app.Plugin {
         }
     }
 
+    objectInteraction() {
+        let dragged = false;
+
+        return new ol.interaction.Pointer({
+            handleDownEvent: evt => {
+                dragged = false;
+                return true;
+            },
+            handleUpEvent: evt => dragged ? null : this.objectEnd(evt),
+            handleDragEvent: evt => dragged = true,
+        });
+    }
+
+
     drawStart(evt) {
         this.source.clear();
     }
 
     drawEnd(evt) {
         app.set({selectionGeometry: evt.feature ? evt.feature.getGeometry() : null})
+    }
+
+    objectEnd(evt) {
+        let done = false;
+        let opts = {
+            layerFilter: layer => !layer.get('isService')
+        };
+
+        app.map().forEachFeatureAtPixel(evt.pixel, feature => {
+            if (done)
+                return;
+            let geom = feature.getGeometry();
+            if (geom instanceof ol.geom.Polygon) {
+                this.source.clear();
+                this.source.addFeature(new ol.Feature(geom));
+                app.set({selectionGeometry: geom});
+                done = true;
+            }
+        }, opts);
     }
 
     drop() {
@@ -98,23 +156,31 @@ class Plugin extends app.Plugin {
 
 class Button extends React.Component {
     render() {
-        let active = this.props.mapMode === 'selection';
+        let mm = this.props.mapMode,
+            active = String(mm).match(/^selection/);
 
         return (<div>
             <toolbar.Popover visible={active}>
                 <toolbar.Button
                     secondary
-                    active={this.props.selectionShape === 'Box'}
+                    active={mm === 'selectionDrawBox'}
                     tooltip={__("gwc.plugin.selection.selectBox")}
-                    onClick={() => app.perform('selectionStart', {shape: 'Box'})}
+                    onClick={() => app.perform('selectionDraw', {shape: 'Box'})}
                     icon='crop_din'
                 />
                 <toolbar.Button
                     secondary
-                    active={this.props.selectionShape === 'Polygon'}
+                    active={mm === 'selectionDrawPolygon'}
                     tooltip={__("gwc.plugin.selection.selectPolygon")}
-                    onClick={() => app.perform('selectionStart', {shape: 'Polygon'})}
+                    onClick={() => app.perform('selectionDraw', {shape: 'Polygon'})}
                     icon='details'
+                />
+                <toolbar.Button
+                    secondary
+                    active={mm === 'selectionObject'}
+                    tooltip={__("gwc.plugin.selection.selectObject")}
+                    onClick={() => app.perform('selectionObject')}
+                    icon='arrow_upward'
                 />
                 <toolbar.Button
                     secondary
@@ -133,7 +199,7 @@ class Button extends React.Component {
                 {...this.props}
                 active={false}
                 tooltip={__("gwc.plugin.selection.select")}
-                onClick={() => app.perform('selectionStart', {shape: this.props.selectionShape})}
+                onClick={() => app.perform('selectionDraw', {shape: this.props.selectionShape})}
                 icon='crop_free'
             />}
         </div>);

@@ -7,6 +7,7 @@ module.exports = {
                     selectBox: 'box',
                     selectPolygon: 'polygon',
                     selectCircle: 'circle',
+                    selectObject: 'object',
                     drop: 'deselect',
                     cancel: 'cancel'
                 },
@@ -15,6 +16,7 @@ module.exports = {
                     selectBox: 'Box',
                     selectPolygon: 'Polygon',
                     selectCircle: 'Kreis',
+                    selectObject: 'Object',
                     drop: 'Auswahl entfernen',
                     cancel: 'abbrechen'
                 },
