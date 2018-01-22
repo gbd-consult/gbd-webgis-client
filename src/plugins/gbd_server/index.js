@@ -51,10 +51,12 @@ class Plugin extends app.Plugin {
 
             try {
                 ret.response = await app.http.post(app.config.str('server.url'), data);
-            } catch(e) {
+            } catch (e) {
                 ret.error = e;
             }
-            done(ret);
+
+            if (done)
+                done(ret);
         });
 
 
@@ -62,10 +64,11 @@ class Plugin extends app.Plugin {
             let ret = {};
             try {
                 ret.response = await app.http.get(app.config.str('server.url'), data);
-            } catch(e) {
+            } catch (e) {
                 ret.error = e;
             }
-            done(ret);
+            if (done)
+                done(ret);
         });
 
     }
