@@ -12,6 +12,14 @@ import * as toolbar from 'components/Toolbar';
 let rad2deg = a => Math.floor(a / (Math.PI / 180));
 
 
+function wmsQueries(layer, coordinate, res) {
+    if (layer.wmsQuery)
+        res.push(layer.wmsQuery(coordinate))
+    else if (layer.layers)
+        layer.layers.forEach(la => wmsQueries(la, coordinate, res));
+    return res;
+}
+
 class Plugin extends app.Plugin {
 
     async init() {
@@ -21,8 +29,7 @@ class Plugin extends app.Plugin {
             let startLayer = app.map().getSelectedLayer() || app.map().getLayerRoot();
 
             if (coordinate) {
-                let reqs = startLayer.collect(la =>
-                    (la.wmsQuery) ? la.wmsQuery(coordinate) : null);
+                let reqs = wmsQueries(startLayer, coordinate, []);
 
                 return done(_.uniqBy(
                     _.flatMap(await Promise.all(reqs)),
