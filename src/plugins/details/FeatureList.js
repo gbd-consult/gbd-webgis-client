@@ -45,14 +45,7 @@ export default class FeatureList extends React.Component {
             delete props.maptip;
         }
 
-        if (conf.properties) {
-            let props2 = {};
-            conf.properties.forEach(p => {
-                if (props[p])
-                    props2[p] = props[p];
-            });
-            props = props2;
-        }
+        let keys = (conf.properties || _.keys(props)).filter(k => k in props);
 
         let style = {
             div: app.theme('gwc.plugin.details.featureList.more'),
@@ -68,11 +61,12 @@ export default class FeatureList extends React.Component {
         let breakWords = s => s.replace(/\S{30}/g, '$&\u00ad');
 
         let format = s => {
+            s = String(s).trim();
             if (s.match(/^https?:\/\//))
                 return <a style={style.a} href={s} target='_blank'>{s}</a>;
             if (s.match(/^\S+@.+?\.[a-z]{2,5}$/))
                 return <a style={style.a} href={'mailto:' + s}>{s}</a>;
-            return breakWords(s);
+            return breakWords(s.replace(/<br>/g, ' '));
         };
 
         return (
@@ -81,7 +75,7 @@ export default class FeatureList extends React.Component {
                 <table style={style.table}>
                     <tbody>
                     {
-                        _.keys(props).sort().map((key, i) =>
+                        keys.map((key, i) =>
                             <tr key={key} style={i % 2 ? style.tr : style.trEven}>
                                 <th style={style.th}>{key}</th>
                                 <td style={style.td}>{format(props[key])}</td>
