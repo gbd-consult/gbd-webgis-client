@@ -12,8 +12,12 @@ import Section from 'components/Section';
 export default class FeatureList extends React.Component {
 
     header(feature) {
-        let name = feature.get('name') || feature.getId();
-        return feature.get('_layerTitle') + ': ' + name;
+        let conf = feature.get('_config') || {};
+
+        if (conf.title)
+            return conf.title;
+
+        return feature.get('_layerTitle');
     }
 
     cleanup(src) {
@@ -33,11 +37,21 @@ export default class FeatureList extends React.Component {
 
     content(feature) {
         let props = this.cleanup(feature.getProperties());
+        let conf = feature.get('_config') || {};
         let maptip = null;
 
         if (props.maptip) {
             maptip = new htmlToReact.Parser().parse(props.maptip);
             delete props.maptip;
+        }
+
+        if (conf.properties) {
+            let props2 = {};
+            conf.properties.forEach(p => {
+                if (props[p])
+                    props2[p] = props[p];
+            });
+            props = props2;
         }
 
         let style = {
@@ -97,7 +111,7 @@ export default class FeatureList extends React.Component {
             <div style={app.theme('gwc.plugin.details.featureList.container')}>
                 {features.map((f, n) => <Section
                         key={f.getId()}
-                        open={features.length === 1}
+                        open={true}
                         header={this.header(f)}
                         icon={'center_focus_weak'}
                         iconClick={() => this.click(f)}
