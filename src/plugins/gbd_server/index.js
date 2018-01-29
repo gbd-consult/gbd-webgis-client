@@ -3,9 +3,7 @@ import Paper from 'material-ui/Paper';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 
-
 import app from 'app';
-import ol from 'ol-all';
 
 class Plugin extends app.Plugin {
     init() {
@@ -29,7 +27,6 @@ class Plugin extends app.Plugin {
                     ...form
                 });
                 app.set({authUser: user});
-                console.log(user)
             } catch (e) {
                 app.update('gbdAuthForm', {error: true});
             }
