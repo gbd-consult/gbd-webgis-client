@@ -92,12 +92,12 @@ class Plugin extends app.Plugin {
         if (!features.length)
             return this.reset();
 
-        features.forEach(f => f.set('popupContent', this.popupContent(f)));
+        features.forEach(f => f.set('_popupContent', this.popupContent(f)));
 
         app.perform('markerMark', {
             features,
             pan: (opts.popup && !opts.hover) ? [0, 100] : false,
-            popup: opts.popup ? features.map(f => f.get('popupContent')) : null,
+            popup: opts.popup ? features.map(f => f.get('_popupContent')) : null,
             animate: true
         });
 

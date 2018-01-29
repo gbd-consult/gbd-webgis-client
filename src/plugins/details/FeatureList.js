@@ -12,8 +12,12 @@ import Section from 'components/Section';
 export default class FeatureList extends React.Component {
 
     header(feature) {
-        let name = feature.get('name') || feature.getId();
-        return feature.get('_layerTitle') + ': ' + name;
+        let conf = feature.get('_config') || {};
+
+        if (conf.title)
+            return conf.title;
+
+        return feature.get('_layerTitle');
     }
 
     cleanup(src) {
@@ -33,12 +37,15 @@ export default class FeatureList extends React.Component {
 
     content(feature) {
         let props = this.cleanup(feature.getProperties());
+        let conf = feature.get('_config') || {};
         let maptip = null;
 
         if (props.maptip) {
             maptip = new htmlToReact.Parser().parse(props.maptip);
             delete props.maptip;
         }
+
+        let keys = (conf.properties || _.keys(props)).filter(k => k in props);
 
         let style = {
             div: app.theme('gwc.plugin.details.featureList.more'),
@@ -54,11 +61,12 @@ export default class FeatureList extends React.Component {
         let breakWords = s => s.replace(/\S{30}/g, '$&\u00ad');
 
         let format = s => {
+            s = String(s).trim();
             if (s.match(/^https?:\/\//))
                 return <a style={style.a} href={s} target='_blank'>{s}</a>;
             if (s.match(/^\S+@.+?\.[a-z]{2,5}$/))
                 return <a style={style.a} href={'mailto:' + s}>{s}</a>;
-            return breakWords(s);
+            return breakWords(s.replace(/<br>/g, ' '));
         };
 
         return (
@@ -67,7 +75,7 @@ export default class FeatureList extends React.Component {
                 <table style={style.table}>
                     <tbody>
                     {
-                        _.keys(props).sort().map((key, i) =>
+                        keys.map((key, i) =>
                             <tr key={key} style={i % 2 ? style.tr : style.trEven}>
                                 <th style={style.th}>{key}</th>
                                 <td style={style.td}>{format(props[key])}</td>
@@ -85,7 +93,7 @@ export default class FeatureList extends React.Component {
             features: [feature],
             zoom: true,
             animate: true,
-            popup: feature.get('popupContent')
+            popup: feature.get('_popupContent')
         });
 
     }
@@ -97,7 +105,7 @@ export default class FeatureList extends React.Component {
             <div style={app.theme('gwc.plugin.details.featureList.container')}>
                 {features.map((f, n) => <Section
                         key={f.getId()}
-                        open={features.length === 1}
+                        open={true}
                         header={this.header(f)}
                         icon={'center_focus_weak'}
                         iconClick={() => this.click(f)}
