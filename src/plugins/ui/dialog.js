@@ -14,6 +14,20 @@ class Plugin extends app.Plugin {
             })
         );
 
+        this.action('alert', (opts) => {
+            let style = app.theme('gwc.ui.dialog.alert');
+
+            opts.width = opts.width || style.width;
+            opts.height = opts.height || style.height;
+            opts.content = <div style={{display: 'flex', width: '100%'}}>
+                <MaterialIcon color={style.color} icon='error'/>
+                <div style={{flex:1, paddingLeft: 8}}>
+                    {opts.content}
+                </div>
+            </div>;
+            app.set({dialogParams: opts});
+        });
+
         this.action('dialogHide', () =>
             app.set({
                 dialogParams: null,

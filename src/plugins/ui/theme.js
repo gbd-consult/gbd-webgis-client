@@ -473,6 +473,11 @@ module.exports = {
                     extend: '{../container}',
                     overflow: 'auto',
                     paddingRight: '{../padding}'
+                },
+                alert: {
+                    color: COLOR.red500,
+                    width: 400,
+                    height: 200
                 }
             }
         }
