@@ -4,9 +4,9 @@ module.exports = {
             selection: {
                 feature: {
                     stroke: {
-                        color: 'black',
+                        color: 'red',
                         lineDash: [4, 4],
-                        width: 2
+                        width: 3
                     }
                 },
                 tooltip: {

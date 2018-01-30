@@ -4,6 +4,7 @@ import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
+import AutoComplete from 'material-ui/AutoComplete';
 
 import app from 'app';
 import ol from 'ol-all';
@@ -84,10 +85,9 @@ class Plugin extends app.Plugin {
                 allprops: true,
             };
 
-            let sel = app.get('selectionGeometry');
+            let sel = app.get('selectionGeometryWKT');
             if(sel) {
-                let wkt = new ol.format.WKT();
-                data.bounds = wkt.writeGeometry(sel);
+                data.selection = sel;
             }
 
             app.perform('gbdServerPost', {
@@ -148,6 +148,22 @@ class Select extends React.Component {
     }
 }
 
+class Combo extends React.Component {
+    render() {
+        return (
+            <AutoComplete
+                id={'gbd_fs_search_' + this.props.name}
+                fullWidth={true}
+                hintText={this.props.hintText}
+                value={this.props.form[this.props.name] || ''}
+                dataSource={this.props.dataSource}
+                filter={(searchText, key) => (key.toLowerCase().indexOf(searchText.toLowerCase()) === 0)}
+                onUpdateInput={(val) => app.update('gbdFsSearchForm', {[this.props.name]: val})}
+            />
+        );
+    }
+}
+
 class Form extends React.Component {
     render() {
         let form = this.props.gbdFsSearchForm,
@@ -166,7 +182,7 @@ class Form extends React.Component {
             if (form.gemarkungsnummer && lists.strassen)
                 strasseMenu = lists.strassen
                     .filter(v => v[1].includes(Number(form.gemarkungsnummer)))
-                    .map(v => <MenuItem key={v[0]} value={v[0]} primaryText={v[0]}/>);
+                    .map(v => v[0]);
         }
 
         let withOwner = this.props.authUser && this.props.authUser.permissions.includes('FS_SEARCH_VIEW_OWNER'),
@@ -196,7 +212,7 @@ class Form extends React.Component {
                 </Row>
                 <Row>
                     <Cell flex={3}>
-                        <Select name={'strasse'} hintText={'Straße'} form={form}>{strasseMenu}</Select>
+                        <Combo name={'strasse'} hintText={'Straße'} form={form} dataSource={strasseMenu} />
                     </Cell>
                     <Cell>
                         <Field name={'hausnummer'} hintText={'Nr'} form={form}/>

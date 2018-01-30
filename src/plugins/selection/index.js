@@ -19,22 +19,65 @@ const LAYER_KIND = 'selection';
 
 class Plugin extends app.Plugin {
     init() {
-        app.set({selectionShape: 'Box'});
+        app.set({
+            selectionMode: 'selectionDrawBoxMode',
+            selectionGeometry: null,
+            selectionGeometryWKT: null
+        });
 
         let fs = app.theme('gwc.plugin.selection.feature');
         this.style = mapUtil.makeStyle(fs);
 
-        this.action('selectionDraw', ({shape}) => {
-            app.set({selectionShape: shape});
-            this.drawMode(shape);
+        this.action('selectionDrawBoxMode', () => {
+            app.set({selectionMode: 'selectionDrawBoxMode'});
+            this.drawMode('Box');
         });
 
-        this.action('selectionObject', () => {
+        this.action('selectionDrawPolygonMode', () => {
+            app.set({selectionMode: 'selectionDrawPolygonMode'});
+            this.drawMode('Polygon');
+        });
+
+        this.action('selectionObjectMode', () => {
+            app.set({selectionMode: 'selectionObjectMode'});
             this.objectMode();
+        });
+
+        this.action('selectionLastMode', () => {
+            let mode = app.get('selectionMode') || 'selectionDrawBoxMode';
+            app.perform(mode);
         });
 
         this.action('selectionDrop', () => {
             this.drop();
+            app.perform('selectionLastMode');
+        });
+
+        this.action('selectionSelect', ({geometry}) => {
+            let geoms = app.get('selectionGeometry') || [],
+                wkt = new ol.format.WKT(),
+                wnew = wkt.writeGeometry(geometry),
+                out = [],
+                found = false;
+
+            geoms.forEach(g => {
+                let w = wkt.writeGeometry(g);
+                if (w === wnew) {
+                    found = true;
+                } else {
+                    out.push(g);
+                }
+            });
+
+            if (!found)
+                out.push(geometry);
+
+            this.source.clear();
+            out.forEach(g => this.source.addFeature(new ol.Feature(g)));
+            app.set({
+                selectionGeometry: out,
+                selectionGeometryWKT: out.map(g => wkt.writeGeometry(g)),
+            });
         });
     }
 
@@ -118,37 +161,45 @@ class Plugin extends app.Plugin {
 
 
     drawStart(evt) {
-        this.source.clear();
+        //this.source.clear();
     }
 
     drawEnd(evt) {
-        app.set({selectionGeometry: evt.feature ? evt.feature.getGeometry() : null})
+        if (evt.feature)
+            app.perform('selectionSelect', {geometry: evt.feature.getGeometry()});
     }
 
     objectEnd(evt) {
-        let done = false;
-        let opts = {
-            layerFilter: layer => !layer.get('isService')
-        };
+        let foundGeom = null;
 
-        app.map().forEachFeatureAtPixel(evt.pixel, feature => {
-            if (done)
-                return;
-            let geom = feature.getGeometry();
-            if (geom instanceof ol.geom.Polygon) {
-                this.source.clear();
-                this.source.addFeature(new ol.Feature(geom));
-                app.set({selectionGeometry: geom});
-                done = true;
+        app.perform('search', {
+            coordinate: evt.coordinate,
+            done: found => {
+                if (foundGeom)
+                    return;
+
+                (found || []).some(feature => {
+                    let geom = feature.getGeometry();
+                    if (geom instanceof ol.geom.Polygon || geom instanceof ol.geom.MultiPolygon) {
+                        foundGeom = geom;
+                        return true;
+                    }
+                });
+
+                if (foundGeom) {
+                    app.perform('selectionSelect', {geometry: foundGeom});
+                }
             }
-        }, opts);
+        });
     }
 
     drop() {
         app.map().removeServiceLayer(LAYER_KIND);
         this.source = null;
-        app.set({selectionGeometry: null});
-        app.perform('mapDefaultMode');
+        app.set({
+            selectionGeometry: null,
+            selectionGeometryWKT: null
+        });
 
     }
 }
@@ -165,21 +216,21 @@ class Button extends React.Component {
                     secondary
                     active={mm === 'selectionDrawBox'}
                     tooltip={__("gwc.plugin.selection.selectBox")}
-                    onClick={() => app.perform('selectionDraw', {shape: 'Box'})}
+                    onClick={() => app.perform('selectionDrawBoxMode')}
                     icon='crop_din'
                 />
                 <toolbar.Button
                     secondary
                     active={mm === 'selectionDrawPolygon'}
                     tooltip={__("gwc.plugin.selection.selectPolygon")}
-                    onClick={() => app.perform('selectionDraw', {shape: 'Polygon'})}
+                    onClick={() => app.perform('selectionDrawPolygonwMode')}
                     icon='details'
                 />
                 <toolbar.Button
                     secondary
                     active={mm === 'selectionObject'}
                     tooltip={__("gwc.plugin.selection.selectObject")}
-                    onClick={() => app.perform('selectionObject')}
+                    onClick={() => app.perform('selectionObjectMode')}
                     icon='arrow_upward'
                 />
                 <toolbar.Button
@@ -199,7 +250,7 @@ class Button extends React.Component {
                 {...this.props}
                 active={false}
                 tooltip={__("gwc.plugin.selection.select")}
-                onClick={() => app.perform('selectionDraw', {shape: this.props.selectionShape})}
+                onClick={() => app.perform('selectionLastMode')}
                 icon='crop_free'
             />}
         </div>);

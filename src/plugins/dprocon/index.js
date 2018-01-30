@@ -20,18 +20,15 @@ class Plugin extends app.Plugin {
     init() {
 
         this.action('dproconConnect', () => {
-            let sel = app.get('selectionGeometry');
+            let sel = app.get('selectionGeometryWKT');
 
             if (!sel)
                 return;
 
-            let wkt = new ol.format.WKT();
-
-
             let data = {
                 plugin: 'dprocon',
                 cmd: 'connect',
-                bounds: wkt.writeGeometry(sel)
+                selection: sel
             };
 
             let done = ({response, error}) => {
