@@ -223,7 +223,7 @@ class Button extends React.Component {
                     secondary
                     active={mm === 'selectionDrawPolygon'}
                     tooltip={__("gwc.plugin.selection.selectPolygon")}
-                    onClick={() => app.perform('selectionDrawPolygonwMode')}
+                    onClick={() => app.perform('selectionDrawPolygonMode')}
                     icon='details'
                 />
                 <toolbar.Button
