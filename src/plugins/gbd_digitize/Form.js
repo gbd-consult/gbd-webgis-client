@@ -9,9 +9,11 @@ import ol from 'ol-all';
 
 import ColorPicker from 'components/ColorPicker';
 
+const SAVE_DELAY = 1000;
+
 function change(name, val) {
     app.update('editorForm', {[name]: val});
-    app.perform('editorFormSave')
+    _.debounce(() => app.perform('editorFormSave'), SAVE_DELAY)();
 }
 
 class Field extends React.Component {
@@ -82,9 +84,9 @@ class LayerForm extends React.Component {
             <div>
                 <Field name={'label'} hintText={__("gwc.plugin.gbd_digitize.label")} {...this.props} />
                 <div style={{display: 'flex', alignItems: 'center'}}>
-                    <div>{__("gwc.plugin.gbd_digitize.fill")}</div>
+                    <h5>{__("gwc.plugin.gbd_digitize.fill")}</h5>
                     <Color name={'fillColor'} {...this.props} />
-                    <div>{__("gwc.plugin.gbd_digitize.stroke")}</div>
+                    <h5>{__("gwc.plugin.gbd_digitize.stroke")}</h5>
                     <Color name={'strokeColor'} {...this.props} />
                 </div>
             </div>

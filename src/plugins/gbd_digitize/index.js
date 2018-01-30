@@ -60,6 +60,7 @@ function createLayer(la) {
     let layer = new ol.layer.Vector({
         source,
         layerID: la.id,
+        isEditor: true,
         props: la.props,
         style: layerStyle(la)
     });
@@ -196,6 +197,13 @@ class Plugin extends app.Plugin {
             app.perform('editorModify');
         });
 
+        this.action('editorToggleVisible', ({object}) => {
+            if (object.getVisible)
+                object.setVisible(!object.getVisible());
+            app.perform('mapDefaultMode');
+            update();
+        });
+
         this.action('editorModify', () => {
             app.perform('mapDefaultMode');
 
@@ -282,9 +290,19 @@ class Plugin extends app.Plugin {
             };
 
             post('delete', data, () => reload());
-
-
         });
+
+        this.action('search', async ({coordinate, geometry, done}) => {
+            let opts = {
+                layerFilter: layer => layer.get('isEditor') && layer.getVisible()
+            };
+            let m = app.map();
+            let pixel = m.getPixelFromCoordinate(coordinate);
+            let fs = [];
+
+            app.map().forEachFeatureAtPixel(pixel, feature => fs.push(feature), opts);
+            done(fs);
+        })
 
 
     }

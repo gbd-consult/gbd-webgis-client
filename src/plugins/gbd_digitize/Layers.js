@@ -10,12 +10,21 @@ class Layer extends React.Component {
         app.perform('editorSelect', {object})
     }
 
+    visibilityClick(object) {
+        app.perform('editorToggleVisible', {object})
+    }
+
     render() {
         let la = this.props.layer,
             features = la.getSource().getFeatures(),
-            style = id => (id === this.props.editorSelectedID ?
-                app.theme('gwc.plugin.gbd_digitize.treeSelected') :
-                app.theme('gwc.plugin.gbd_digitize.tree'));
+            visible = la.getVisible(),
+            style = id => (id === this.props.editorSelectedID)
+                ? app.theme('gwc.plugin.gbd_digitize.treeSelected')
+                : (visible ?
+                    app.theme('gwc.plugin.gbd_digitize.tree') :
+                    app.theme('gwc.plugin.gbd_digitize.treeHidden')),
+            visIcon = visible ? 'visibility' : 'visibility_off';
+
 
         return (
             <Section
@@ -27,7 +36,8 @@ class Layer extends React.Component {
                         {this.props.layer.get('props').label || noLabel}
                     </div>
                 }
-                iconClick={() => this.visibilityClick()}
+                icon={visIcon}
+                iconClick={() => this.visibilityClick(la)}
                 indent={true}
             >
                 {features.map(f => <Section
@@ -40,7 +50,6 @@ class Layer extends React.Component {
                                 {f.get('props').label || noLabel}
                             </div>
                         }
-                        iconClick={() => this.visibilityClick()}
                         indent={true}
                     />
                 )}

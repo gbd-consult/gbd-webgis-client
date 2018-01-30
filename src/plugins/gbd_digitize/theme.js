@@ -60,6 +60,11 @@ module.exports = {
                 treeSelected: {
                     extend: '{../tree}',
                     color: '{/palette/accent1Color}'
+                },
+
+                treeHidden: {
+                    extend: '{../tree}',
+                    color: '{/palette/borderColor}'
                 }
 
             }
