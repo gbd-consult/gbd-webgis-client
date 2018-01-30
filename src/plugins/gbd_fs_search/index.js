@@ -53,9 +53,9 @@ function convert(fs) {
 
     let props = {
         _layerTitle: 'Flurstück',
-        'amt. Fläche': fs.amtlicheflaeche + ' m\u00b2',
-        Nummer: nummer() || '-',
-        Adresse: adresse() || '-',
+        'Gemarkung': fs.gemarkung,
+        'Flur': String(fs.flurnummer),
+        'Nummer': fs.zaehlernenner,
         geometry: new ol.format.WKT().readGeometry(fs.wkt_geometry, {
             dataProjection: app.config.str('map.crs.server'),
             featureProjection: app.config.str('map.crs.client')
