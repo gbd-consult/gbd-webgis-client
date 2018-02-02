@@ -6,8 +6,13 @@ import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
 import AutoComplete from 'material-ui/AutoComplete';
 
+import _ from 'lodash';
+
 import app from 'app';
 import ol from 'ol-all';
+
+import FsList from './FsList';
+import './index.sass';
 
 function loadGemarkungen() {
     app.perform('gbdServerGet', {
@@ -32,39 +37,13 @@ function loadStrassen() {
 }
 
 function convert(fs) {
+    let wkt = new ol.format.WKT();
 
-    function nummer() {
-        let s = '';
-        if (fs.flurnummer)
-            s += fs.flurnummer + '-';
-        if (fs.zaehler)
-            s += fs.zaehler;
-        if (fs.nenner)
-            s += '/' + fs.nenner;
-        return s;
-    }
-
-    function adresse() {
-        if (fs.lage && fs.lage[0]) {
-            return [fs.lage[0].strasse || '', fs.lage[0].hausnummer || '', '\n', fs.lage[0].gemeinde].join(' ')
-        }
-        return '';
-    }
-
-    let props = {
-        _layerTitle: 'Flurstück',
-        'Gemarkung': fs.gemarkung,
-        'Flur': String(fs.flurnummer),
-        'Nummer': fs.zaehlernenner,
-        geometry: new ol.format.WKT().readGeometry(fs.wkt_geometry, {
-            dataProjection: app.config.str('map.crs.server'),
-            featureProjection: app.config.str('map.crs.client')
-        })
-    }
-
-    let f = new ol.Feature(props);
-    f.setId(fs.gml_id);
-    return f;
+    fs.geometry = wkt.readGeometry(fs.wkt_geometry, {
+        dataProjection: app.config.str('map.crs.server'),
+        featureProjection: app.config.str('map.crs.client')
+    });
+    return fs;
 }
 
 class Plugin extends app.Plugin {
@@ -86,15 +65,61 @@ class Plugin extends app.Plugin {
             };
 
             let sel = app.get('selectionGeometryWKT');
-            if(sel) {
+            if (sel) {
                 data.selection = sel;
             }
 
             app.perform('gbdServerPost', {
                 data, done: ({response, error}) => {
-                    app.perform('detailsShowFeatures', {features: (response || []).map(convert)})
+                    app.set({gbdFsSearchResults: response.map(convert)});
+                    app.perform('detailsShow', {content: <FsList/>})
                 }
+            });
+        });
 
+        this.action('gbdFsSearchDetails', ({fs, done}) => {
+            let data = {
+                plugin: 'fs_details',
+                cmd: 'infobox',
+                gml_id: fs.gml_id
+            };
+            app.perform('gbdServerPost', {data, done});
+        });
+
+        this.action('gbdFsSearchDetailsPrint', ({fs}) => {
+            let map = app.map(),
+                mapName = null,
+                layers = map.getLayerRoot().collect(la => {
+                    if (la.isVisible() && la.wmsName) {
+                        let m = _.get(la, 'config.params.map');
+                        if (m)
+                            mapName = m;
+                        return la.wmsName();
+                    }
+                }),
+                extent = map.getView().calculateExtent();
+
+            let data = {
+                plugin: 'fs_details',
+                cmd: 'print',
+                gml_id: fs.gml_id,
+                map: mapName,
+                layers: layers.reverse(),
+                extra_features: [{
+                    plugin: 'marker',
+                    wkt: fs.wkt_geometry
+                }],
+                'map0:extent': extent
+            };
+
+            let url = app.config.str('server.url') + '?plugin=fs_details&cmd=print_wait';
+            window.open(url, 'gwc_pdf_window');
+
+            app.perform('gbdServerPost', {
+                data, done: ({response}) => {
+                    let url = app.config.str('server.url') + `download/${response.uid}.pdf`;
+                    window.open(url, 'gwc_pdf_window')
+                }
             });
         });
     }
@@ -212,7 +237,7 @@ class Form extends React.Component {
                 </Row>
                 <Row>
                     <Cell flex={3}>
-                        <Combo name={'strasse'} hintText={'Straße'} form={form} dataSource={strasseMenu} />
+                        <Combo name={'strasse'} hintText={'Straße'} form={form} dataSource={strasseMenu}/>
                     </Cell>
                     <Cell>
                         <Field name={'hausnummer'} hintText={'Nr'} form={form}/>
