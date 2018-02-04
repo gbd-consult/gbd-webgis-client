@@ -11,6 +11,7 @@ import React from 'react';
 import Paper from 'material-ui/Paper';
 
 import app from 'app';
+import _ from 'lodash';
 import ol from 'ol-all';
 
 import mapUtil from 'map-util';
@@ -22,17 +23,21 @@ import Form from './Form';
 const defaultFillColor = 'rgba(103,58,183,0.8)';
 const defaultStrokeColor = 'rgba(244,67,54,0.8)';
 
-function layerStyle(la) {
+function featureStyle(feature) {
+
+    let layerProps = feature.get('layerProps') || {},
+        props = feature.get('props') || {};
+
     let fill = new ol.style.Fill({
-        color: la.props['fillColor'] || defaultFillColor,
+        color: layerProps['fillColor'] || defaultFillColor,
     });
 
     let stroke = new ol.style.Stroke({
-        color: la.props['strokeColor'] || defaultStrokeColor,
+        color: layerProps ['strokeColor'] || defaultStrokeColor,
         width: 1
     });
 
-    return new ol.style.Style({
+    let s = {
         fill,
         stroke,
         image: new ol.style.Circle({
@@ -40,7 +45,18 @@ function layerStyle(la) {
             stroke,
             radius: 5
         })
-    });
+    };
+
+    if (app.get('editorShowLabels') && props.label) {
+        s.text = new ol.style.Text({
+            textAlign: 'center',
+            text: props.label,
+            offsetY: 10,
+            fill: new ol.style.Fill({color: 'black'})
+        });
+    }
+
+    return new ol.style.Style(s);
 }
 
 function createLayer(la) {
@@ -53,7 +69,8 @@ function createLayer(la) {
             featureID: f.id,
             layerID: f.layer_id,
             geometry: wkt.readGeometry(f.props.geometry),
-            props: f.props
+            props: f.props,
+            layerProps: la.props
         }));
     });
 
@@ -62,7 +79,7 @@ function createLayer(la) {
         layerID: la.id,
         isEditor: true,
         props: la.props,
-        style: layerStyle(la)
+        style: featureStyle
     });
 
     app.map().attachLayer('editor', layer);
@@ -133,50 +150,53 @@ function setSelected(id) {
     let obj = getObject(id);
 
     if (obj) {
-        app.set({
-            editorSelectedID: objectId(obj),
-            editorForm: obj.get('props')
-        });
-
+        app.set({editorSelectedID: objectId(obj)});
     } else {
-        app.set({
-            editorSelectedID: 0,
-            editorForm: {}
-        });
+        app.set({editorSelectedID: 0});
+        app.perform('markerClear');
+
     }
-
-    if (obj && obj.get('featureID'))
-        app.perform('markerMark', {features: [obj]});
-    else
-        app.perform('markerClear', {features: [obj]});
 }
 
-function reload(done) {
-    post('list', {}, ({response}) => {
-        parse(response);
-        setSelected(app.get('editorSelectedID'));
-        if (done)
-            done();
-    });
+function highlight(obj) {
+    if (obj && obj.get('featureID')) {
+        app.perform('markerMark', {features: [obj], pan: true, animate: true});
+        _.debounce(() => app.perform('markerClear', {features: [obj]}), 1000)();
+    }
 }
+
+function refresh(response, selectedID) {
+    parse(response);
+    setSelected(selectedID || app.get('editorSelectedID'));
+    switch (app.get('mapMode')) {
+        case 'editorModify':
+            app.perform('editorModify')
+            break;
+        case 'editorDrawPoint':
+            app.perform('editorDraw', {type: 'Point'});
+            break;
+        case 'editorDrawLineString':
+            app.perform('editorDraw', {type: 'LineString'});
+            break;
+        case 'editorDrawPolygon':
+            app.perform('editorDraw', {type: 'Polygon'})
+            break;
+        default:
+            app.perform('mapDefaultMode');
+    }
+}
+
 
 class Plugin extends app.Plugin {
     init() {
 
         app.set({
             editorVersion: 0,
-            editorSelectedID: 1,
-            editorForm: {}
+            editorSelectedID: 0,
+            editorShowLabels: true
         });
 
-        reload();
-
-        this.handleStyle = new ol.style.Circle({
-            radius: 3,
-            fill: new ol.style.Fill({
-                color: 'red'
-            }),
-        });
+        post('list', {}, ({response}) => refresh(response));
 
         this.action('editorAddLayer', () => {
             app.perform('mapDefaultMode');
@@ -186,14 +206,13 @@ class Plugin extends app.Plugin {
                 strokeColor: defaultStrokeColor
             };
 
-            post('add_layer', {props}, ({response}) => {
-                let newID = response.layer_id;
-                reload(() => setSelected(newID));
-            });
+            post('add_layer', {props}, ({response}) =>
+                refresh(response, response.layer_id));
         });
 
         this.action('editorSelect', ({object}) => {
             setSelected(objectId(object));
+            highlight(object);
             app.perform('editorModify');
         });
 
@@ -202,6 +221,11 @@ class Plugin extends app.Plugin {
                 object.setVisible(!object.getVisible());
             app.perform('mapDefaultMode');
             update();
+        });
+
+        this.action('editorToggleLabels', () => {
+            app.set({editorShowLabels: !app.get('editorShowLabels')});
+            post('list', {}, ({response}) => refresh(response));
         });
 
         this.action('editorModify', () => {
@@ -218,7 +242,6 @@ class Plugin extends app.Plugin {
 
             intModify.on('modifyend', evt => this.modifyEnd(layer, evt));
 
-            this.layerStyle = layer.getStyle();
             layer.setStyle(f => this.modifyStyleFunc(f));
 
             app.perform('mapSetMode', {
@@ -230,7 +253,7 @@ class Plugin extends app.Plugin {
                     intModify,
                     intSnap,
                 ],
-                onLeave: () => layer.setStyle(this.layerStyle)
+                onLeave: () => layer.setStyle(featureStyle)
             });
         });
 
@@ -261,22 +284,28 @@ class Plugin extends app.Plugin {
             });
         });
 
-        this.action('editorFormSave', () => {
-            let form = app.get('editorForm'),
-                selected = getObject(app.get('editorSelectedID'));
+        this.saveTimer = 0;
+        this.saveDelay = 500;
+        this.saveQueue = {};
 
-            if (!selected)
-                return;
-
+        this.action('editorQueueSave', ({form, selected}) => {
+            this.saveQueue[objectId(selected)] = form;
             selected.set('props', form);
-            let data = {
-                id: objectId(selected),
-                props: form
-            };
+            clearTimeout(this.saveTimer);
+            this.saveTimer = setTimeout(() => app.perform('editorSave'), this.saveDelay);
+            update();
+        });
 
-            post('update', data, () => {
-                reload(() => app.perform('editorModify'));
-            });
+        this.action('editorSave', () => {
+            let objects = Object.keys(this.saveQueue).map(id => ({
+                id,
+                props: this.saveQueue[id]
+            }));
+
+            this.saveQueue = {};
+
+            if (objects.length)
+                post('update_many', {objects}, ({response}) => refresh(response));
         });
 
         this.action('editorDelete', () => {
@@ -289,7 +318,7 @@ class Plugin extends app.Plugin {
                 id: objectId(selected),
             };
 
-            post('delete', data, () => reload());
+            post('delete', data, ({response}) => refresh(response));
         });
 
         this.action('search', async ({coordinate, geometry, done}) => {
@@ -303,8 +332,6 @@ class Plugin extends app.Plugin {
             app.map().forEachFeatureAtPixel(pixel, feature => fs.push(feature), opts);
             done(fs);
         })
-
-
     }
 
 
@@ -319,32 +346,37 @@ class Plugin extends app.Plugin {
         else if (geom instanceof ol.geom.Polygon)
             g = new ol.geom.MultiPoint(geom.getLinearRing(0).getCoordinates());
         else
-            return this.layerStyle;
+            return featureStyle(feature);
 
         return [
             new ol.style.Style({
-                image: this.handleStyle,
+                image: new ol.style.Circle({
+                    radius: 3,
+                    fill: new ol.style.Fill({
+                        color: 'red'
+                    }),
+                }),
                 geometry: g
             }),
-            this.layerStyle
+            featureStyle(feature)
         ];
     }
 
 
     modifyEnd(layer, evt) {
-        let fs = [];
+        let objects = [];
+        let wkt = new ol.format.WKT();
 
         evt.features.forEach(f => {
-            let wkt = new ol.format.WKT();
             let props = f.get('props');
             props.geometry = wkt.writeGeometry(f.getGeometry());
-            fs.push({
+            objects.push({
                 id: f.get('featureID'),
                 props
             });
         });
 
-        post('update_many', {features: fs});
+        post('update_many', {objects});
     }
 
     drawEnd(layer, evt) {
@@ -359,22 +391,22 @@ class Plugin extends app.Plugin {
             evt.feature.set('featureID', response.feature_id);
             evt.feature.set('layerID', response.layer_id);
             evt.feature.set('props', {});
-            reload();
+            refresh(response, response.feature_id);
         });
     }
-
-
 }
 
 class Panel extends React.Component {
     render() {
-        let selected = getObject(app.get('editorSelectedID'));
+        let selected = getObject(app.get('editorSelectedID')),
+            selectedLayer = selected ? getObject(selected.get('layerID')) : null,
+            p = {...this.props, selected, selectedLayer};
 
         return (
             <Paper style={app.theme('gwc.plugin.gbd_digitize.panel')}>
-                <Layers {...this.props}/>
-                <Form selected={selected} {...this.props}/>
-                <Toolbar {...this.props}/>
+                <Layers {...p} />
+                <Form {...p} />
+                <Toolbar {...p} />
             </Paper>
         );
     }
@@ -383,5 +415,5 @@ class Panel extends React.Component {
 
 export default {
     Plugin,
-    Panel: app.connect(Panel, ['mapMode', 'editorSelectedID', 'editorVersion', 'editorForm'])
+    Panel: app.connect(Panel, ['mapMode', 'editorSelectedID', 'editorVersion'])
 }

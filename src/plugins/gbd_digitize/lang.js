@@ -14,7 +14,10 @@ module.exports = {
                     lineButton: 'add line',
                     polygonButton: 'add polygon',
                     deleteButton: 'delete',
+                    labelsButton: 'toggle labels',
                     noLabel: 'Untitled',
+                    attrTitle: 'Attributes',
+                    attrNew: '',
                 },
                 de: {
                     label: 'Beschriftung',
@@ -26,8 +29,10 @@ module.exports = {
                     lineButton: 'Linie',
                     polygonButton: 'Polygon',
                     deleteButton: 'löschen',
+                    labelsButton: 'Beschriftungen',
                     noLabel: 'Unbenannt',
-
+                    attrTitle: 'Attribute',
+                    attrNew: '',
                 },
             }
         }

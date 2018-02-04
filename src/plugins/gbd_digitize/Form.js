@@ -8,13 +8,8 @@ import app from 'app';
 import ol from 'ol-all';
 
 import ColorPicker from 'components/ColorPicker';
+import Grid from 'components/Grid';
 
-const SAVE_DELAY = 1000;
-
-function change(name, val) {
-    app.update('editorForm', {[name]: val});
-    _.debounce(() => app.perform('editorFormSave'), SAVE_DELAY)();
-}
 
 class Field extends React.Component {
     render() {
@@ -23,8 +18,8 @@ class Field extends React.Component {
                 id={'editor_' + this.props.name}
                 fullWidth={true}
                 hintText={this.props.hintText}
-                value={this.props.editorForm[this.props.name] || ''}
-                onChange={(evt, val) => change(this.props.name, val)}
+                value={this.props.form[this.props.name] || ''}
+                onChange={(evt, val) => this.props.onChange(this.props.name, val)}
             />
         );
     }
@@ -37,8 +32,8 @@ class Select extends React.Component {
                 id={'editor_' + this.props.name}
                 fullWidth={true}
                 hintText={this.props.hintText}
-                value={this.props.editorForm[this.props.name] || ''}
-                onChange={(evt, key, val) => change(this.props.name, val)}
+                value={this.props.form[this.props.name] || ''}
+                onChange={(evt, key, val) => this.props.onChange(this.props.name, val)}
             >{this.props.children}</SelectField>
         );
     }
@@ -50,8 +45,8 @@ class Color extends React.Component {
             <ColorPicker
                 id={'editor_' + this.props.name}
                 hintText={this.props.hintText}
-                value={this.props.editorForm[this.props.name] || ''}
-                onChange={(evt, val) => change(this.props.name, val)}
+                value={this.props.form[this.props.name] || ''}
+                onChange={(evt, val) => this.props.onChange(this.props.name, val)}
                 colors={[
                     'rgba(244,67,54,0.8)',
                     'rgba(233,30,99,0.8)',
@@ -78,16 +73,44 @@ class Color extends React.Component {
     }
 }
 
+let replace = (a, n, v) => {
+    let b = [...a];
+    b[n] = v;
+    return b;
+};
+
+let empty = x => _.isNil(x) ? '' : x;
+
 class LayerForm extends React.Component {
     render() {
+
+        let schema = (this.props.form.schema || []),
+            attrData = schema.map((attrName, n) => ({
+                key: n,
+                values: [attrName],
+                editable: [true]
+            })).filter(row => !_.isNil(row.values[0]));
+
         return (
             <div>
-                <Field name={'label'} hintText={__("gwc.plugin.gbd_digitize.label")} {...this.props} />
+                <Field
+                    name={'label'}
+                    hintText={__("gwc.plugin.gbd_digitize.label")}
+                    {...this.props} />
                 <div style={{display: 'flex', alignItems: 'center'}}>
                     <h5>{__("gwc.plugin.gbd_digitize.fill")}</h5>
                     <Color name={'fillColor'} {...this.props} />
                     <h5>{__("gwc.plugin.gbd_digitize.stroke")}</h5>
                     <Color name={'strokeColor'} {...this.props} />
+                </div>
+                <div>
+                    <h5>{__("gwc.plugin.gbd_digitize.attrTitle")}</h5>
+                    <Grid
+                        data={attrData}
+                        onAddRow={() => this.props.onChange('schema', schema.concat(''))}
+                        onDeleteRow={r => this.props.onChange('schema', replace(schema, r, null))}
+                        onChange={(r, c, val) => this.props.onChange('schema', replace(schema, r, val))}
+                    />
                 </div>
             </div>
         );
@@ -96,9 +119,26 @@ class LayerForm extends React.Component {
 
 class FeatureForm extends React.Component {
     render() {
+        let schema = this.props.layerProps.schema || [],
+            attr = this.props.form.attr || [],
+            attrData = schema.map((attrName, n) => ({
+                key: n,
+                values: [attrName, empty(attr[n])],
+                editable: [false, true]
+            })).filter(row => row.values[0]);
+
         return (
             <div>
-                <Field name={'label'} hintText={__("gwc.plugin.gbd_digitize.label")} {...this.props} />
+                <div>
+                    <Field name={'label'} hintText={__("gwc.plugin.gbd_digitize.label")} {...this.props} />
+                </div>
+                {!!attrData.length && <div>
+                    <h5>{__("gwc.plugin.gbd_digitize.attrTitle")}</h5>
+                    <Grid
+                        data={attrData}
+                        onChange={(r, c, val) => this.props.onChange('attr', replace(attr, r, val))}
+                    />
+                </div>}
             </div>
         );
     }
@@ -106,13 +146,27 @@ class FeatureForm extends React.Component {
 
 class Form extends React.Component {
     render() {
-        if (!this.props.selected)
+        let selected = this.props.selected;
+
+        if (!selected)
             return null;
+
+        let form = this.props.selected.get('props') || {},
+            p = {
+                form,
+                layerProps: this.props.selectedLayer.get('props') || {},
+                onChange: (name, val) => app.perform('editorQueueSave', {
+                    form: {...form, [name]: val},
+                    selected
+                })
+            };
 
         return (
             <div style={app.theme('gwc.plugin.gbd_digitize.form')}>
                 {
-                    this.props.selected.get('featureID') ? <FeatureForm {...this.props}/> : <LayerForm {...this.props} />
+                    selected.get('featureID') ?
+                        <FeatureForm {...p} /> :
+                        <LayerForm {...p} />
                 }
             </div>
         )
