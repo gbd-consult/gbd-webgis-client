@@ -31,7 +31,9 @@ let palette = {
     textOnDark: COLOR.blueGrey400,
     accentOnDark: PRIMARY,
 
-    light: '#f5f5f5',
+    light: COLOR.blueGrey100,
+    lighter: COLOR.blueGrey50,
+    lightest: '#f5f5f5',
 
     selectedBackground: COLOR.white,
     selectedColor: GBD_GREEN,
@@ -378,7 +380,7 @@ module.exports = {
 
                 contentBox: {
                     alignItems: 'center',
-                    borderBottomColor: '{/palette/light}',
+                    borderBottomColor: '{/palette/lightest}',
                     borderBottomStyle: 'solid',
                     borderBottomWidth: 1,
                     display: 'flex',

@@ -71,7 +71,7 @@ module.exports = {
 
                 resultEven: {
                     extend: '{../result}',
-                    backgroundColor: '{/palette/light}',
+                    backgroundColor: '{/palette/lightest}',
                 },
 
                 chip: {
