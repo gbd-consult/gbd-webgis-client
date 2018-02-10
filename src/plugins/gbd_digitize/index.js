@@ -27,15 +27,16 @@ const noLabel = __("gwc.plugin.gbd_digitize.noLabel");
 
 function featureStyle(feature) {
 
-    let layerStyle = feature.get('layerStyle') || {},
+    let layerProps = feature.get('layerProps') || {},
+        style = layerProps.style || {},
         props = feature.get('props') || {};
 
     let fill = new ol.style.Fill({
-        color: layerStyle['fillColor'] || defaultFillColor,
+        color: style['fillColor'] || defaultFillColor,
     });
 
     let stroke = new ol.style.Stroke({
-        color: layerStyle['strokeColor'] || defaultStrokeColor,
+        color: style['strokeColor'] || defaultStrokeColor,
         width: 1
     });
 
@@ -66,27 +67,29 @@ function createLayer(la) {
     let source = new ol.source.Vector();
     let wkt = new ol.format.WKT();
 
+    let props = {
+        name: la.name,
+        attributes: la.attributes,
+        style: la.style
+    };
+
+    let layer = new ol.layer.Vector({
+        source,
+        props,
+        layerID: la.id,
+        isEditor: true,
+        isLayer: true,
+        style: featureStyle
+    });
+
     la.features.forEach(f => {
         source.addFeature(new ol.Feature({
             featureID: f.id,
             layerID: la.id,
-            geometry: wkt.readGeometry(f.props.wkt_geometry),
+            geometry: wkt.readGeometry(f.wkt),
             props: f.props,
-            layerStyle: la.style
+            layerProps: props
         }));
-    });
-
-    let layer = new ol.layer.Vector({
-        source,
-        layerID: la.id,
-        isEditor: true,
-        isLayer: true,
-        props: {
-            name: la.name,
-            attributes: la.attributes,
-            style: la.style
-        },
-        style: featureStyle
     });
 
     app.map().attachLayer('editor', layer);
@@ -173,9 +176,9 @@ function highlight(obj) {
 }
 
 function refresh(response, selectedID) {
-    console.log(response)
     parse(response);
     setSelected(selectedID || app.get('editorSelectedID'));
+
     switch (app.get('mapMode')) {
         case 'editorModify':
             app.perform('editorModify')
@@ -239,6 +242,7 @@ class Plugin extends app.Plugin {
         this.action('editorToggleVisible', ({object}) => {
             if (object.getVisible)
                 object.setVisible(!object.getVisible());
+            setSelected(null);
             app.perform('mapDefaultMode');
             update();
         });
@@ -246,6 +250,26 @@ class Plugin extends app.Plugin {
         this.action('editorToggleLabels', () => {
             app.set({editorShowLabels: !app.get('editorShowLabels')});
             post('list', {}, ({response}) => refresh(response));
+        });
+
+
+        this.action('editorPick', () => {
+            app.perform('mapDefaultMode');
+
+            let intPointer = new ol.interaction.Pointer({
+                handleDownEvent: evt => this.pickClick(evt),
+            });
+
+            app.perform('mapSetMode', {
+                name: 'editorPick',
+                cursor: 'help',
+                interactions: [
+                    intPointer,
+                    'DragPan',
+                    'MouseWheelZoom',
+                    'PinchZoom',
+                ],
+            });
         });
 
         this.action('editorModify', () => {
@@ -276,7 +300,6 @@ class Plugin extends app.Plugin {
                 onLeave: () => layer.setStyle(featureStyle)
             });
         });
-
 
         this.action('editorDraw', ({type}) => {
             app.perform('mapDefaultMode');
@@ -313,18 +336,20 @@ class Plugin extends app.Plugin {
         });
 
         this.action('search', async ({coordinate, geometry, done}) => {
-            let opts = {
-                layerFilter: layer => layer.get('isEditor') && layer.getVisible()
-            };
-            let m = app.map();
-            let pixel = m.getPixelFromCoordinate(coordinate);
-            let fs = [];
+            let fs = this.findFeatures(app.map().getPixelFromCoordinate(coordinate));
 
-            app.map().forEachFeatureAtPixel(pixel, feature => fs.push(feature), opts);
-            done(fs);
-        })
+            done(fs.map(feature => {
+                let props =feature.get('props') || {};
+                let f = new ol.Feature({
+                    ...props,
+                    _layerTitle: (feature.get('layerProps') || {}).name,
+                    geometry: feature.getGeometry()
+                });
+                f.setId('editor_' + feature.get('featureID'));
+                return f;
+            }));
+        });
     }
-
 
     modifyStyleFunc(feature) {
         let geom = feature.getGeometry(),
@@ -353,7 +378,6 @@ class Plugin extends app.Plugin {
         ];
     }
 
-
     modifyEnd(layer, evt) {
         let features = [];
         let wkt = new ol.format.WKT();
@@ -361,9 +385,7 @@ class Plugin extends app.Plugin {
         evt.features.forEach(f => {
             features.push({
                 featureID: f.get('featureID'),
-                props: {
-                    wkt_geometry: wkt.writeGeometry(f.getGeometry())
-                }
+                wkt: wkt.writeGeometry(f.getGeometry())
             });
         });
 
@@ -374,13 +396,32 @@ class Plugin extends app.Plugin {
         let wkt = new ol.format.WKT();
         let data = {
             layerID: layer.get('layerID'),
-            props: {
-                wkt_geometry: wkt.writeGeometry(evt.feature.getGeometry())
-            }
+            wkt: wkt.writeGeometry(evt.feature.getGeometry()),
         };
         post('add_feature', data, ({response}) => {
             refresh(response, response.featureID);
         });
+    }
+
+    pickClick(evt) {
+        let fs = this.findFeatures(evt.pixel);
+        if (fs.length)
+            app.perform('editorSelect', {object: fs[0]});
+    }
+
+    findFeatures(pixel) {
+        let opts = {
+            layerFilter: layer => layer.get('isEditor') && layer.getVisible()
+        };
+        let fs = [];
+
+        app.map().forEachFeatureAtPixel(
+            pixel,
+            feature => fs.push(feature),
+            opts
+        );
+
+        return fs;
     }
 }
 

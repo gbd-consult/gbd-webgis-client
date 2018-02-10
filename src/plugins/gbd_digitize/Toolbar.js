@@ -11,28 +11,32 @@ class Toolbar extends React.Component {
         let style = app.theme('gwc.plugin.gbd_digitize.toolButton'),
             s = {
                 add: style.normal,
+                pick: style.normal,
                 labels: app.get('editorShowLabels') ? style.active : style.normal
             };
 
+        s.modify = s.point = s.line = s.polygon = s.delete = style.normal;
+
+        switch (this.props.mapMode) {
+            case 'editorPick':
+                s.pick = style.active;
+                break;
+            case 'editorModify':
+                s.modify = style.active;
+                break;
+            case 'editorDrawPoint':
+                s.point = style.active;
+                break;
+            case 'editorDrawLineString':
+                s.line = style.active;
+                break;
+            case 'editorDrawPolygon':
+                s.polygon = style.active;
+                break;
+        }
+
         if (!this.props.editorSelectedID)
             s.modify = s.point = s.line = s.polygon = s.delete = style.disabled;
-        else {
-            s.modify = s.point = s.line = s.polygon = s.delete = style.normal;
-            switch (this.props.mapMode) {
-                case 'editorModify':
-                    s.modify = style.active;
-                    break;
-                case 'editorDrawPoint':
-                    s.point = style.active;
-                    break;
-                case 'editorDrawLineString':
-                    s.line = style.active;
-                    break;
-                case 'editorDrawPolygon':
-                    s.polygon = style.active;
-                    break;
-            }
-        }
 
         return (
             <div style={app.theme('gwc.plugin.gbd_digitize.toolbar')}>
@@ -48,6 +52,15 @@ class Toolbar extends React.Component {
                 </IconButton>
 
                 <div style={{flex: 1}}/>
+
+                <IconButton
+                    style={s.pick}
+                    tooltip={__("gwc.plugin.gbd_digitize.pickButton")}
+                    tooltipPosition='top-left'
+                    onClick={() => app.perform('editorPick')}
+                >
+                    <SimpleButton icon='call_made'/>
+                </IconButton>
 
                 <IconButton
                     style={s.modify}
