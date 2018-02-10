@@ -86,15 +86,6 @@ class Toolbar extends React.Component {
                 </IconButton>
 
                 <IconButton
-                    style={s.delete}
-                    tooltip={__("gwc.plugin.gbd_digitize.deleteButton")}
-                    tooltipPosition='top-left'
-                    onClick={() => app.perform('editorDelete')}
-                >
-                    <SimpleButton icon='delete'/>
-                </IconButton>
-
-                <IconButton
                     style={s.labels}
                     tooltip={__("gwc.plugin.gbd_digitize.labelsButton")}
                     tooltipPosition='top-left'

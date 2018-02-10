@@ -23,17 +23,19 @@ import Form from './Form';
 const defaultFillColor = 'rgba(103,58,183,0.8)';
 const defaultStrokeColor = 'rgba(244,67,54,0.8)';
 
+const noLabel = __("gwc.plugin.gbd_digitize.noLabel");
+
 function featureStyle(feature) {
 
-    let layerProps = feature.get('layerProps') || {},
+    let layerStyle = feature.get('layerStyle') || {},
         props = feature.get('props') || {};
 
     let fill = new ol.style.Fill({
-        color: layerProps['fillColor'] || defaultFillColor,
+        color: layerStyle['fillColor'] || defaultFillColor,
     });
 
     let stroke = new ol.style.Stroke({
-        color: layerProps ['strokeColor'] || defaultStrokeColor,
+        color: layerStyle['strokeColor'] || defaultStrokeColor,
         width: 1
     });
 
@@ -47,10 +49,10 @@ function featureStyle(feature) {
         })
     };
 
-    if (app.get('editorShowLabels') && props.label) {
+    if (app.get('editorShowLabels') && props.name) {
         s.text = new ol.style.Text({
             textAlign: 'center',
-            text: props.label,
+            text: props.name,
             offsetY: 10,
             fill: new ol.style.Fill({color: 'black'})
         });
@@ -62,15 +64,15 @@ function featureStyle(feature) {
 function createLayer(la) {
 
     let source = new ol.source.Vector();
+    let wkt = new ol.format.WKT();
 
     la.features.forEach(f => {
-        let wkt = new ol.format.WKT();
         source.addFeature(new ol.Feature({
             featureID: f.id,
-            layerID: f.layer_id,
-            geometry: wkt.readGeometry(f.props.geometry),
+            layerID: la.id,
+            geometry: wkt.readGeometry(f.props.wkt_geometry),
             props: f.props,
-            layerProps: la.props
+            layerStyle: la.style
         }));
     });
 
@@ -78,7 +80,12 @@ function createLayer(la) {
         source,
         layerID: la.id,
         isEditor: true,
-        props: la.props,
+        isLayer: true,
+        props: {
+            name: la.name,
+            attributes: la.attributes,
+            style: la.style
+        },
         style: featureStyle
     });
 
@@ -166,6 +173,7 @@ function highlight(obj) {
 }
 
 function refresh(response, selectedID) {
+    console.log(response)
     parse(response);
     setSelected(selectedID || app.get('editorSelectedID'));
     switch (app.get('mapMode')) {
@@ -200,14 +208,26 @@ class Plugin extends app.Plugin {
 
         this.action('editorAddLayer', () => {
             app.perform('mapDefaultMode');
-
             let props = {
-                fillColor: defaultFillColor,
-                strokeColor: defaultStrokeColor
+                style: {
+                    fillColor: defaultFillColor,
+                    strokeColor: defaultStrokeColor
+                }
             };
-
             post('add_layer', {props}, ({response}) =>
-                refresh(response, response.layer_id));
+                refresh(response, response.layerID));
+        });
+
+        this.action('editorUpdateLayer', ({layerID, props}) => {
+            app.perform('mapDefaultMode');
+            post('update_layer', {layerID, props}, ({response}) =>
+                refresh(response, response.layerID));
+        });
+
+        this.action('editorUpdateFeature', ({featureID, props}) => {
+            app.perform('mapDefaultMode');
+            post('update_feature', {featureID, props}, ({response}) =>
+                refresh(response, response.featureID));
         });
 
         this.action('editorSelect', ({object}) => {
@@ -284,41 +304,12 @@ class Plugin extends app.Plugin {
             });
         });
 
-        this.saveTimer = 0;
-        this.saveDelay = 500;
-        this.saveQueue = {};
-
-        this.action('editorQueueSave', ({form, selected}) => {
-            this.saveQueue[objectId(selected)] = form;
-            selected.set('props', form);
-            clearTimeout(this.saveTimer);
-            this.saveTimer = setTimeout(() => app.perform('editorSave'), this.saveDelay);
-            update();
+        this.action('editorDeleteFeature', ({featureID}) => {
+            post('delete_feature', {featureID}, ({response}) => refresh(response));
         });
 
-        this.action('editorSave', () => {
-            let objects = Object.keys(this.saveQueue).map(id => ({
-                id,
-                props: this.saveQueue[id]
-            }));
-
-            this.saveQueue = {};
-
-            if (objects.length)
-                post('update_many', {objects}, ({response}) => refresh(response));
-        });
-
-        this.action('editorDelete', () => {
-            let selected = getObject(app.get('editorSelectedID'));
-
-            if (!selected)
-                return;
-
-            let data = {
-                id: objectId(selected),
-            };
-
-            post('delete', data, ({response}) => refresh(response));
+        this.action('editorDeleteLayer', ({layerID}) => {
+            post('delete_layer', {layerID}, ({response}) => refresh(response));
         });
 
         this.action('search', async ({coordinate, geometry, done}) => {
@@ -364,43 +355,40 @@ class Plugin extends app.Plugin {
 
 
     modifyEnd(layer, evt) {
-        let objects = [];
+        let features = [];
         let wkt = new ol.format.WKT();
 
         evt.features.forEach(f => {
-            let props = f.get('props');
-            props.geometry = wkt.writeGeometry(f.getGeometry());
-            objects.push({
-                id: f.get('featureID'),
-                props
+            features.push({
+                featureID: f.get('featureID'),
+                props: {
+                    wkt_geometry: wkt.writeGeometry(f.getGeometry())
+                }
             });
         });
 
-        post('update_many', {objects});
+        post('update_features', {features});
     }
 
     drawEnd(layer, evt) {
         let wkt = new ol.format.WKT();
         let data = {
-            layer_id: layer.get('layerID'),
+            layerID: layer.get('layerID'),
             props: {
-                geometry: wkt.writeGeometry(evt.feature.getGeometry())
+                wkt_geometry: wkt.writeGeometry(evt.feature.getGeometry())
             }
         };
         post('add_feature', data, ({response}) => {
-            evt.feature.set('featureID', response.feature_id);
-            evt.feature.set('layerID', response.layer_id);
-            evt.feature.set('props', {});
-            refresh(response, response.feature_id);
+            refresh(response, response.featureID);
         });
     }
 }
 
 class Panel extends React.Component {
     render() {
-        let selected = getObject(app.get('editorSelectedID')),
-            selectedLayer = selected ? getObject(selected.get('layerID')) : null,
-            p = {...this.props, selected, selectedLayer};
+        let selectedObject = getObject(app.get('editorSelectedID')),
+            selectedLayer = selectedObject ? getObject(selectedObject.get('layerID')) : null,
+            p = {...this.props, selectedObject, selectedLayer};
 
         return (
             <Paper style={app.theme('gwc.plugin.gbd_digitize.panel')}>

@@ -18,6 +18,7 @@ module.exports = {
                     noLabel: 'Untitled',
                     attrTitle: 'Attributes',
                     attrNew: '',
+                    saveButton: 'Save'
                 },
                 de: {
                     label: 'Beschriftung',
@@ -33,6 +34,7 @@ module.exports = {
                     noLabel: 'Unbenannt',
                     attrTitle: 'Attribute',
                     attrNew: '',
+                    saveButton: 'speichern'
                 },
             }
         }

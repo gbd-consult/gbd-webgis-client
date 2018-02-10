@@ -27,7 +27,7 @@ module.exports = {
                     padding: '0 8px 8px 0',
                     display: 'flex',
                     width: '100%',
-                    backgroundColor: '{/palette/light}'
+                    backgroundColor: '{/palette/light}',
 
                 },
 
@@ -44,6 +44,7 @@ module.exports = {
                 },
 
                 form: {
+                    backgroundColor: '{/palette/lightest}',
                     height: 'auto',
                     overflow: 'auto',
                     padding: 16,

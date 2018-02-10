@@ -1,6 +1,6 @@
 import React from 'react';
 import TextField from 'material-ui/TextField';
-import SelectField from 'material-ui/SelectField';
+import RaisedButton from 'material-ui/RaisedButton';
 
 import _ from 'lodash';
 
@@ -15,26 +15,12 @@ class Field extends React.Component {
     render() {
         return (
             <TextField
-                id={'editor_' + this.props.name}
+                id={this.props.id}
                 fullWidth={true}
                 hintText={this.props.hintText}
-                value={this.props.form[this.props.name] || ''}
-                onChange={(evt, val) => this.props.onChange(this.props.name, val)}
+                value={this.props.value || ''}
+                onChange={(evt, val) => this.props.onChange(val)}
             />
-        );
-    }
-}
-
-class Select extends React.Component {
-    render() {
-        return (
-            <SelectField
-                id={'editor_' + this.props.name}
-                fullWidth={true}
-                hintText={this.props.hintText}
-                value={this.props.form[this.props.name] || ''}
-                onChange={(evt, key, val) => this.props.onChange(this.props.name, val)}
-            >{this.props.children}</SelectField>
         );
     }
 }
@@ -43,10 +29,10 @@ class Color extends React.Component {
     render() {
         return (
             <ColorPicker
-                id={'editor_' + this.props.name}
+                id={this.props.id}
                 hintText={this.props.hintText}
-                value={this.props.form[this.props.name] || ''}
-                onChange={(evt, val) => this.props.onChange(this.props.name, val)}
+                value={this.props.value || ''}
+                onChange={(evt, val) => this.props.onChange(val)}
                 colors={[
                     'rgba(244,67,54,0.8)',
                     'rgba(233,30,99,0.8)',
@@ -73,72 +59,231 @@ class Color extends React.Component {
     }
 }
 
-let replace = (a, n, v) => {
-    let b = [...a];
-    b[n] = v;
-    return b;
-};
+class Footer extends React.Component {
+    render() {
+        return (
 
-let empty = x => _.isNil(x) ? '' : x;
+            <div style={{paddingTop: 16, textAlign: 'right'}}>
+                <RaisedButton
+                    label={__("gwc.plugin.gbd_digitize.saveButton")}
+                    primary={true}
+                    onClick={this.props.onSubmit}
+                />
+                <span style={{paddingLeft: 6}}/>
+                <RaisedButton
+                    secondary={true}
+                    label={__("gwc.plugin.gbd_digitize.deleteButton")}
+                    onClick={this.props.onDelete}
+                />
+            </div>
+        );
+    }
+}
 
 class LayerForm extends React.Component {
-    render() {
 
-        let schema = (this.props.form.schema || []),
-            attrData = schema.map((attrName, n) => ({
-                key: n,
-                values: [attrName],
+    constructor(props) {
+        super(props);
+        this.state = this.getState(props);
+    }
+
+    componentWillReceiveProps(props) {
+        this.setState(this.getState(props));
+    }
+
+    getState(props) {
+        let layer = props.selectedObject,
+            layerProps = layer.get('props');
+
+        let attributes = layerProps.attributes.map(a => ({
+            key: a.position,
+            values: [a.name],
+            editable: [true]
+        })).sort((x, y) => x.key - y.key);
+
+        return {
+            layerID: layer.get('layerID'),
+            name: layerProps['name'] || '',
+            attributes,
+            maxPos: _.max(attributes, 'key') || 0,
+            fillColor: layerProps.style.fillColor,
+            strokeColor: layerProps.style.strokeColor,
+        }
+    }
+
+    addAttribute() {
+        let pos = this.state.maxPos + 1;
+        this.setState({
+            maxPos: pos,
+            attributes: this.state.attributes.concat({
+                key: pos,
+                values: [''],
                 editable: [true]
-            })).filter(row => !_.isNil(row.values[0]));
+            })
+        });
+    }
+
+    changeAttribute(r, val) {
+        this.setState({
+            attributes: this.state.attributes.map(a => a.key !== r ? a : {
+                key: a.key,
+                values: [val],
+                editable: [true]
+            })
+        });
+    }
+
+    removeAttribute(r) {
+        this.setState({
+            attributes: this.state.attributes.filter(a => a.key !== r)
+        });
+    }
+
+    actionSubmit() {
+        let props = {
+            name: this.state.name,
+            style: {
+                fillColor: this.state.fillColor,
+                strokeColor: this.state.strokeColor
+            },
+            attributes: this.state.attributes.map(a => ({
+                position: a.key,
+                name: a.values[0]
+            }))
+        };
+        app.perform('editorUpdateLayer', {layerID: this.state.layerID, props});
+    }
+
+    actionDelete() {
+        app.perform('editorDeleteLayer', {layerID: this.state.layerID});
+    }
+
+    render() {
 
         return (
             <div>
                 <Field
-                    name={'label'}
+                    id={'editor_name'}
+                    value={this.state.name}
                     hintText={__("gwc.plugin.gbd_digitize.label")}
-                    {...this.props} />
+                    onChange={name => this.setState({name})}
+                />
+
                 <div style={{display: 'flex', alignItems: 'center'}}>
                     <h5>{__("gwc.plugin.gbd_digitize.fill")}</h5>
-                    <Color name={'fillColor'} {...this.props} />
+                    <Color
+                        id={'editor_fill'}
+                        value={this.state.fillColor}
+                        onChange={fillColor => this.setState({fillColor})}
+                    />
                     <h5>{__("gwc.plugin.gbd_digitize.stroke")}</h5>
-                    <Color name={'strokeColor'} {...this.props} />
+                    <Color
+                        id={'editor_stroke'}
+                        value={this.state.strokeColor}
+                        onChange={strokeColor => this.setState({strokeColor})}
+                    />
                 </div>
+
                 <div>
                     <h5>{__("gwc.plugin.gbd_digitize.attrTitle")}</h5>
                     <Grid
-                        data={attrData}
-                        onAddRow={() => this.props.onChange('schema', schema.concat(''))}
-                        onDeleteRow={r => this.props.onChange('schema', replace(schema, r, null))}
-                        onChange={(r, c, val) => this.props.onChange('schema', replace(schema, r, val))}
+                        data={this.state.attributes}
+                        onAddRow={() => this.addAttribute()}
+                        onDeleteRow={r => this.removeAttribute(r)}
+                        onChange={(r, c, val) => this.changeAttribute(r, val)}
                     />
                 </div>
+
+                <Footer
+                    onSubmit={() => this.actionSubmit()}
+                    onDelete={() => this.actionDelete()}
+                />
             </div>
         );
     }
 }
 
 class FeatureForm extends React.Component {
-    render() {
-        let schema = this.props.layerProps.schema || [],
-            attr = this.props.form.attr || [],
-            attrData = schema.map((attrName, n) => ({
-                key: n,
-                values: [attrName, empty(attr[n])],
-                editable: [false, true]
-            })).filter(row => row.values[0]);
+    constructor(props) {
+        super(props);
+        this.state = this.getState(props);
+    }
 
+    componentWillReceiveProps(props) {
+        this.setState(this.getState(props));
+    }
+
+    getState(props) {
+        let feature = props.selectedObject,
+            featureProps = feature.get('props'),
+            layer = props.selectedLayer,
+            layerProps = layer.get('props');
+
+        let attributes = layerProps.attributes.map(a => ({
+            key: a.position,
+            values: [a.name, featureProps[a.name] || ''],
+            editable: [false, true]
+        })).sort((x, y) => x.key - y.key);
+
+        return {
+            featureID: feature.get('featureID'),
+            name: featureProps['name'] || '',
+            attributes
+        }
+    }
+
+    changeAttribute(r, val) {
+        this.setState({
+            attributes: this.state.attributes.map(a => a.key !== r ? a : {
+                key: a.key,
+                values: [a.values[0], val],
+                editable: [false, true]
+            })
+        });
+    }
+
+    actionSubmit() {
+        let props = {
+            name: this.state.name,
+        };
+
+        this.state.attributes.forEach(a =>
+            props[a.values[0]] = a.values[1]);
+
+        app.perform('editorUpdateFeature', {featureID: this.state.featureID, props});
+    }
+
+
+    actionDelete() {
+        app.perform('editorDeleteFeature', {featureID: this.state.featureID});
+    }
+
+
+    render() {
         return (
             <div>
                 <div>
-                    <Field name={'label'} hintText={__("gwc.plugin.gbd_digitize.label")} {...this.props} />
+                    <Field
+                        id={'editor_name'}
+                        value={this.state.name}
+                        hintText={__("gwc.plugin.gbd_digitize.label")}
+                        onChange={name => this.setState({name})}
+                    />
                 </div>
-                {!!attrData.length && <div>
+
+                {!!this.state.attributes.length && <div>
                     <h5>{__("gwc.plugin.gbd_digitize.attrTitle")}</h5>
                     <Grid
-                        data={attrData}
-                        onChange={(r, c, val) => this.props.onChange('attr', replace(attr, r, val))}
+                        data={this.state.attributes}
+                        onChange={(r, c, val) => this.changeAttribute(r, val)}
                     />
                 </div>}
+
+                <Footer
+                    onSubmit={() => this.actionSubmit()}
+                    onDelete={() => this.actionDelete()}
+                />
+
             </div>
         );
     }
@@ -146,27 +291,15 @@ class FeatureForm extends React.Component {
 
 class Form extends React.Component {
     render() {
-        let selected = this.props.selected;
-
-        if (!selected)
+        if (!this.props.selectedObject)
             return null;
-
-        let form = this.props.selected.get('props') || {},
-            p = {
-                form,
-                layerProps: this.props.selectedLayer.get('props') || {},
-                onChange: (name, val) => app.perform('editorQueueSave', {
-                    form: {...form, [name]: val},
-                    selected
-                })
-            };
 
         return (
             <div style={app.theme('gwc.plugin.gbd_digitize.form')}>
                 {
-                    selected.get('featureID') ?
-                        <FeatureForm {...p} /> :
-                        <LayerForm {...p} />
+                    this.props.selectedObject.get('featureID') ?
+                        <FeatureForm {...this.props} /> :
+                        <LayerForm {...this.props} />
                 }
             </div>
         )

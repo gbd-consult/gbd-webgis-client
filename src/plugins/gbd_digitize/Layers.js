@@ -33,7 +33,7 @@ class Layer extends React.Component {
                         style={style(la.get('layerID'))}
                         onClick={() => this.click(la)}
                     >
-                        {this.props.layer.get('props').label || noLabel}
+                        {this.props.layer.get('props').name || noLabel}
                     </div>
                 }
                 icon={visIcon}
@@ -47,7 +47,7 @@ class Layer extends React.Component {
                                 style={style(f.get('featureID'))}
                                 onClick={() => this.click(f)}
                             >
-                                {f.get('props').label || noLabel}
+                                {f.get('props').name || noLabel}
                             </div>
                         }
                         indent={true}
