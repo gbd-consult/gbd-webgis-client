@@ -116,7 +116,7 @@ class Plugin extends app.Plugin {
             return new htmlToReact.Parser().parse(maptip);
         return (
             <div>
-                <b>{feature.get('_layerTitle')}</b>: {feature.getId()}
+                <b>{feature.get('_layerTitle')}</b>
             </div>
         );
     }

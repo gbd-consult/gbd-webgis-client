@@ -5,18 +5,18 @@ module.exports = {
                 en: {
                     select: 'select',
                     selectBox: 'box',
-                    selectPolygon: 'polygon',
-                    selectCircle: 'circle',
-                    selectObject: 'object',
+                    queryPolygon: 'objects',
+                    drawPolygon: 'area',
+                    queryPoint: 'single object',
                     drop: 'deselect',
                     cancel: 'cancel'
                 },
                 de: {
                     select: 'auswählen',
                     selectBox: 'Box',
-                    selectPolygon: 'Polygon',
-                    selectCircle: 'Kreis',
-                    selectObject: 'Object',
+                    queryPolygon: 'Objekte mit Polygon auswählen',
+                    drawPolygon: 'Fläche auswählen',
+                    queryPoint: 'Objekt auswählen',
                     drop: 'Auswahl entfernen',
                     cancel: 'abbrechen'
                 },
