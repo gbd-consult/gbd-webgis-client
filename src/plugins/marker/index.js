@@ -12,6 +12,7 @@ import SimpleButton from 'components/SimpleButton';
 
 const LAYER_KIND = 'markerLayer';
 const ANIMATION_DURATION = 500;
+const FLASH_DURATION = 1500;
 
 class Plugin extends app.Plugin {
 
@@ -19,8 +20,8 @@ class Plugin extends app.Plugin {
         this.style = mapUtil.makeStyle(app.theme('gwc.plugin.marker.feature'));
         this.pinOverlay = null;
 
-        this.action('markerMark', ({features, zoom, pan, animate, popup}) =>
-            this.mark(features, zoom, pan, animate, popup));
+        this.action('markerMark', ({features, zoom, pan, animate, popup, flash}) =>
+            this.mark(features, zoom, pan, animate, popup, flash));
 
         this.action('markerMarkPoint', ({coord, pan, animate, popup}) => {
             let feature = new ol.Feature(new ol.geom.Point(coord));
@@ -30,7 +31,7 @@ class Plugin extends app.Plugin {
         this.action('markerClear', () => this.clear());
     }
 
-    mark(features, zoom, pan, animate, popup) {
+    mark(features, zoom, pan, animate, popup, flash) {
         this.clear();
 
         if (this.highlight(features)) {
@@ -42,6 +43,9 @@ class Plugin extends app.Plugin {
 
         if (popup)
             this.showPopup(popup);
+
+        if (flash)
+            _.debounce(() => app.perform('markerClear'), FLASH_DURATION)();
     }
 
     highlight(features) {

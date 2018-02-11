@@ -31,6 +31,10 @@ class Plugin extends app.Plugin {
         let fs = app.theme('gwc.plugin.selection.feature');
         this.style = mapUtil.makeStyle(fs);
 
+        let sel = app.config.object('selection');
+        if (sel)
+            this.restoreSelection(sel);
+
         this.action('selectionMode', ({mode}) => {
             app.set({selectionMode: mode});
             switch (mode) {
@@ -68,6 +72,23 @@ class Plugin extends app.Plugin {
         this.action('selectionSelect', ({geometry}) => {
             this.addGeometries([geometry])
         });
+    }
+
+    restoreSelection(sel) {
+        this.initLayer();
+
+        if (sel.wkt) {
+            let wkt = new ol.format.WKT();
+            let geoms = sel.wkt.map(w => wkt.readGeometry(w));
+            this.addGeometries(geoms);
+            setTimeout(() => app.perform('markerMark', {
+                features: geoms.map(g => new ol.Feature(g)),
+                pan: true,
+                zoom: true,
+                animate: true,
+                flash: true
+            }), sel.delay || 2000)
+        }
     }
 
     addGeometries(geoms) {

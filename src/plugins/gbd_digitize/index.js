@@ -170,8 +170,7 @@ function setSelected(id) {
 
 function highlight(obj) {
     if (obj && obj.get('featureID')) {
-        app.perform('markerMark', {features: [obj], pan: true, animate: true});
-        _.debounce(() => app.perform('markerClear', {features: [obj]}), 1000)();
+        app.perform('markerMark', {features: [obj], pan: true, animate: true, flash: true});
     }
 }
 
