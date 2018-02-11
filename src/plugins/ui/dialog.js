@@ -8,24 +8,28 @@ import MaterialIcon from 'components/MaterialIcon';
 class Plugin extends app.Plugin {
     init() {
 
-        this.action('dialogShow', (opts) =>
-            app.set({
-                dialogParams: opts
-            })
-        );
+        this.action('dialogShow', (opts) => {
+            let dialogParams = {...opts};
+            if (opts.content)
+                dialogParams.content = <div style={app.theme('gwc.ui.dialog.content')}>{opts.content}</div>;
+            if (opts.url)
+                dialogParams.content = <iframe frameBorder="0" style={app.theme('gwc.ui.dialog.frame')} src={opts.url}/>;
+            app.set({dialogParams})
+        });
 
         this.action('alert', (opts) => {
-            let style = app.theme('gwc.ui.dialog.alert');
+            let dialogParams = {...opts},
+                style = app.theme('gwc.ui.dialog.alert');
 
-            opts.width = opts.width || style.width;
-            opts.height = opts.height || style.height;
-            opts.content = <div style={{display: 'flex', width: '100%'}}>
+            dialogParams.width = opts.width || style.width;
+            dialogParams.height = opts.height || style.height;
+            dialogParams.content = <div style={{display: 'flex', width: '100%'}}>
                 <MaterialIcon color={style.color} icon='error'/>
-                <div style={{flex:1, paddingLeft: 8}}>
+                <div style={{flex: 1, paddingLeft: 8}}>
                     {opts.content}
                 </div>
             </div>;
-            app.set({dialogParams: opts});
+            app.set({dialogParams});
         });
 
         this.action('dialogHide', () =>
@@ -77,9 +81,7 @@ class Dialog extends React.Component {
             <div style={app.theme('gwc.ui.dialog.shadow')}>
                 <Paper zDepth={2} style={boxStyle}>
                     <CloseButton/>
-                    <div style={app.theme('gwc.ui.dialog.content')}>
-                        {dp.content}
-                    </div>
+                    {dp.content}
                 </Paper>
             </div>
         )

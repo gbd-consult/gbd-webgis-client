@@ -476,6 +476,9 @@ module.exports = {
                     overflow: 'auto',
                     paddingRight: '{../padding}'
                 },
+                frame: {
+                    extend: '{../container}',
+                },
                 alert: {
                     color: COLOR.red500,
                     width: 400,

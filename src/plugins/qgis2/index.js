@@ -56,7 +56,7 @@ class Plugin extends app.Plugin {
         });
 
         this.action('printOpenPDF', (opts) => {
-            window.open(this.printURL(opts), 'gwc_pdf_window')
+            app.perform('dialogShow', {url: this.printURL(opts)});
         });
     }
 

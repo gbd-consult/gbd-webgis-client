@@ -112,13 +112,10 @@ class Plugin extends app.Plugin {
                 'map0:extent': extent
             };
 
-            let url = app.config.str('server.url') + '?plugin=fs_details&cmd=print_wait';
-            window.open(url, 'gwc_pdf_window');
-
             app.perform('gbdServerPost', {
                 data, done: ({response}) => {
                     let url = app.config.str('server.url') + `download/${response.uid}.pdf`;
-                    window.open(url, 'gwc_pdf_window')
+                    app.perform('dialogShow', {url});
                 }
             });
         });
