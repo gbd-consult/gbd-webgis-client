@@ -97,10 +97,11 @@ function createLayer(la) {
 
 function parse(response) {
 
+    app.map().removeGroup('editor');
+
     if (!response || !response.layers)
         return;
 
-    app.map().removeGroup('editor');
     response.layers.forEach(createLayer);
     update();
 }
@@ -206,7 +207,15 @@ class Plugin extends app.Plugin {
             editorShowLabels: true
         });
 
-        post('list', {}, ({response}) => refresh(response));
+        this.action('authUserChanged', () => {
+            post('check_enabled', {}, ({response}) => {
+                app.update('sidebarVisiblePanel', {editor: response.enabled});
+                if (response.enabled)
+                    post('list', {}, ({response}) => refresh(response));
+                else
+                    refresh(null);
+            });
+        });
 
         this.action('editorAddLayer', () => {
             app.perform('mapDefaultMode');
@@ -338,7 +347,7 @@ class Plugin extends app.Plugin {
             let fs = this.findFeatures(app.map().getPixelFromCoordinate(coordinate));
 
             done(fs.map(feature => {
-                let props =feature.get('props') || {};
+                let props = feature.get('props') || {};
                 let f = new ol.Feature({
                     ...props,
                     _layerTitle: (feature.get('layerProps') || {}).name,

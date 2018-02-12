@@ -8,6 +8,8 @@ import Section from 'components/Section';
 
 class Plugin extends app.Plugin {
     init() {
+        app.update('sidebarVisiblePanel', {layers: true});
+
         this.action('layerToggleVisible', ({layer}) =>
             layer.setVisible(!layer.isVisible(), true));
 

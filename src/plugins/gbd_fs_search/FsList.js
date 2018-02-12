@@ -68,17 +68,12 @@ class FsList extends React.Component {
         if (open)
             this.mark(fs);
         if (open && !fs.details)
-            app.perform('gbdFsSearchDetails', {
-                fs, done: ({response}) => {
-                    let d = app.get('gbdFsSearchResults').map(f =>
-                        f === fs ? {...fs, details: response.html} : f
-                    );
-                    app.set({gbdFsSearchResults: d})
-                }
-            })
+            app.perform('gbdFsSearchDetailsLoad', {fs});
     }
 
     render() {
+        if (!this.props.gbdFsSearchResults)
+            return null;
         return (
             <div style={app.theme('gwc.plugin.details.featureList.container')}>
                 {this.props.gbdFsSearchResults.map((fs, n) => <Section

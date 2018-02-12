@@ -15,6 +15,10 @@ class Plugin extends app.Plugin {
             }
         });
 
+        app.update('sidebarVisiblePanel', {auth: true});
+
+        this.action('load', () => this.setUser(null));
+
         this.action('gbdAuthFormChange', p => app.update('gbdAuthForm', p));
 
         this.action('gbdAuthFormLogin', async () => {
@@ -26,7 +30,7 @@ class Plugin extends app.Plugin {
                     'gbd_auth_js': 1,
                     ...form
                 });
-                app.set({authUser: user});
+                this.setUser(user);
             } catch (e) {
                 app.update('gbdAuthForm', {error: true});
             }
@@ -37,7 +41,7 @@ class Plugin extends app.Plugin {
                 'gbd_logout': 1,
                 'gbd_auth_js': 1
             });
-            app.set({authUser: null});
+            this.setUser(null);
         });
 
         this.action('gbdServerPost', async ({data, done}) => {
@@ -68,6 +72,11 @@ class Plugin extends app.Plugin {
                 done(ret);
         });
 
+    }
+
+    setUser(user) {
+        app.set({authUser: user});
+        app.perform('authUserChanged');
     }
 }
 

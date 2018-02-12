@@ -9,6 +9,8 @@ import FeatureList from './FeatureList';
 
 class Plugin extends app.Plugin {
     init() {
+        app.update('sidebarVisiblePanel', {details: true})
+
         this.action('detailsShow', ({content}) =>
             this.show(content));
 

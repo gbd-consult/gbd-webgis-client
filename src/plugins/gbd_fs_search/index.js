@@ -14,26 +14,25 @@ import ol from 'ol-all';
 import FsList from './FsList';
 import './index.sass';
 
+function post(cmd, data, done) {
+    data = {
+        plugin: 'fs_search',
+        cmd,
+        ...data
+    };
+    app.perform('gbdServerPost', {data, done});
+}
+
 function loadGemarkungen() {
-    app.perform('gbdServerGet', {
-        data: {
-            plugin: 'fs_search',
-            cmd: 'gemarkungen'
-        },
-        done: ({response, error}) =>
-            app.update('gbdFsSearchLists', {gemarkungen: response})
-    });
+    post('gemarkungen', {}, ({response, error}) =>
+        app.update('gbdFsSearchLists', {gemarkungen: response})
+    );
 }
 
 function loadStrassen() {
-    app.perform('gbdServerGet', {
-        data: {
-            plugin: 'fs_search',
-            cmd: 'strasse_all'
-        },
-        done: ({response, error}) =>
-            app.update('gbdFsSearchLists', {strassen: response})
-    });
+    post('strasse_all', {}, ({response, error}) =>
+        app.update('gbdFsSearchLists', {strassen: response})
+    );
 }
 
 function convert(fs) {
@@ -53,14 +52,24 @@ class Plugin extends app.Plugin {
             gbdFsSearchLists: {}
         });
 
-        loadGemarkungen();
-        loadStrassen();
+        this.action('authUserChanged', () => {
+            post('check_enabled', {}, ({response}) => {
+                app.update('sidebarVisiblePanel', {fs_search: response.enabled});
+                if (response.enabled) {
+                    loadGemarkungen();
+                    loadStrassen();
+                } else {
+                    app.set({
+                        gbdFsSearchForm: {},
+                        gbdFsSearchResults: null
+                    });
+                }
+            });
+        });
 
         this.action('gbdFsSearchFormSubmit', () => {
             let data = {
                 ...app.get('gbdFsSearchForm'),
-                plugin: 'fs_search',
-                cmd: 'find',
                 allprops: true,
             };
 
@@ -69,22 +78,19 @@ class Plugin extends app.Plugin {
                 data.selection = sel;
             }
 
-            app.perform('gbdServerPost', {
-                data, done: ({response, error}) => {
-                    app.set({gbdFsSearchResults: response.map(convert)});
-                    app.perform('detailsShow', {content: <FsList/>})
-                }
+            post('find', data, ({response, error}) => {
+                app.set({gbdFsSearchResults: response.map(convert)});
+                app.perform('detailsShow', {content: <FsList/>})
             });
         });
 
-        this.action('gbdFsSearchDetails', ({fs, done}) => {
-            let data = {
-                plugin: 'fs_details',
-                cmd: 'infobox',
-                gml_id: fs.gml_id
-            };
-            app.perform('gbdServerPost', {data, done});
-        });
+        this.action('gbdFsSearchDetailsLoad', ({fs}) =>
+            post('infobox', {plugin: 'fs_details', gml_id: fs.gml_id}, ({response}) =>
+                app.set({
+                    gbdFsSearchResults: app.get('gbdFsSearchResults').map(f =>
+                        f === fs ? {...fs, details: response.html} : f
+                    )
+                })));
 
         this.action('gbdFsSearchDetailsPrint', ({fs}) => {
             let map = app.map(),
@@ -101,7 +107,6 @@ class Plugin extends app.Plugin {
 
             let data = {
                 plugin: 'fs_details',
-                cmd: 'print',
                 gml_id: fs.gml_id,
                 map: mapName,
                 layers: layers.reverse(),
@@ -112,11 +117,9 @@ class Plugin extends app.Plugin {
                 'map0:extent': extent
             };
 
-            app.perform('gbdServerPost', {
-                data, done: ({response}) => {
-                    let url = app.config.str('server.url') + `download/${response.uid}.pdf`;
-                    app.perform('dialogShow', {url});
-                }
+            post('print', data, ({response}) => {
+                let url = app.config.str('server.url') + `download/${response.uid}.pdf`;
+                app.perform('dialogShow', {url});
             });
         });
     }

@@ -38,7 +38,8 @@ class Application extends React.Component {
         let map = app.map();
         app.set(this.props.initState);
         this.props.plugins.forEach(p => p.init());
-        await map.load('map-container')
+        await map.load('map-container');
+        app.perform('load');
     }
 
     componentWillUpdate(newProps) {

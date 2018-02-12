@@ -18,6 +18,8 @@ function textContent(feature) {
 class Plugin extends app.Plugin {
 
     init() {
+        app.update('sidebarVisiblePanel', {search: true});
+
         let run = (input) => {
             let features = [];
 
