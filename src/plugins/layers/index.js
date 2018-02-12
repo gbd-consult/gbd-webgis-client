@@ -1,6 +1,8 @@
 import React from 'react';
 import Paper from 'material-ui/Paper';
 
+import _ from 'lodash';
+
 import app from 'app';
 import ol from 'ol-all';
 
@@ -39,6 +41,12 @@ class Layer extends React.Component {
         app.perform('layerToggleVisible', {layer: this.props.layer});
     }
 
+    toggleClick(layer, open) {
+        app.update('layerOpenState', {
+            [ol.getUid(layer)]: open
+        });
+    }
+
     status(layer) {
         if (layer === this.props.selected)
             return 'Selected';
@@ -54,7 +62,11 @@ class Layer extends React.Component {
         let layer = this.props.layer,
             status = this.status(layer),
             headerStyle = app.theme('gwc.plugin.layers.title' + status),
-            visIcon = layer.isEnabled() ? ((status === 'Hidden') ? 'visibility_off' : 'visibility') : null;
+            visIcon = layer.isEnabled() ? ((status === 'Hidden') ? 'visibility_off' : 'visibility') : null,
+            open = (this.props.layerOpenState || {})[ol.getUid(layer)];
+
+        if (_.isNull(open))
+            open = app.get('layerTreeExpanded');
 
         if (!layer.isEnabled())
             return null;
@@ -68,12 +80,15 @@ class Layer extends React.Component {
                 }
                 icon={visIcon}
                 iconClick={() => this.visibilityClick()}
+                toggleClick={(open) => this.toggleClick(layer, open)}
                 indent={true}
+                open={open}
             >
                 {layer.isGroup() && layer.getLayers().map(n => <Layer
                     key={n.uid}
                     layer={n}
                     selected={this.props.selected}
+                    layerOpenState={this.props.layerOpenState}
                 />)}
             </Section>
         );
@@ -90,7 +105,7 @@ class LayerTree extends React.Component {
                     key={layer.uid}
                     layer={layer}
                     selected={this.props.selected}
-
+                    layerOpenState={this.props.layerOpenState}
                 />)}
             </div>
         );
@@ -121,7 +136,11 @@ class Panel extends React.Component {
         return (
             <Paper style={app.theme('gwc.plugin.layers.panel')}>
                 <Paper style={app.theme('gwc.plugin.layers.treeContainer')}>
-                    <LayerTree root={root} selected={selected}/>
+                    <LayerTree
+                        root={root}
+                        selected={selected}
+                        layerOpenState={this.props.layerOpenState}
+                    />
                 </Paper>
                 {selected && <LayerInfo layer={selected}/>}
             </Paper>
@@ -131,5 +150,5 @@ class Panel extends React.Component {
 
 export default {
     Plugin,
-    Panel: app.connect(Panel, ['appIsMobile', 'layerTreeVersion'])
+    Panel: app.connect(Panel, ['appIsMobile', 'layerTreeVersion', 'layerOpenState'])
 };
