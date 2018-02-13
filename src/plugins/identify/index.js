@@ -53,7 +53,7 @@ class Plugin extends app.Plugin {
             app.perform('search', {
                 coordinate: opts.coordinate,
                 done: found => {
-                    if (!opts.topOnly)
+                    if (!opts.isHover && !opts.topOnly)
                         features = [].concat(features, found);
                     else if (found.length)
                         features = [found[0]];
@@ -76,9 +76,22 @@ class Plugin extends app.Plugin {
             return true;
         };
 
-        let onUp = evt => dragged ? '' : run(evt);
+        let canHover = evt =>
+            opts.hoverAlways || (opts.hoverShift && evt.originalEvent.shiftKey);
+
         let onDrag = evt => dragged = true;
-        let onMove = evt => (opts.hover || evt.originalEvent.shiftKey) ? run(evt) : '';
+
+        let onUp = evt => !dragged && app.perform('identifyCoordinate', {
+            coordinate: evt.coordinate,
+            isHover: false,
+            ...opts
+        });
+
+        let onMove = evt => canHover(evt) && app.perform('identifyCoordinate', {
+            coordinate: evt.coordinate,
+            isHover: true,
+            ...opts
+        });
 
         return new ol.interaction.Pointer({
             handleDownEvent: onDown,
@@ -92,16 +105,19 @@ class Plugin extends app.Plugin {
         if (!features.length)
             return this.reset();
 
+        let popup = opts.isHover ? opts.hoverPopup : opts.popup;
+        let details = opts.isHover ? opts.hoverDetails : opts.details;
+
         features.forEach(f => f.set('_popupContent', this.popupContent(f)));
 
         app.perform('markerMark', {
             features,
-            pan: (opts.popup && !opts.hover) ? [0, 100] : false,
-            popup: opts.popup ? features.map(f => f.get('_popupContent')) : null,
+            pan: (!opts.isHover && popup) ? [0, 100] : false,
+            popup: popup ? features.map(f => f.get('_popupContent')) : null,
             animate: true
         });
 
-        if (!opts.popup)
+        if (details)
             app.perform('detailsShowFeatures', {features});
     }
 
@@ -133,15 +149,11 @@ class Button extends React.Component {
                 {...this.props}
                 active={this.props.mapMode === modeName}
                 tooltip={
-                    this.props.hover
+                    this.props.hoverOnly
                         ? __("gwc.plugin.identify.buttonHoverTooltip")
                         : __("gwc.plugin.identify.buttonTooltip")
                 }
-                onClick={() => app.perform('identifyModeToggle', {
-                    hover: this.props.hover,
-                    topOnly: this.props.topOnly,
-                    popup: this.props.popup
-                })}
+                onClick={() => app.perform('identifyModeToggle', this.props)}
                 icon={this.props.icon}
             />
         );
