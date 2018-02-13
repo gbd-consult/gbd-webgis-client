@@ -52,9 +52,11 @@ class Plugin extends app.Plugin {
             gbdFsSearchLists: {}
         });
 
+        app.update('appControlHidden', {fs_search: true});
+
         this.action('authUserChanged', () => {
             post('check_enabled', {}, ({response}) => {
-                app.update('sidebarVisiblePanel', {fs_search: response.enabled});
+                app.update('appControlHidden', {fs_search: !response.enabled});
                 if (response.enabled) {
                     loadGemarkungen();
                     loadStrassen();

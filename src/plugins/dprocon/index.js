@@ -18,6 +18,12 @@ import * as toolbar from 'components/Toolbar';
 class Plugin extends app.Plugin {
 
     init() {
+        app.update('appControlHidden', {dprocon: true});
+
+        this.action('authUserChanged', ({user}) => {
+            let hasPerm = user && user.permissions.includes('DPROCON');
+            app.update('appControlHidden', {dprocon: !hasPerm});
+        });
 
         this.action('dproconConnect', () => {
             let sel = app.get('selectionGeometryWKT');

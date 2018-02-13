@@ -9,9 +9,14 @@ class Plugin extends app.Plugin {
 
 class Toolbar extends React.Component {
     render() {
+
+        let hidden = this.props.appControlHidden || {};
+
         return (
             <div style={app.theme('gwc.ui.toolbar.container')}>
-                {React.Children.map(this.props.children, c => helpers.deviceCheck(this, c) &&
+                {React.Children.map(this.props.children, c =>
+                    helpers.deviceCheck(this, c) &&
+                    (!c.key || !hidden[c.key]) &&
                     <div style={app.theme('gwc.ui.toolbar.wrapper')}>{c}</div>
                 )}
             </div>
@@ -22,5 +27,5 @@ class Toolbar extends React.Component {
 
 export default {
     Plugin,
-    Toolbar: app.connect(Toolbar, ['appIsMobile'])
+    Toolbar: app.connect(Toolbar, ['appIsMobile', 'appControlHidden'])
 }

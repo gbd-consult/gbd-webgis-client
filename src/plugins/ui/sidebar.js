@@ -11,10 +11,6 @@ import helpers from './helpers';
 
 class Plugin extends app.Plugin {
     init() {
-        app.set({
-            sidebarVisiblePanel: {},
-        });
-
         this.action('sidebarShowPanel', ({panel}) =>
             app.set({
                 sidebarVisible: true,
@@ -93,7 +89,7 @@ class HeaderButton extends React.Component {
 class Header extends React.Component {
     render() {
         let style = app.theme('gwc.ui.sidebar.header'),
-            visible = this.props.sidebarVisiblePanel || {};
+            hidden = this.props.appControlHidden || {};
 
         return (
             <div style={style}>
@@ -102,7 +98,7 @@ class Header extends React.Component {
                 {
                     React.Children.map(this.props.children, c =>
                         helpers.deviceCheck(this, c) &&
-                        visible[c.key] &&
+                        !hidden[c.key] &&
                         <HeaderButton
                             onClick={() => app.perform('sidebarShowPanel', {panel: c.key})}
                             active={c.key === this.props.sidebarActivePanel}
@@ -152,5 +148,5 @@ class Sidebar extends React.Component {
 export default {
     Plugin,
     Sidebar: app.connect(Sidebar,
-        ['appWidth', 'appIsMobile', 'sidebarVisible', 'sidebarActivePanel', 'sidebarVisiblePanel'])
+        ['appWidth', 'appControlHidden', 'appIsMobile', 'sidebarVisible', 'sidebarActivePanel'])
 }

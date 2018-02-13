@@ -207,9 +207,11 @@ class Plugin extends app.Plugin {
             editorShowLabels: true
         });
 
+        app.update('appControlHidden', {editor: true});
+
         this.action('authUserChanged', () => {
             post('check_enabled', {}, ({response}) => {
-                app.update('sidebarVisiblePanel', {editor: response.enabled});
+                app.update('appControlHidden', {editor: !response.enabled});
                 if (response.enabled)
                     post('list', {}, ({response}) => refresh(response));
                 else

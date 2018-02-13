@@ -15,8 +15,6 @@ class Plugin extends app.Plugin {
             }
         });
 
-        app.update('sidebarVisiblePanel', {auth: true});
-
         this.action('load', () => this.setUser(null));
 
         this.action('gbdAuthFormChange', p => app.update('gbdAuthForm', p));
@@ -76,7 +74,7 @@ class Plugin extends app.Plugin {
 
     setUser(user) {
         app.set({authUser: user});
-        app.perform('authUserChanged');
+        app.perform('authUserChanged', {user});
     }
 }
 
