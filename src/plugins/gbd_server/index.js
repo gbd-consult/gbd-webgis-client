@@ -58,6 +58,32 @@ class Plugin extends app.Plugin {
                 done(ret);
         });
 
+        this.action('gbdServerPostNewWindow', ({data, windowName}) => {
+            let user = app.get('authUser');
+
+            if (user)
+                data.gbd_sid_js = user.sid;
+
+            let formId = 'gbdServerPostNewWindow',
+                form = document.getElementById(formId);
+
+            if (!form) {
+                form = document.createElement('form');
+                form.id = formId;
+                form.style.display = 'none';
+                let input = document.createElement('input');
+                input.name = 'json_data';
+                form.appendChild(input);
+                document.body.appendChild(form);
+            }
+
+            form.action = app.config.str('server.url');
+            form.method = 'post';
+            form.target = windowName || '_blank';
+
+            form.firstChild.value = JSON.stringify(data);
+            form.submit();
+        });
 
         this.action('gbdServerGet', async ({data, done}) => {
             let ret = {};

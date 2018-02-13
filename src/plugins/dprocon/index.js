@@ -33,22 +33,11 @@ class Plugin extends app.Plugin {
 
             let data = {
                 plugin: 'dprocon',
-                cmd: 'connect',
+                cmd: 'connect_form',
                 selection: sel
             };
 
-            let done = ({response, error}) => {
-                if (error)
-                    app.perform('alert', {
-                        content: __("gwc.plugin.dprocon.connectError")
-                    });
-                else
-                    location.href = response.redirect_url;
-            };
-
-            app.perform('gbdServerPost', {
-                data, done
-            });
+            app.perform('gbdServerPostNewWindow', {data});
         });
     }
 }
