@@ -15,7 +15,16 @@ class Plugin extends app.Plugin {
             }
         });
 
-        this.action('load', () => this.setUser(null));
+        this.action('load', async () => {
+            try {
+                let user = await app.http.post(app.config.str('server.url'), {
+                    'gbd_auth_js_check': 1,
+                });
+                this.setUser(user);
+            } catch (e) {
+                this.setUser(null);
+            }
+        });
 
         this.action('gbdAuthFormChange', p => app.update('gbdAuthForm', p));
 
