@@ -8,6 +8,7 @@ module.exports = {
                     queryPolygon: 'objects',
                     drawPolygon: 'area',
                     queryPoint: 'single object',
+                    zoom: 'zoom to selection',
                     drop: 'deselect',
                     cancel: 'cancel'
                 },
@@ -17,6 +18,7 @@ module.exports = {
                     queryPolygon: 'Objekte mit Polygon auswählen',
                     drawPolygon: 'Fläche auswählen',
                     queryPoint: 'Objekt auswählen',
+                    zoom: 'zur Auswahl hinzoomen',
                     drop: 'Auswahl entfernen',
                     cancel: 'abbrechen'
                 },

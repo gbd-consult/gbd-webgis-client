@@ -55,6 +55,18 @@ class Plugin extends app.Plugin {
             app.perform('selectionMode', {mode});
         });
 
+        this.action('selectionZoom', () => {
+            let geoms = app.get('selectionGeometry');
+            if (geoms)
+                app.perform('markerMark', {
+                    features: geoms.map(g => new ol.Feature(g)),
+                    pan: true,
+                    zoom: true,
+                    animate: true,
+                    flash: true
+                });
+        });
+
         this.action('selectionDrop', () => {
             this.drop();
             app.perform('selectionLastMode');
@@ -81,13 +93,7 @@ class Plugin extends app.Plugin {
             let wkt = new ol.format.WKT();
             let geoms = sel.wkt.map(w => wkt.readGeometry(w));
             this.addGeometries(geoms);
-            setTimeout(() => app.perform('markerMark', {
-                features: geoms.map(g => new ol.Feature(g)),
-                pan: true,
-                zoom: true,
-                animate: true,
-                flash: true
-            }), sel.delay || 2000)
+            setTimeout(() => app.perform('selectionZoom'), sel.delay || 2000);
         }
     }
 
@@ -269,6 +275,12 @@ class Button extends React.Component {
                     tooltip={__("gwc.plugin.selection.drawPolygon")}
                     onClick={() => app.perform('selectionMode', {mode: 'selectionDrawPolygon'})}
                     icon='crop_free'
+                />
+                <toolbar.Button
+                    secondary
+                    tooltip={__("gwc.plugin.selection.zoom")}
+                    onClick={() => app.perform('selectionZoom')}
+                    icon='center_focus_weak'
                 />
                 <toolbar.Button
                     secondary
