@@ -119,6 +119,10 @@ class Plugin extends app.Plugin {
                 'map0:extent': extent
             };
 
+            app.perform('dialogShow', {
+                content: 'Der Druckauftrag ist erfolgt. Bitte haben sie etwas Geduld...'
+            });
+
             post('print', data, ({response}) => {
                 let url = app.config.str('server.url') + `download/${response.uid}.pdf`;
                 app.perform('dialogShow', {url});
