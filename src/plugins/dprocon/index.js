@@ -20,9 +20,15 @@ class Plugin extends app.Plugin {
     init() {
         app.update('appControlHidden', {dprocon: true});
 
-        this.action('authUserChanged', ({user}) => {
-            let hasPerm = user && user.permissions.includes('DPROCON');
-            app.update('appControlHidden', {dprocon: !hasPerm});
+        this.action('authUserChanged', () => {
+            let data = {
+                plugin: 'dprocon',
+                cmd: 'check_enabled'
+            }
+            app.perform('gbdServerPost', {
+                data, done: ({response}) =>
+                    app.update('appControlHidden', {dprocon: !response.enabled})
+            });
         });
 
         this.action('dproconConnect', () => {
