@@ -18,7 +18,25 @@ import ol from 'ol-all';
 import mapUtil from 'map-util';
 
 const LAYER_KIND = 'selection';
-const POINT_TOLERANCE = 2;
+
+function boundingPolygon(coord) {
+    let tolerance = app.config.number('selection.tolerance') || 2;
+    return ol.geom.Polygon.fromExtent([
+        coord[0] - tolerance,
+        coord[1] - tolerance,
+        coord[0] + tolerance,
+        coord[1] + tolerance,
+    ]);
+}
+
+function polygonize(geom) {
+    let t = geom.getType();
+    if (t === 'Point') {
+        return boundingPolygon(geom.getCoordinates());
+    }
+    return geom;
+}
+
 
 class Plugin extends app.Plugin {
     init() {
@@ -31,9 +49,11 @@ class Plugin extends app.Plugin {
         let fs = app.theme('gwc.plugin.selection.feature');
         this.style = mapUtil.makeStyle(fs);
 
-        let sel = app.config.object('selection');
-        if (sel)
-            this.restoreSelection(sel);
+        this.action('load', () => {
+            let sel = app.config.object('selection');
+            if (sel)
+                this.restoreSelection(sel);
+        });
 
         this.action('selectionMode', ({mode}) => {
             app.set({selectionMode: mode});
@@ -90,44 +110,44 @@ class Plugin extends app.Plugin {
         this.initLayer();
 
         if (sel.wkt) {
-            let wkt = new ol.format.WKT();
-            let geoms = sel.wkt.map(w => wkt.readGeometry(w));
-            this.addGeometries(geoms);
+            this.addGeometriesWKT(sel.wkt);
             setTimeout(() => app.perform('selectionZoom'), sel.delay || 2000);
         }
     }
 
     addGeometries(geoms) {
-        let wkt = new ol.format.WKT();
-        this.addGeometriesWKT(geoms.map(g => wkt.writeGeometry(g)));
-    }
+        geoms = geoms.map(polygonize);
 
-    addGeometriesWKT(wkts) {
         let wkt = new ol.format.WKT();
 
         let wktCurr = app.get('selectionGeometryWKT') || [],
+            wktSel = geoms.map(g => wkt.writeGeometry(g)),
             wktNew = [],
             geomNew;
 
-        wktCurr.forEach(g => {
-            let i = wkts.indexOf(g);
+        wktCurr.forEach(w => {
+            let i = wktSel.indexOf(w);
             if (i >= 0) {
-                wkts[i] = null;
+                wktSel[i] = null;
             } else {
-                wktNew.push(g);
+                wktNew.push(w);
             }
         });
 
-        wktNew = wktNew.concat(wkts.filter(Boolean));
+        wktNew = wktNew.concat(wktSel.filter(Boolean));
         geomNew = wktNew.map(w => wkt.readGeometry(w));
 
         this.source.clear();
         geomNew.forEach(g => this.source.addFeature(new ol.Feature(g)));
-
         app.set({
             selectionGeometry: geomNew,
             selectionGeometryWKT: wktNew,
         });
+    }
+
+    addGeometriesWKT(wkts) {
+        let wkt = new ol.format.WKT();
+        this.addGeometries(wkts.map(w => wkt.readGeometry(w)));
     }
 
     prepareQuery(geometry) {
@@ -186,14 +206,7 @@ class Plugin extends app.Plugin {
             },
             handleUpEvent: evt => {
                 if (!dragged) {
-                    let p = evt.coordinate,
-                        poly = ol.geom.Polygon.fromExtent([
-                            p[0] - POINT_TOLERANCE,
-                            p[1] - POINT_TOLERANCE,
-                            p[0] + POINT_TOLERANCE,
-                            p[1] + POINT_TOLERANCE,
-                        ]);
-                    app.perform('selectionQuery', {geometry: poly});
+                    app.perform('selectionQuery', {geometry: boundingPolygon(evt.coordinate)});
                 }
             },
             handleDragEvent: evt => dragged = true,
@@ -203,10 +216,10 @@ class Plugin extends app.Plugin {
             name: 'selectionQueryPoint',
             cursor: 'crosshair',
             interactions: [
+                int,
                 'DragPan',
                 'MouseWheelZoom',
                 'PinchZoom',
-                int
             ]
         });
     }
@@ -309,5 +322,5 @@ class Button extends React.Component {
 
 export default {
     Plugin,
-    Button: app.connect(Button, ['mapMode', 'selectionShape'])
+    Button: app.connect(Button, ['mapMode'])
 };
