@@ -153,9 +153,11 @@ class Plugin extends app.Plugin {
     prepareQuery(geometry) {
         let mapName = '',
             wmsLayers = [],
-            editorLayers = [];
+            editorLayers = [],
+            startLayer = app.map().getSelectedLayer() || app.map().getLayerRoot();
 
-        wmsLayers = app.map().getLayerRoot().collect(la => {
+
+        wmsLayers = startLayer.collect(la => {
             if (la.isVisible() && la.wmsName && _.isEmpty(la.layers)) {
                 let m = _.get(la, 'config.params.map');
                 if (m)
