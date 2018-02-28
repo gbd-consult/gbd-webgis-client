@@ -43,10 +43,10 @@ module.exports = {
             <zoom.FullButton/>
             <zoom.BoxButton desktopOnly/>
             
-            <identify.Button icon="gps_fixed" desktopOnly />
-            <identify.Button icon="gps_not_fixed" desktopOnly hover topOnly popup/>
+            <identify.Button icon="info" desktopOnly />
+            <identify.Button icon="info" desktopOnly hover topOnly popup/>
 
-            <identify.Button icon="gps_fixed" mobileOnly topOnly popup/>
+            <identify.Button icon="info" mobileOnly topOnly popup/>
 
             <measure.Button/>
             <qgis2.PrintButton desktopOnly/>
@@ -54,7 +54,7 @@ module.exports = {
         
         <ui.Sidebar>
             <layers.Panel key="layers" title="Layers" icon="layers" />
-            <details.Panel key="details" title="Info" icon="toc" desktopOnly />
+            <details.Panel key="details" title="Info" icon="info" desktopOnly />
             <search.Panel key="search" title="Suche" icon="search" mobileOnly />
         </ui.Sidebar>
 
