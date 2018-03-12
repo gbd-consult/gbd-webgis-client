@@ -60,7 +60,7 @@ class Layer extends React.Component {
         let layer = this.props.layer,
             status = this.status(layer),
             headerStyle = app.theme('gwc.plugin.layers.title' + status),
-            visIcon = layer.isEnabled() ? ((status === 'Hidden') ? 'visibility_off' : 'visibility') : null,
+            visIcon = layer.isEnabled() ? ((!layer.isVisible()) ? 'visibility_off' : 'visibility') : null,
             open = (this.props.layerOpenState || {})[ol.getUid(layer)];
 
         if (_.isNull(open))
