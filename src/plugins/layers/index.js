@@ -63,7 +63,7 @@ class Layer extends React.Component {
             visIcon = layer.isEnabled() ? ((!layer.isVisible()) ? 'visibility_off' : 'visibility') : null,
             open = (this.props.layerOpenState || {})[ol.getUid(layer)];
 
-        if (_.isNull(open))
+        if (_.isNil(open))
             open = app.get('layerTreeExpanded');
 
         if (!layer.isEnabled())
