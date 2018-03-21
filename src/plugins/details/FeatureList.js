@@ -56,6 +56,7 @@ export default class FeatureList extends React.Component {
             th: app.theme('gwc.plugin.details.featureList.th'),
             td: app.theme('gwc.plugin.details.featureList.td'),
             a: app.theme('gwc.plugin.details.featureList.a'),
+            img: {maxWidth: 200}
         };
 
         let breakWords = s => s.replace(/\S{30}/g, '$&\u00ad');
@@ -66,6 +67,8 @@ export default class FeatureList extends React.Component {
                 return <a style={style.a} href={s} target='_blank'>{s}</a>;
             if (s.match(/^\S+@.+?\.[a-z]{2,5}$/))
                 return <a style={style.a} href={'mailto:' + s}>{s}</a>;
+            if (s.match(/^\S+?\.(png|jpg|gif)$/))
+                return <img style={style.img} src={s}/>;
             return breakWords(s.replace(/<br>/g, ' '));
         };
 
