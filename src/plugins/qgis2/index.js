@@ -60,10 +60,31 @@ class Plugin extends app.Plugin {
         });
     }
 
-    async startPrint() {
-
+    overlaySize() {
         let w = app.config.number('qgis2.print.width');
         let h = app.config.number('qgis2.print.height');
+
+        let map = app.map(),
+            scale = map.getScale();
+
+        // NB assume map units = m
+        return [(w * scale) / 1000, (h * scale) / 1000];
+    }
+
+    overlayExtent() {
+        let c = app.map().getView().getCenter();
+        let [w, h] = this.overlaySize();
+
+        return [
+            c[0] - w / 2,
+            c[1] - h / 2,
+            c[0] + w / 2,
+            c[1] + h / 2
+        ];
+    }
+
+    startPrint() {
+        let [w, h] = this.overlaySize();
 
         app.perform('mapSetMode', {
             name: 'print',
@@ -72,26 +93,26 @@ class Plugin extends app.Plugin {
                 'DragPan',
                 'MouseWheelZoom'
             ],
-            overlay: {width: window.innerWidth / 2, ratio: w / h}
+            overlay: {width: w, height: h}
         });
     }
 
     printURL(opts) {
         let map = app.map(),
-            bounds = app.get('overlayBounds'),
-            extent = [].concat(
-                map.getCoordinateFromPixel([bounds.left, bounds.top]),
-                map.getCoordinateFromPixel([bounds.right, bounds.bottom])
-            );
+            extent = this.overlayExtent();
 
-        extent = ol.proj.transformExtent(
-            extent,
-            app.config.str('map.crs.client'),
-            app.config.str('map.crs.server')
-        );
+        let crsClient = app.config.str('map.crs.client'),
+            crsServer = app.config.str('map.crs.server');
+
+        if (crsClient !== crsServer) {
+            extent = ol.proj.transformExtent(extent, crsClient, crsServer);
+        }
 
         let names = app.map().getLayerRoot().collect(la =>
             (la.isVisible() && la.wmsName) ? la.wmsName() : null);
+
+        let gridSteps = 5,
+            gridInterval = (extent[2] - extent[0]) / gridSteps | 0;
 
         let p = {
             service: 'WMS',
@@ -107,9 +128,9 @@ class Plugin extends app.Plugin {
             opacities: encodeURIComponent(names.map(() => 255).join(',')),
             'map0:extent': extent.join(','),
             'map0:rotation': rad2deg(map.getView().getRotation()),
-            //'map0:scale': map.getScale(),
-            'map0:grid_interval_x': 2000,
-            'map0:grid_interval_y': 2000,
+            'map0:scale': map.getScale(),
+            'map0:grid_interval_x': gridInterval,
+            'map0:grid_interval_y': gridInterval,
         };
 
         let qs = Object.keys(p).map(k => k + '=' + p[k]).join('&');

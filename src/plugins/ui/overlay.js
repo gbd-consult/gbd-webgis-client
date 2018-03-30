@@ -51,10 +51,10 @@ class Overlay extends React.Component {
         if (!this.props.overlayVisible)
             return null;
 
-        let w = this.props.overlayWidth;
-        let h = this.props.overlayRatio ?
-            w / this.props.overlayRatio :
-            this.props.overlayHeight;
+        let res = app.map().getView().getResolution();
+
+        let w = this.props.overlayWidth / res | 0;
+        let h = this.props.overlayHeight / res | 0;
 
         let style = {
             ...app.theme('gwc.ui.overlay.box'),
@@ -69,10 +69,10 @@ class Overlay extends React.Component {
 
         return (
             <div style={style} ref={el => this.updateExtent(el)}>
-                <div onMouseDown={e => this.startDrag()} style={{left: -p, top: -p, ...hstyle}}/>
-                <div onMouseDown={e => this.startDrag()} style={{right: -p, top: -p, ...hstyle}}/>
-                <div onMouseDown={e => this.startDrag()} style={{left: -p, bottom: -p, ...hstyle}}/>
-                <div onMouseDown={e => this.startDrag()} style={{right: -p, bottom: -p, ...hstyle}}/>
+                {/*<div onMouseDown={e => this.startDrag()} style={{left: -p, top: -p, ...hstyle}}/>*/}
+                {/*<div onMouseDown={e => this.startDrag()} style={{right: -p, top: -p, ...hstyle}}/>*/}
+                {/*<div onMouseDown={e => this.startDrag()} style={{left: -p, bottom: -p, ...hstyle}}/>*/}
+                {/*<div onMouseDown={e => this.startDrag()} style={{right: -p, bottom: -p, ...hstyle}}/>*/}
             </div>
         )
     }
