@@ -12,6 +12,7 @@ import React from 'react';
 import * as toolbar from 'components/Toolbar';
 
 import _ from 'lodash';
+import htmlToReact from 'html-to-react';
 
 import app from 'app';
 import ol from 'ol-all';
@@ -111,7 +112,18 @@ class Plugin extends app.Plugin {
 
         if (sel.wkt) {
             this.addGeometriesWKT(sel.wkt);
-            setTimeout(() => app.perform('selectionZoom'), sel.delay || 2000);
+
+            let geoms = app.get('selectionGeometry');
+            let opts = {
+                features: geoms.map(g => new ol.Feature(g)),
+                pan: true,
+                zoom: true,
+                animate: true,
+                flash: false,
+                popup: sel.popup ? htmlToReact.Parser().parse(sel.popup) : null,
+            };
+
+            setTimeout(() => app.perform('markerMark', opts), sel.delay || 2000);
         }
     }
 

@@ -177,7 +177,8 @@ function highlight(obj) {
 
 function refresh(response, selectedID) {
     parse(response);
-    setSelected(selectedID || app.get('editorSelectedID'));
+    if (selectedID)
+        app.set({editorSelectedID: 0});
 
     switch (app.get('mapMode')) {
         case 'editorModify':
