@@ -38,18 +38,13 @@ export default class FeatureList extends React.Component {
     content(feature) {
         let props = this.cleanup(feature.getProperties());
         let conf = feature.get('_config') || {};
-        let maptip = null;
 
-        if (props.maptip) {
-            maptip = new htmlToReact.Parser().parse(props.maptip);
-            delete props.maptip;
-        }
+        delete props.maptip;
 
         let keys = (conf.properties || _.keys(props)).filter(k => k in props);
 
         let style = {
             div: app.theme('gwc.plugin.details.featureList.more'),
-            maptip: app.theme('gwc.plugin.details.featureList.maptip'),
             table: app.theme('gwc.plugin.details.featureList.table'),
             tr: app.theme('gwc.plugin.details.featureList.tr'),
             trEven: app.theme('gwc.plugin.details.featureList.trEven'),
@@ -74,7 +69,6 @@ export default class FeatureList extends React.Component {
 
         return (
             <div style={style.div}>
-                {maptip && <div style={style.maptip}>{maptip}</div>}
                 <table style={style.table}>
                     <tbody>
                     {
